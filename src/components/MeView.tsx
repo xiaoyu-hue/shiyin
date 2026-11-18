@@ -1,10 +1,14 @@
 import { Heart, History, ListMusic, Check } from 'lucide-react'
-import { useStore, themes, songs } from '../store'
+import { useStore, themes } from '../store'
+import ImportButton from './ImportButton'
 
 export default function MeView() {
   const themeIdx = useStore((s) => s.themeIdx)
   const setTheme = useStore((s) => s.setTheme)
   const liked = useStore((s) => s.liked)
+  const tracks = useStore((s) => s.tracks)
+  const history = useStore((s) => s.history)
+  const localCount = tracks.filter((t) => t.source === 'local').length
 
   return (
     <div className="px-4 pt-6">
@@ -13,8 +17,8 @@ export default function MeView() {
       <div className="mb-7 grid grid-cols-3 gap-3">
         {[
           { icon: Heart, n: liked.size, label: '收藏' },
-          { icon: ListMusic, n: 3, label: '歌单' },
-          { icon: History, n: 0, label: '最近播放' },
+          { icon: ListMusic, n: localCount, label: '本地音乐' },
+          { icon: History, n: history.length, label: '最近播放' },
         ].map(({ icon: Icon, n, label }) => (
           <div key={label} className="rounded-2xl bg-white/60 p-4 text-center shadow-sm">
             <Icon size={20} className="mx-auto" style={{ color: 'var(--accent)' }} />
@@ -23,6 +27,14 @@ export default function MeView() {
           </div>
         ))}
       </div>
+
+      <section className="mb-7">
+        <h2 className="mb-3 text-base font-semibold">本地音乐</h2>
+        <p className="mb-3 text-xs text-black/45">
+          音频保存在本机浏览器中，不会上传到任何服务器。共 {localCount} 首
+        </p>
+        <ImportButton />
+      </section>
 
       <section>
         <h2 className="mb-3 text-base font-semibold">主题配色</h2>
@@ -42,7 +54,9 @@ export default function MeView() {
           ))}
         </div>
       </section>
-      <p className="mt-8 text-center text-[11px] text-black/30">诗音 · 界面原型 v0.1 · {songs.length} 首示例曲目</p>
+      <p className="mt-8 text-center text-[11px] text-black/30">
+        诗音 v0.2 · 本地 {localCount} 首 / 示例 {tracks.length - localCount} 首
+      </p>
     </div>
   )
 }

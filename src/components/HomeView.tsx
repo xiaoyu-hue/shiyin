@@ -1,9 +1,12 @@
 import SongRow from './SongRow'
-import { useStore, songs, playSets } from '../store'
+import ImportButton from './ImportButton'
+import { useStore, playSets } from '../store'
 
 export default function HomeView() {
   const setPlayerOpen = useStore((s) => s.setPlayerOpen)
   const cur = useStore((s) => s.cur)
+  const tracks = useStore((s) => s.tracks)
+  const localCount = tracks.filter((t) => t.source === 'local').length
 
   return (
     <div className="px-4 pt-6">
@@ -15,7 +18,7 @@ export default function HomeView() {
       <section className="mb-7">
         <h2 className="mb-3 text-base font-semibold">推荐歌单</h2>
         <div className="flex gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none]">
-          {playSets.map((set: (typeof playSets)[number]) => (
+          {playSets.map((set) => (
             <div key={set.name} className="w-36 shrink-0">
               <div
                 className="cover grid h-36 w-36 place-items-end rounded-2xl p-3 text-white shadow-md"
@@ -30,14 +33,21 @@ export default function HomeView() {
       </section>
 
       <section>
-        <div className="mb-1 flex items-baseline justify-between">
-          <h2 className="text-base font-semibold">热门曲目</h2>
-          <span className="text-xs text-black/40">共 {songs.length} 首 · 示例数据</span>
+        <div className="mb-2 flex items-baseline justify-between">
+          <h2 className="text-base font-semibold">全部曲目</h2>
+          <span className="text-xs text-black/40">
+            {localCount > 0 ? `本地 ${localCount} 首 · 示例 ${tracks.length - localCount} 首` : '示例数据'}
+          </span>
         </div>
+
+        <ImportButton className="mb-3 w-full" />
+
         <div onClick={() => setPlayerOpen(true)}>
-          {songs.map((s, i) => <SongRow key={s.id} index={i} />)}
+          {tracks.map((s, i) => <SongRow key={s.id} index={i} />)}
         </div>
-        <p className="mt-2 text-center text-[11px] text-black/35">点击任意曲目展开播放器（当前第 {cur + 1} 首）</p>
+        <p className="mt-2 text-center text-[11px] text-black/35">
+          点击任意曲目展开播放器（当前第 {cur + 1} 首）
+        </p>
       </section>
     </div>
   )

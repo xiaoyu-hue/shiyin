@@ -1,5 +1,5 @@
 import { Play, Pause, SkipForward } from 'lucide-react'
-import { useStore, songs } from '../store'
+import { useStore } from '../store'
 import { pct } from '../lib/format'
 
 export default function MiniBar() {
@@ -9,7 +9,10 @@ export default function MiniBar() {
   const toggle = useStore((s) => s.toggle)
   const next = useStore((s) => s.next)
   const setPlayerOpen = useStore((s) => s.setPlayerOpen)
-  const song = songs[cur]
+  const tracks = useStore((s) => s.tracks)
+  const song = tracks[cur]
+
+  if (!song) return null
 
   return (
     <div

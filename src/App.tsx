@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useStore } from './store'
+import { bindAudioEngine, restoreLocalTracks } from './store/bootstrap'
 import { useTicker } from './hooks/useTicker'
 import { useTheme } from './hooks/useTheme'
 import Tabs from './components/Tabs'
@@ -15,6 +17,12 @@ export default function App() {
   useTicker()
   useTheme()
   const tab = useStore((s) => s.tab)
+
+  // 音频事件接入与本地曲目恢复：仅需在应用启动时执行一次
+  useEffect(() => {
+    bindAudioEngine()
+    void restoreLocalTracks()
+  }, [])
 
   const views = {
     home: <HomeView />,

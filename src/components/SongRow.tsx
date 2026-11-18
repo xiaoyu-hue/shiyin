@@ -1,5 +1,5 @@
 import { Play, Heart } from 'lucide-react'
-import { useStore, songs } from '../store'
+import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
 
 interface Props {
@@ -8,13 +8,18 @@ interface Props {
 }
 
 export default function SongRow({ index, rank }: Props) {
-  const song = songs[index]
+  const tracks = useStore((s) => s.tracks)
+  const song = tracks[index]
   const cur = useStore((s) => s.cur)
   const playing = useStore((s) => s.playing)
   const liked = useStore((s) => s.liked)
   const play = useStore((s) => s.play)
   const toggleLike = useStore((s) => s.toggleLike)
+
+  if (!song) return null
+
   const isCurrent = cur === index
+  const isLocal = Boolean(song.audioSrc)
 
   return (
     <div
@@ -47,7 +52,16 @@ export default function SongRow({ index, rank }: Props) {
         </div>
         <div className="mt-0.5 truncate text-xs text-black/45">{song.artist} · {song.album}</div>
       </div>
-      <span className="shrink-0 text-xs text-black/35">{fmtTime(song.dur)}</span>
+      <span className="flex shrink-0 items-center gap-1.5 text-xs text-black/35">
+        {isLocal && (
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: 'var(--accent)' }}
+            title="本地音频，可真实播放"
+          />
+        )}
+        {fmtTime(song.dur)}
+      </span>
       <button
         onClick={(e) => { e.stopPropagation(); toggleLike(song.id) }}
         aria-label={liked.has(song.id) ? '取消收藏' : '收藏'}

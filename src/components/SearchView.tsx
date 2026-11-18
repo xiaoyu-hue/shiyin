@@ -1,5 +1,5 @@
 import { Search, X } from 'lucide-react'
-import { useStore, songs } from '../store'
+import { useStore } from '../store'
 import { search } from '../data/query'
 import SongRow from './SongRow'
 import EmptyState from './common/EmptyState'
@@ -7,8 +7,9 @@ import EmptyState from './common/EmptyState'
 export default function SearchView() {
   const query = useStore((s) => s.query)
   const setQuery = useStore((s) => s.setQuery)
+  const tracks = useStore((s) => s.tracks)
   const q = query.trim().toLowerCase()
-  const hits = search(songs, query)
+  const hits = search(tracks, query)
 
   return (
     <div className="px-4 pt-6">
@@ -33,7 +34,7 @@ export default function SearchView() {
       ) : (
         <div>
           <p className="mb-1 text-xs text-black/40">{q ? `找到 ${hits.length} 首` : '全部歌曲'}</p>
-          {hits.map(({ index }) => <SongRow key={songs[index].id} index={index} />)}
+          {hits.map(({ index }) => <SongRow key={tracks[index].id} index={index} />)}
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ChevronDown } from 'lucide-react'
-import { useStore, songs } from '../store'
+import { useStore } from '../store'
 import { lyricIndex, toSeconds } from '../lib/lyric'
 import { sheetTransition } from '../lib/motion'
 
@@ -15,14 +15,15 @@ export default function LyricView() {
   const cur = useStore((s) => s.cur)
   const pos = useStore((s) => s.pos)
   const seek = useStore((s) => s.seek)
+  const tracks = useStore((s) => s.tracks)
 
-  const song = songs[cur]
-  const active = lyricIndex(song, pos)
+  const song = tracks[cur]
+  const active = song && song.lyrics.length ? lyricIndex(song, pos) : -1
   const lineRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   // 高亮行变化时平滑滚动到可视区中部；刚展开时延后一帧等待布局
   useEffect(() => {
-    if (!open) return
+    if (!open || active < 0) return
     const id = window.requestAnimationFrame(() => {
       lineRefs.current[active]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     })
@@ -31,7 +32,7 @@ export default function LyricView() {
 
   return (
     <AnimatePresence>
-      {open && (
+      {open && song && (
         <motion.div
           className="absolute inset-0 z-40 flex flex-col px-6 pt-5 pb-8"
           style={{ background: `linear-gradient(180deg, var(--accent) -10%, var(--bg) 55%, var(--bg-end) 100%)` }}
@@ -53,34 +54,46 @@ export default function LyricView() {
             <div className="w-10" />
           </div>
 
-          <div className="lyric-scroll mt-2 flex-1 overflow-y-auto py-24">
-            <div className="flex flex-col gap-5">
-              {song.lyrics.map((line, i) => {
-                const isActive = i === active
-                const isPast = i < active
-                return (
-                  <button
-                    key={`${line.t}-${i}`}
-                    ref={(el) => { lineRefs.current[i] = el }}
-                    onClick={() => seek(toSeconds(line.t))}
-                    aria-current={isActive ? 'true' : undefined}
-                    className={`w-full text-left text-lg leading-relaxed transition-all duration-300 ${
-                      isActive
-                        ? 'scale-[1.04] font-bold'
-                        : isPast
-                          ? 'font-medium opacity-40'
-                          : 'font-medium opacity-55'
-                    }`}
-                    style={{ color: isActive ? 'var(--accent)' : '#1f1b16' }}
-                  >
-                    {line.text}
-                  </button>
-                )
-              })}
+          {song.lyrics.length === 0 ? (
+            <div className="flex flex-1 items-center justify-center px-6 text-center">
+              <p className="text-sm text-black/40">
+                该曲目暂无歌词
+                <br />
+                <span className="text-xs text-black/30">本地导入的音频暂不解析内嵌歌词</span>
+              </p>
             </div>
-          </div>
+          ) : (
+            <div className="lyric-scroll mt-2 flex-1 overflow-y-auto py-24">
+              <div className="flex flex-col gap-5">
+                {song.lyrics.map((line, i) => {
+                  const isActive = i === active
+                  const isPast = i < active
+                  return (
+                    <button
+                      key={`${line.t}-${i}`}
+                      ref={(el) => { lineRefs.current[i] = el }}
+                      onClick={() => seek(toSeconds(line.t))}
+                      aria-current={isActive ? 'true' : undefined}
+                      className={`w-full text-left text-lg leading-relaxed transition-all duration-300 ${
+                        isActive
+                          ? 'scale-[1.04] font-bold'
+                          : isPast
+                            ? 'font-medium opacity-40'
+                            : 'font-medium opacity-55'
+                      }`}
+                      style={{ color: isActive ? 'var(--accent)' : '#1f1b16' }}
+                    >
+                      {line.text}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
-          <p className="text-center text-[11px] text-black/40">点击任意歌词行可跳转播放进度</p>
+          <p className="text-center text-[11px] text-black/40">
+            {song.lyrics.length ? '点击任意歌词行可跳转播放进度' : ''}
+          </p>
         </motion.div>
       )}
     </AnimatePresence>

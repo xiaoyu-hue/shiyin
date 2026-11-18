@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { ChevronDown, Heart, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, ListMusic, Mic2 } from 'lucide-react'
-import { useStore, songs } from '../store'
+import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
 import { sheetTransition } from '../lib/motion'
 
@@ -21,8 +21,14 @@ export default function PlayerView() {
   const cycleMode = useStore((s) => s.cycleMode)
   const toggleLike = useStore((s) => s.toggleLike)
   const setLyricOpen = useStore((s) => s.setLyricOpen)
-  const song = songs[cur]
+  const tracks = useStore((s) => s.tracks)
+  const audioError = useStore((s) => s.audioError)
+  const song = tracks[cur]
   const ModeIcon = modeIcon[mode]
+
+  if (!song) return null
+
+  const duration = Math.max(1, Math.round(song.dur))
 
   return (
     <AnimatePresence>
@@ -63,6 +69,10 @@ export default function PlayerView() {
             <div className="w-full text-center">
               <h2 className="text-2xl font-bold text-black/85">{song.name}</h2>
               <p className="mt-1 text-sm text-black/50">{song.artist}</p>
+              {!song.audioSrc && !audioError && (
+                <p className="mt-2 text-[11px] text-black/35">示例曲目 · 无音频文件，导入本地音乐后可真实播放</p>
+              )}
+              {audioError && <p className="mt-2 text-[11px] text-red-600">{audioError}</p>}
             </div>
           </div>
 
@@ -70,15 +80,15 @@ export default function PlayerView() {
             <input
               type="range"
               min={0}
-              max={song.dur}
-              value={pos}
+              max={duration}
+              value={Math.min(pos, duration)}
               onChange={(e) => seek(Number(e.target.value))}
               className="w-full accent-[var(--accent)]"
               aria-label="播放进度"
             />
             <div className="flex justify-between text-xs text-black/45">
               <span>{fmtTime(pos)}</span>
-              <span>{fmtTime(song.dur)}</span>
+              <span>{song.dur > 0 ? fmtTime(song.dur) : '--:--'}</span>
             </div>
             <div className="flex items-center justify-center gap-8 pt-1">
               <button onClick={cycleMode} aria-label="播放模式" className="p-2">

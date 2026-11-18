@@ -1,4 +1,4 @@
-import type { PlayMode, Tab } from '../data/types'
+import type { PlayMode, Song, Tab } from '../data/types'
 
 /** 播放切片：当前曲目、进度、模式与播放动作（架构 §4.4） */
 export interface PlayerSlice {
@@ -6,6 +6,8 @@ export interface PlayerSlice {
   playing: boolean
   pos: number
   mode: PlayMode
+  /** 音频播放错误提示；无错误为 null */
+  audioError: string | null
   play: (index: number) => void
   toggle: () => void
   next: () => void
@@ -13,6 +15,11 @@ export interface PlayerSlice {
   tick: () => void
   seek: (sec: number) => void
   cycleMode: () => void
+  /** 由音频引擎 timeupdate 回调写入实时进度 */
+  applyAudioPos: (sec: number) => void
+  /** 由音频引擎 ended 回调触发，按播放模式收尾 */
+  handleTrackEnd: () => void
+  setAudioError: (message: string | null) => void
 }
 
 /** 界面切片：导航、覆盖层、搜索关键词 */
@@ -27,11 +34,14 @@ export interface UiSlice {
   setQuery: (q: string) => void
 }
 
-/** 集合切片：收藏与最近播放历史 */
+/** 集合切片：曲目列表、收藏与最近播放历史 */
 export interface CollectionSlice {
+  /** 统一曲目源：内置示例曲在前，本地导入曲追加在后 */
+  tracks: Song[]
   liked: Set<number>
   history: number[]
   toggleLike: (id: number) => void
+  addTracks: (list: Song[]) => void
 }
 
 /** 主题切片：当前主题索引 */
