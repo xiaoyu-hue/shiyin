@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* 主题令牌：默认值对应「原木暖棕」，JS 会按当前主题覆盖这些变量 */
+:root {
+  --accent: #7B5738;
+  --bg: #FFF8EC;
+  --bg-end: #EEE2D4;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; margin: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  background: #e9e6e0;
+  color: #1f1b16;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 手机尺寸的画布，桌面居中显示 */
+.app-shell {
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--bg) 0%, var(--bg-end) 100%);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+  transition: background 0.5s ease;
+}
+
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 8px;
+}
+
+/* 隐藏滚动条但保留滚动 */
+.scroll-area::-webkit-scrollbar { display: none; }
+.scroll-area { scrollbar-width: none; }
+
+/* 歌词页滚动区：同样隐藏滚动条，上下留白让高亮行可滚到中部 */
+.lyric-scroll::-webkit-scrollbar { display: none; }
+.lyric-scroll { scrollbar-width: none; }
+
+.accent-text { color: var(--accent); }
+.accent-bg { background-color: var(--accent); }
+
+.cover {
+  background: linear-gradient(135deg, var(--cover, #888), rgba(0, 0, 0, 0.25));
+}
+
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.spinning { animation: spin-slow 12s linear infinite; }
+
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+.pulsing { animation: pulse-soft 1.6s ease-in-out infinite; }

@@ -1,0 +1,41 @@
+import { Search, X } from 'lucide-react'
+import { useStore, songs } from '../store'
+import { search } from '../data/query'
+import SongRow from './SongRow'
+import EmptyState from './common/EmptyState'
+
+export default function SearchView() {
+  const query = useStore((s) => s.query)
+  const setQuery = useStore((s) => s.setQuery)
+  const q = query.trim().toLowerCase()
+  const hits = search(songs, query)
+
+  return (
+    <div className="px-4 pt-6">
+      <h1 className="mb-4 text-2xl font-bold">搜索</h1>
+      <div className="mb-5 flex items-center gap-2 rounded-2xl bg-white/70 px-4 py-3 shadow-sm">
+        <Search size={18} className="text-black/40" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="搜索歌名或歌手"
+          className="w-full bg-transparent text-sm outline-none placeholder:text-black/30"
+        />
+        {query && (
+          <button onClick={() => setQuery('')} aria-label="清空搜索">
+            <X size={16} className="text-black/40" />
+          </button>
+        )}
+      </div>
+
+      {hits.length === 0 ? (
+        <EmptyState title={`没有找到「${query}」相关的歌曲`} />
+      ) : (
+        <div>
+          <p className="mb-1 text-xs text-black/40">{q ? `找到 ${hits.length} 首` : '全部歌曲'}</p>
+          {hits.map(({ index }) => <SongRow key={songs[index].id} index={index} />)}
+        </div>
+      )}
+    </div>
+  )
+}

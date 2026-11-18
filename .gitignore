@@ -1,0 +1,12 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+
+# 本地预览 / 调试截图
+screenshots/
+*.log
+
+# 系统文件
+.DS_Store
