@@ -1,13 +1,15 @@
-import { Play, Heart } from 'lucide-react'
+import { Play, Heart, MoreHorizontal } from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
 
 interface Props {
   index: number
   rank?: number
+  /** 所在列表的全部曲目下标：播放时以此顺序生成队列 */
+  context?: number[]
 }
 
-export default function SongRow({ index, rank }: Props) {
+export default function SongRow({ index, rank, context }: Props) {
   const tracks = useStore((s) => s.tracks)
   const song = tracks[index]
   const cur = useStore((s) => s.cur)
@@ -15,6 +17,7 @@ export default function SongRow({ index, rank }: Props) {
   const liked = useStore((s) => s.liked)
   const play = useStore((s) => s.play)
   const toggleLike = useStore((s) => s.toggleLike)
+  const setMenuTrack = useStore((s) => s.setMenuTrack)
 
   if (!song) return null
 
@@ -24,10 +27,10 @@ export default function SongRow({ index, rank }: Props) {
   return (
     <div
       className="flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors active:bg-black/5"
-      onClick={() => play(index)}
+      onClick={() => play(index, context)}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && play(index)}
+      onKeyDown={(e) => e.key === 'Enter' && play(index, context)}
     >
       {rank !== undefined && (
         <span className="w-5 shrink-0 text-center text-sm font-semibold" style={{ color: 'var(--accent)' }}>
@@ -69,6 +72,13 @@ export default function SongRow({ index, rank }: Props) {
         className="shrink-0 p-1.5"
       >
         <Heart size={18} fill={liked.has(song.id) ? 'var(--accent)' : 'none'} style={{ color: liked.has(song.id) ? 'var(--accent)' : '#b8b0a4' }} />
+      </button>
+      <button
+        onClick={(e) => { e.stopPropagation(); setMenuTrack(index) }}
+        aria-label={`《${song.name}》的更多操作`}
+        className="-ml-1 grid h-10 w-9 shrink-0 place-items-center rounded-full text-black/35"
+      >
+        <MoreHorizontal size={19} />
       </button>
     </div>
   )

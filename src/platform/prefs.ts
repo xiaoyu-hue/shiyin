@@ -31,3 +31,23 @@ export function savePrefsRaw(raw: string): void {
     // 配额不足或存储被禁用：放弃本次写入
   }
 }
+
+const PLAYLISTS_KEY = 'shiyin:playlists:v1'
+
+/** 读取已保存的歌单原文；无记录或不可用时返回 null */
+export function loadPlaylistsRaw(): string | null {
+  try {
+    return storage()?.getItem(PLAYLISTS_KEY) ?? null
+  } catch {
+    return null
+  }
+}
+
+/** 写入歌单原文；失败时静默忽略 */
+export function savePlaylistsRaw(raw: string): void {
+  try {
+    storage()?.setItem(PLAYLISTS_KEY, raw)
+  } catch {
+    // 配额不足或存储被禁用：放弃本次写入
+  }
+}

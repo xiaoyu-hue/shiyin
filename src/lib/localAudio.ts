@@ -104,5 +104,6 @@ export async function buildLocalTrack(file: File, id: number): Promise<Song> {
     audioSrc,
     coverSrc: coverBlob ? URL.createObjectURL(coverBlob) : null,
     coverBlob,
+    addedAt: Date.now(),
   }
 }

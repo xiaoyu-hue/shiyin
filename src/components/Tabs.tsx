@@ -1,11 +1,11 @@
-import { Home, Search, Compass, UserRound } from 'lucide-react'
+import { Home, Search, Library, UserRound } from 'lucide-react'
 import { useStore } from '../store'
 import type { Tab } from '../data/types'
 
 const items: { key: Tab; label: string; icon: typeof Home }[] = [
   { key: 'home', label: '主页', icon: Home },
   { key: 'search', label: '搜索', icon: Search },
-  { key: 'explore', label: '发现', icon: Compass },
+  { key: 'explore', label: '音乐库', icon: Library },
   { key: 'me', label: '我的', icon: UserRound },
 ]
 

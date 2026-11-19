@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useDragControls } from 'motion/react'
-import { ChevronDown, Heart, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, ListMusic, Mic2 } from 'lucide-react'
+import { ChevronDown, Heart, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, ListMusic, ListVideo, Mic2 } from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
 import { sheetTransition } from '../lib/motion'
@@ -23,6 +23,7 @@ export default function PlayerView() {
   const cycleMode = useStore((s) => s.cycleMode)
   const toggleLike = useStore((s) => s.toggleLike)
   const setLyricOpen = useStore((s) => s.setLyricOpen)
+  const setQueueOpen = useStore((s) => s.setQueueOpen)
   const tracks = useStore((s) => s.tracks)
   const audioError = useStore((s) => s.audioError)
   const song = tracks[cur]
@@ -159,7 +160,9 @@ export default function PlayerView() {
               <button onClick={next} aria-label="下一首" className="grid h-11 w-11 place-items-center rounded-full">
                 <SkipForward size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
               </button>
-              <div className="w-11" />
+              <button onClick={() => setQueueOpen(true)} aria-label="打开播放队列" className="grid h-11 w-11 place-items-center rounded-full">
+                <ListVideo size={22} style={{ color: 'var(--accent)' }} />
+              </button>
             </div>
           </div>
         </motion.div>

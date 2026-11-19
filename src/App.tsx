@@ -5,11 +5,13 @@ import { useTheme } from './hooks/useTheme'
 import Tabs from './components/Tabs'
 import HomeView from './components/HomeView'
 import SearchView from './components/SearchView'
-import ExploreView from './components/ExploreView'
+import LibraryView from './components/LibraryView'
 import MeView from './components/MeView'
 import MiniBar from './components/MiniBar'
 import PlayerView from './components/PlayerView'
 import LyricView from './components/LyricView'
+import SongMenu from './components/SongMenu'
+import QueueView from './components/QueueView'
 import ErrorBoundary from './components/common/ErrorBoundary'
 
 export default function App() {
@@ -25,7 +27,7 @@ export default function App() {
   const views = {
     home: <HomeView />,
     search: <SearchView />,
-    explore: <ExploreView />,
+    explore: <LibraryView />,
     me: <MeView />,
   }
 
@@ -37,6 +39,8 @@ export default function App() {
         <Tabs />
         <PlayerView />
         <LyricView />
+        <QueueView />
+        <SongMenu />
         <span className="sr-only" aria-live="polite">当前页面：{tab}</span>
       </div>
     </ErrorBoundary>

@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand'
-import { stepIndex, shuffleIndex, onTail } from '../lib/player'
+import { stepIndex, shuffleIndex } from '../lib/player'
+import { appendToQueue, insertNext, moveInQueue, naturalQueue, posOf, removeAtPos } from '../lib/queue'
 import { HISTORY_LIMIT } from '../lib/prefs'
 import { platform } from '../platform/instance'
 import type { AppState, PlayerSlice } from './types'
@@ -17,21 +18,46 @@ function syncEngine(state: AppState) {
   else engine.pause()
 }
 
+/**
+ * 取有效队列：状态中的队列为空、越界或不含当前曲目时（旧状态/测试直接改 tracks），
+ * 回退为自然顺序，保证 next/prev 永远有定义良好的行为。
+ */
+function effectiveQueue(s: AppState): number[] {
+  const q = s.queue
+  if (q.length && q.includes(s.cur) && q.every((i) => i >= 0 && i < s.tracks.length)) return q
+  return naturalQueue(s.tracks.length)
+}
+
 export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (set, get) => ({
   cur: 0,
   playing: false,
   pos: 0,
   mode: 'list',
   audioError: null,
+  queue: [],
+  queuePos: 0,
 
-  play: (index) => {
-    set((s) => ({
-      cur: index,
-      pos: 0,
-      playing: true,
-      audioError: null,
-      history: [index, ...s.history.filter((i) => i !== index)].slice(0, HISTORY_LIMIT),
-    }))
+  play: (index, context) => {
+    set((s) => {
+      let queue: number[]
+      if (context && context.length) {
+        queue = context.includes(index) ? [...context] : [...context, index]
+      } else if (s.queue.length && s.queue.every((i) => i >= 0 && i < s.tracks.length)) {
+        queue = s.queue.includes(index) ? s.queue : [...s.queue, index]
+      } else {
+        queue = naturalQueue(s.tracks.length)
+        if (!queue.includes(index) && index >= 0) queue = [...queue, index]
+      }
+      return {
+        cur: index,
+        queue,
+        queuePos: posOf(queue, index),
+        pos: 0,
+        playing: true,
+        audioError: null,
+        history: [index, ...s.history.filter((i) => i !== index)].slice(0, HISTORY_LIMIT),
+      }
+    })
     syncEngine(get())
   },
 
@@ -42,25 +68,19 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
 
   next: () => {
     const s = get()
-    const len = s.tracks.length
-    set({
-      cur: s.mode === 'shuffle' ? shuffleIndex(len, s.cur) : stepIndex(len, s.cur, 1),
-      pos: 0,
-      playing: true,
-      audioError: null,
-    })
+    const q = effectiveQueue(s)
+    if (!q.length) return
+    const pos = s.mode === 'shuffle' ? shuffleIndex(q.length, posOf(q, s.cur)) : stepIndex(q.length, posOf(q, s.cur), 1)
+    set({ cur: q[pos], queue: q, queuePos: pos, pos: 0, playing: true, audioError: null })
     syncEngine(get())
   },
 
   prev: () => {
     const s = get()
-    const len = s.tracks.length
-    set({
-      cur: s.mode === 'shuffle' ? shuffleIndex(len, s.cur) : stepIndex(len, s.cur, -1),
-      pos: 0,
-      playing: true,
-      audioError: null,
-    })
+    const q = effectiveQueue(s)
+    if (!q.length) return
+    const pos = s.mode === 'shuffle' ? shuffleIndex(q.length, posOf(q, s.cur)) : stepIndex(q.length, posOf(q, s.cur), -1)
+    set({ cur: q[pos], queue: q, queuePos: pos, pos: 0, playing: true, audioError: null })
     syncEngine(get())
   },
 
@@ -80,8 +100,7 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
 
   handleTrackEnd: () => {
     const s = get()
-    const action = onTail(s.mode, s.tracks.length, s.cur)
-    if (action.kind === 'replay') {
+    if (s.mode === 'repeat') {
       const track = s.tracks[s.cur]
       if (track?.audioSrc) {
         engine.seek(0)
@@ -90,9 +109,73 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
       set({ pos: 0 })
       return
     }
-    set({ cur: action.index, pos: 0, playing: true })
+    const q = effectiveQueue(s)
+    if (!q.length) return
+    const pos =
+      s.mode === 'shuffle' ? shuffleIndex(q.length, posOf(q, s.cur)) : stepIndex(q.length, posOf(q, s.cur), 1)
+    set({ cur: q[pos], queue: q, queuePos: pos, pos: 0, playing: true })
     syncEngine(get())
   },
 
   setAudioError: (message) => set({ audioError: message }),
+
+  playNext: (trackIndex) =>
+    set((s) => {
+      const q = effectiveQueue(s)
+      const queue = insertNext(q, posOf(q, s.cur), trackIndex)
+      return { queue, queuePos: posOf(queue, s.cur) }
+    }),
+
+  enqueue: (trackIndex) =>
+    set((s) => {
+      const q = effectiveQueue(s)
+      const queue = appendToQueue(q, trackIndex)
+      return { queue, queuePos: posOf(queue, s.cur) }
+    }),
+
+  playQueueAt: (pos) => {
+    const s = get()
+    const q = effectiveQueue(s)
+    const trackIndex = q[pos]
+    if (trackIndex === undefined) return
+    set({
+      cur: trackIndex,
+      queue: q,
+      queuePos: pos,
+      pos: 0,
+      playing: true,
+      audioError: null,
+      history: [trackIndex, ...s.history.filter((i) => i !== trackIndex)].slice(0, HISTORY_LIMIT),
+    })
+    syncEngine(get())
+  },
+
+  removeQueueAt: (pos) =>
+    set((s) => {
+      const q = effectiveQueue(s)
+      if (pos === posOf(q, s.cur) || pos < 0 || pos >= q.length) return s
+      const queue = removeAtPos(q, pos)
+      return { queue, queuePos: posOf(queue, s.cur) }
+    }),
+
+  moveQueue: (from, to) =>
+    set((s) => {
+      const q = effectiveQueue(s)
+      const queue = moveInQueue(q, from, to)
+      return { queue, queuePos: posOf(queue, s.cur) }
+    }),
+
+  setQueueOrder: (queue) =>
+    set((s) => {
+      const q = effectiveQueue(s)
+      if (queue.length !== q.length || !queue.every((i) => q.includes(i))) return s
+      return { queue, queuePos: posOf(queue, s.cur) }
+    }),
+
+  clearQueue: () =>
+    set((s) => {
+      const q = effectiveQueue(s)
+      if (!q.length) return s
+      return { queue: [s.cur], queuePos: 0 }
+    }),
 })

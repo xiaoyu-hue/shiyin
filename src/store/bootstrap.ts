@@ -2,8 +2,10 @@ import type { Song } from '../data/types'
 import { DEFAULT_THEME_INDEX, themes } from '../data/themes'
 import { parsePrefs, serializePrefs } from '../lib/prefs'
 import { platform } from '../platform/instance'
-import { loadTracks, saveTrack, type StoredTrack } from '../platform/idb'
-import { loadPrefsRaw, savePrefsRaw } from '../platform/prefs'
+import { clearTracks, deleteTrack as deleteStoredTrack, loadTracks, saveTrack, type StoredTrack } from '../platform/idb'
+import { naturalQueue } from '../lib/queue'
+import { loadPlaylistsRaw, loadPrefsRaw, savePlaylistsRaw, savePrefsRaw } from '../platform/prefs'
+import { parsePlaylists, serializePlaylists } from '../lib/playlists'
 import { useStore } from './index'
 
 let bound = false
@@ -49,21 +51,79 @@ export function restoreLocalTracks(): Promise<void> {
       coverSrc: rec.cover ? URL.createObjectURL(rec.cover) : null,
       coverBlob: rec.cover ?? null,
       localKey: rec.key,
+      addedAt: rec.addedAt,
     }))
     useStore.getState().addTracks(restored)
+    // 恢复后队列初始化为自然顺序（与曲目列表一致）
+    const len = useStore.getState().tracks.length
+    useStore.setState({ queue: naturalQueue(len), queuePos: 0 })
   })()
   return restoring
+}
+
+/**
+ * 彻底删除一首曲目：store 连带清理 + 释放 blob URL + 删除 IndexedDB 记录。
+ * 删的正是正在播放的曲目时停播。
+ */
+export async function deleteTrackEverywhere(index: number): Promise<void> {
+  const state = useStore.getState()
+  const track = state.tracks[index]
+  if (!track) return
+  const wasCurrent = state.cur === index
+  state.removeTrack(index)
+  if (track.audioSrc?.startsWith('blob:')) URL.revokeObjectURL(track.audioSrc)
+  if (track.coverSrc?.startsWith('blob:')) URL.revokeObjectURL(track.coverSrc)
+  if (wasCurrent) platform.audio.pause()
+  if (track.localKey) await deleteStoredTrack(track.localKey).catch(() => undefined)
+}
+
+/**
+ * 清除全部本地音乐（设置页数据管理）：删 IndexedDB 全部记录并重置相关状态。
+ * 歌单保留名字但清空曲目；主题等偏好不动。
+ */
+export async function clearAllMusic(): Promise<void> {
+  const s = useStore.getState()
+  for (const t of s.tracks) {
+    if (t.audioSrc?.startsWith('blob:')) URL.revokeObjectURL(t.audioSrc)
+    if (t.coverSrc?.startsWith('blob:')) URL.revokeObjectURL(t.coverSrc)
+  }
+  platform.audio.pause()
+  await clearTracks().catch(() => undefined)
+  useStore.setState({
+    tracks: [],
+    queue: [],
+    queuePos: 0,
+    cur: 0,
+    playing: false,
+    pos: 0,
+    history: [],
+    liked: new Set<number>(),
+    playlists: s.playlists.map((p) => ({ ...p, trackIds: [] })),
+  })
+}
+
+/** 读取浏览器为本站分配的存储占用（字节）；API 不可用时返回 null */
+export async function storageUsage(): Promise<number | null> {
+  try {
+    if (typeof navigator === 'undefined' || !navigator.storage?.estimate) return null
+    const est = await navigator.storage.estimate()
+    return typeof est.usage === 'number' ? est.usage : null
+  } catch {
+    return null
+  }
 }
 
 /** 从本地存储恢复收藏、历史与主题（同步读取，应在首帧渲染前调用） */
 export function restorePrefs(): void {
   const prefs = parsePrefs(loadPrefsRaw(), themes.length, DEFAULT_THEME_INDEX)
-  if (!prefs) return
-  useStore.setState({
-    liked: new Set(prefs.liked),
-    history: prefs.history,
-    themeIdx: prefs.themeIdx,
-  })
+  if (prefs) {
+    useStore.setState({
+      liked: new Set(prefs.liked),
+      history: prefs.history,
+      themeIdx: prefs.themeIdx,
+    })
+  }
+  useStore.setState({ playlists: parsePlaylists(loadPlaylistsRaw()) })
 }
 
 let prefsBound = false
@@ -73,6 +133,9 @@ export function bindPrefsPersistence(): void {
   if (prefsBound) return
   prefsBound = true
   useStore.subscribe((state, prev) => {
+    if (state.playlists !== prev.playlists) {
+      savePlaylistsRaw(serializePlaylists(state.playlists))
+    }
     if (state.liked === prev.liked && state.history === prev.history && state.themeIdx === prev.themeIdx) {
       return
     }

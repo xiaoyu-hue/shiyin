@@ -27,7 +27,7 @@ export default function HomeView() {
         ) : (
           <>
             <div onClick={() => setPlayerOpen(true)}>
-              {tracks.map((s, i) => <SongRow key={s.id} index={i} />)}
+              {tracks.map((s, i) => <SongRow key={s.id} index={i} context={tracks.map((_, j) => j)} />)}
             </div>
             <p className="mt-2 text-center text-[11px] text-black/35">点击任意曲目展开播放器</p>
           </>

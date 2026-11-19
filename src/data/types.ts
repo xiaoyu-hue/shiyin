@@ -20,6 +20,8 @@ export interface Song {
   coverBlob?: Blob | null
   /** 本地曲目的文件指纹，用于去重与持久化定位 */
   localKey?: string
+  /** 导入时间（毫秒时间戳），用于按导入时间排序与「最近导入」 */
+  addedAt?: number
 }
 
 export interface Theme {
@@ -28,6 +30,14 @@ export interface Theme {
   accent: string
   bg: string
   bgEnd: string
+}
+
+/** 用户自建歌单：只保存名称与曲目 id 清单，曲目本体在 tracks 中 */
+export interface Playlist {
+  id: string
+  name: string
+  trackIds: number[]
+  createdAt: number
 }
 
 export type PlayMode = 'list' | 'repeat' | 'shuffle'
