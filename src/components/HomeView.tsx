@@ -1,17 +1,25 @@
+import { useEffect, useState } from 'react'
 import SongRow from './SongRow'
 import ImportButton from './ImportButton'
 import EmptyState from './common/EmptyState'
 import { useStore } from '../store'
+import { greetingLine } from '../lib/greeting'
 
 export default function HomeView() {
   const setPlayerOpen = useStore((s) => s.setPlayerOpen)
   const tracks = useStore((s) => s.tracks)
+  // 问候语跟随实时时间：每分钟刷新一次，跨时段自动切换
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 60_000)
+    return () => clearInterval(t)
+  }, [])
 
   return (
     <div className="px-4 pt-6">
       <div className="mb-6">
         <p className="text-xs tracking-widest" style={{ color: 'var(--accent)' }}>SHIYIN · 诗音</p>
-        <h1 className="mt-1 text-2xl font-bold">下午好，愿你听见好心情</h1>
+        <h1 className="mt-1 text-2xl font-bold">{greetingLine(now)}</h1>
       </div>
 
       <section>

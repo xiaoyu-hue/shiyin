@@ -164,19 +164,27 @@ function SettingsPage() {
       <section className="mb-7">
         <h2 className="mb-3 text-base font-semibold">主题配色</h2>
         <p className="mb-3 text-xs text-black/45">当前：{themes[themeIdx].name}（共 {themes.length} 套）</p>
-        <div className="grid grid-cols-3 gap-3">
-          {themes.map((t, i) => (
-            <button key={t.slug} onClick={() => setTheme(i)} className="text-left">
-              <div
-                className="grid aspect-square place-items-center rounded-2xl shadow-sm"
-                style={{ background: `linear-gradient(135deg, ${t.bg}, ${t.bgEnd})`, outline: i === themeIdx ? `2px solid ${t.accent}` : 'none', outlineOffset: 2 }}
-              >
-                {i === themeIdx && <Check size={22} style={{ color: t.accent }} />}
-                <span className="sr-only">{t.name}</span>
-              </div>
-              <p className="mt-1.5 truncate text-center text-xs text-black/55">{t.name}</p>
-            </button>
-          ))}
+        <div className="grid grid-cols-6 gap-2">
+          {themes.map((t, i) => {
+            const active = i === themeIdx
+            return (
+              <button key={t.slug} onClick={() => setTheme(i)} className="flex flex-col items-center" aria-pressed={active}>
+                <span
+                  className="grid h-11 w-11 place-items-center rounded-full shadow-sm transition-transform active:scale-95"
+                  style={{
+                    background: `linear-gradient(135deg, ${t.bg}, ${t.bgEnd})`,
+                    outline: active ? `2px solid ${t.accent}` : '1px solid rgba(0,0,0,0.06)',
+                    outlineOffset: 2,
+                  }}
+                >
+                  {active && <Check size={18} style={{ color: t.accent }} />}
+                </span>
+                <span className={`mt-1.5 w-full truncate text-center text-[11px] ${active ? 'font-semibold text-black/75' : 'text-black/50'}`}>
+                  {t.name}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </section>
 
