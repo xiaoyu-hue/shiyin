@@ -7,11 +7,11 @@
   --color-surface: var(--surface);
 }
 
-/* 主题令牌：默认值对应「原木暖棕」浅色外观，JS 会按当前主题与外观覆盖这些变量 */
+/* 主题令牌：默认值对应默认主题「纯净白」浅色外观，JS 会按当前主题与外观覆盖这些变量 */
 :root {
-  --accent: #7B5738;
-  --bg: #FFF8EC;
-  --bg-end: #EEE2D4;
+  --accent: #4E463C;
+  --bg: #FFFFFF;
+  --bg-end: #F6F3EF;
   --ink: #1F1B16;
   --surface: #FFFFFF;
 
