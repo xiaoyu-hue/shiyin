@@ -173,6 +173,21 @@ jobs:
       - name: 安装 pywinauto（托盘断言）
         run: pip install pywinauto
 
+      - name: 应用独立启动自检（诊断：不经 WebDriver 直接拉起）
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          python e2e/launch_check.py
+          New-Item -ItemType Directory -Force 'e2e/artifacts' | Out-Null
+          Add-Type -AssemblyName System.Windows.Forms
+          Add-Type -AssemblyName System.Drawing
+          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $bmp = New-Object System.Drawing.Bitmap($bounds.Width, $bounds.Height)
+          $g = [System.Drawing.Graphics]::FromImage($bmp)
+          $g.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
+          $bmp.Save("$pwd\e2e\artifacts\00-standalone.png")
+          taskkill /IM $env:SHIYIN_PROC /F 2>$null; Start-Sleep -Seconds 2
+
       - name: 自动化验收（WebdriverIO + tauri-driver）
         working-directory: e2e
         env:
@@ -195,7 +210,7 @@ jobs:
             Get-ItemProperty $root -ErrorAction SilentlyContinue |
               Where-Object { $_.DisplayName -like 'Shiyin*' } |
               ForEach-Object {
-                $loc = $_.InstallLocation
+                $loc = $_.InstallLocation.Trim('"')
                 if ($loc) {
                   $c = Join-Path $loc 'uninstall.exe'
                   if (Test-Path $c) { $un = $c }
