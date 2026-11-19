@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+// 正式签名（可选）：android/keystore.properties 存在时才启用 release 签名。
+// 该文件由 CI 从 Secrets 生成（见 .github/workflows/android-release.yml），不入库；
+// 缺失时 assembleRelease 产出未签名包，供链路验证。
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.shiyin.player"
     compileSdk = rootProject.ext.compileSdkVersion

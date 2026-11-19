@@ -1,0 +1,69 @@
+# 安卓 App 正式版构建：assembleRelease 产出 release APK。
+# 签名（可选）：配置以下 Secrets 后自动启用正式签名，缺失时产出未签名包（仅供链路验证）：
+#   ANDROID_KEYSTORE_BASE64   keystore 文件的 Base64
+#   ANDROID_KEYSTORE_PASSWORD keystore 密码
+#   ANDROID_KEY_ALIAS         密钥别名
+#   ANDROID_KEY_PASSWORD      密钥密码
+# 触发：workflow_dispatch 手动触发（合并到默认分支后可用）；
+# 本分支另带 push 触发，用于在合并前验证构建链路。
+name: android-release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [release/app-1.0]
+
+jobs:
+  build-release-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: npm ci
+
+      # 原生包内的网页资源必须用相对 base（./），GitHub Pages 用的 /shiyin/ 在 App 内会 404
+      - run: npm run build:native
+
+      - run: npx cap sync android
+
+      - name: Restore signing keystore (optional)
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "未配置签名 Secrets，本次产出未签名 release 包"
+            exit 0
+          fi
+          echo "$KEYSTORE_B64" | base64 -d > android/release.keystore
+          cat > android/keystore.properties <<EOF
+          storeFile=${{ github.workspace }}/android/release.keystore
+          storePassword=$STORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+          echo "已注入正式签名配置"
+
+      - name: Build release APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shiyin-release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
