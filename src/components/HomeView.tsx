@@ -37,7 +37,12 @@ export default function HomeView() {
           <EmptyState icon="🎵" title="还没有音乐" description="导入你自己的本地音乐文件，就可以开始听了" />
         ) : (
           <>
-            <div onClick={() => setPlayerOpen(true)}>
+            <div
+              onClick={() => {
+                // 多选模式下点行只切换选中，不冒泡打开播放页（1.2.0）
+                if (useStore.getState().selection === null) setPlayerOpen(true)
+              }}
+            >
               {tracks.map((s, i) => <SongRow key={s.id} index={i} context={tracks.map((_, j) => j)} />)}
             </div>
             <p className="mt-2 text-center text-[11px] text-ink/35">点击任意曲目展开播放器</p>

@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { ArrowDownWideNarrow, ArrowUpNarrowWide, ChevronLeft, ChevronRight, ListMusic, Play, Plus, X } from 'lucide-react'
 import SongRow from './SongRow'
+import FastScroller from './FastScroller'
 import EmptyState from './common/EmptyState'
 import { useStore } from '../store'
+import { bubbleLabel } from '../lib/fastScroll'
 import type { LibraryView as LibraryViewKind } from '../store/types'
 import {
   groupAlbums,
@@ -120,11 +122,21 @@ function SongsSection({ indexed }: { indexed: IndexedSong[] }) {
         </button>
       </div>
       <p className="mb-1 text-xs text-ink/40">共 {sorted.length} 首</p>
-      <div onClick={() => setPlayerOpen(true)}>
+      <div
+        className="pr-3"
+        onClick={() => {
+          // 多选模式下点行只切换选中，不冒泡打开播放页（1.2.0）
+          if (useStore.getState().selection === null) setPlayerOpen(true)
+        }}
+      >
         {sorted.map(({ index }) => (
           <SongRow key={index} index={index} context={sorted.map((x) => x.index)} />
         ))}
       </div>
+      <FastScroller
+        count={sorted.length}
+        bubbleFor={(i, f) => bubbleLabel(sortKey, sorted[i]?.song.name, f)}
+      />
     </section>
   )
 }
@@ -342,7 +354,11 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
         </button>
       </div>
 
-      <div onClick={() => setPlayerOpen(true)}>
+      <div
+        onClick={() => {
+          if (useStore.getState().selection === null) setPlayerOpen(true)
+        }}
+      >
         {items.map(({ index }) => (
           <SongRow key={index} index={index} context={items.map((x) => x.index)} />
         ))}
@@ -452,10 +468,15 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
       {items.length === 0 ? (
         <EmptyState icon="🎶" title="这个歌单还是空的" />
       ) : (
-        <div>
+        <div className="pr-3">
           {items.map(({ index, song }) => (
             <div key={song.id} className="flex items-center">
-              <div className="min-w-0 flex-1" onClick={() => setPlayerOpen(true)}>
+              <div
+                className="min-w-0 flex-1"
+                onClick={() => {
+                  if (useStore.getState().selection === null) setPlayerOpen(true)
+                }}
+              >
                 <SongRow index={index} context={items.map((x) => x.index)} />
               </div>
               <button
@@ -469,6 +490,8 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
           ))}
         </div>
       )}
+      {/* 歌单内顺序不是标题序：气泡只报百分比，不拿字母糊弄（1.2.0） */}
+      <FastScroller count={items.length} bubbleFor={(_i, f) => bubbleLabel(null, undefined, f)} />
     </section>
   )
 }

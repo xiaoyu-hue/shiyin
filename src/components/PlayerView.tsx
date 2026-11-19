@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { AnimatePresence, motion, useDragControls } from 'motion/react'
-import { ChevronDown, Heart, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, ListMusic, ListVideo, Mic2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion, useDragControls, type PanInfo } from 'motion/react'
+import { ChevronDown, Heart, Play, Pause, SkipBack, SkipForward, Repeat, RotateCcw, RotateCw, Shuffle, ListMusic, ListVideo, Mic2 } from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
 import { sheetTransition } from '../lib/motion'
@@ -30,6 +30,7 @@ export default function PlayerView() {
   const setQueueOpen = useStore((s) => s.setQueueOpen)
   const tracks = useStore((s) => s.tracks)
   const audioError = useStore((s) => s.audioError)
+  const swipeAnywhere = useStore((s) => s.swipeAnywhere)
   const dark = useResolvedDark()
   const song = tracks[cur]
   const ModeIcon = modeIcon[mode]
@@ -71,6 +72,47 @@ export default function PlayerView() {
       alive = false
     }
   }, [song?.id, song?.midCoverSrc, song?.coverSrc])
+
+  // 封面手势（1.2.0）：横滑切歌与点按 seek 共用拖动距离守卫——
+  // 拖动结束时记下位移，随后的 click 若来自这次拖动则吞掉，不误判为点按
+  const dragDist = useRef(0)
+  const [seekHint, setSeekHint] = useState<'back' | 'fwd' | null>(null)
+  const hintTimer = useRef<number | null>(null)
+
+  const flashSeekHint = (dir: 'back' | 'fwd') => {
+    hapticImpact()
+    setSeekHint(dir)
+    if (hintTimer.current !== null) window.clearTimeout(hintTimer.current)
+    hintTimer.current = window.setTimeout(() => setSeekHint(null), 750)
+  }
+
+  const handleSwipeEnd = (_: unknown, info: PanInfo) => {
+    dragDist.current = Math.abs(info.offset.x)
+    if (info.offset.x <= -60) {
+      hapticImpact()
+      next()
+    } else if (info.offset.x >= 60) {
+      hapticImpact()
+      prev()
+    }
+  }
+
+  const handleCoverClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (dragDist.current > 10) {
+      dragDist.current = 0
+      return
+    }
+    const rect = e.currentTarget.getBoundingClientRect()
+    if (rect.width <= 0) return
+    const ratio = (e.clientX - rect.left) / rect.width
+    if (ratio < 1 / 3) {
+      seek(Math.max(0, pos - 10))
+      flashSeekHint('back')
+    } else if (ratio > 2 / 3) {
+      seek(pos + 10)
+      flashSeekHint('fwd')
+    }
+  }
 
   if (!song) return null
 
@@ -150,26 +192,62 @@ export default function PlayerView() {
             </div>
           </div>
 
-          <div className="relative flex flex-1 flex-col items-center justify-center gap-8">
-            <div
-              className={`cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50 ${playing ? 'spinning' : ''}`}
-              style={{ ['--cover' as string]: song.color }}
+          {/* 中部内容区：默认只有封面是横滑切歌区；设置开启「全屏滑动切歌」后整区可滑。
+              两个拖动层互斥启用（drag=false 的一层不拦截手势），下拉关闭走顶部手柄的独立拖动控制，互不干扰 */}
+          <motion.div
+            className="relative flex flex-1 flex-col items-center justify-center gap-8"
+            style={{ touchAction: 'pan-y' }}
+            drag={swipeAnywhere ? 'x' : false}
+            dragDirectionLock
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.5}
+            onDragEnd={handleSwipeEnd}
+          >
+            <motion.div
+              className="relative"
+              style={{ touchAction: 'pan-y' }}
+              drag={swipeAnywhere ? false : 'x'}
+              dragDirectionLock
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.5}
+              onDragEnd={handleSwipeEnd}
+              onPointerDown={() => {
+                dragDist.current = 0
+              }}
+              onClick={handleCoverClick}
             >
-              {song.coverSrc ? (
-                <>
-                  <img src={song.midCoverSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
-                  <div className="relative h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
-                </>
-              ) : (
-                <div className="h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
+              <div
+                className={`cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50 ${playing ? 'spinning' : ''}`}
+                style={{ ['--cover' as string]: song.color }}
+              >
+                {song.coverSrc ? (
+                  <>
+                    <img src={song.midCoverSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                    <div className="relative h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
+                  </>
+                ) : (
+                  <div className="h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
+                )}
+              </div>
+              {/* 点封面两侧快退/快进的短暂方向提示 */}
+              {seekHint && (
+                <div
+                  className={`pointer-events-none absolute inset-y-0 flex items-center ${seekHint === 'back' ? '-left-2' : '-right-2'}`}
+                  aria-hidden
+                >
+                  <span className="glass flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-ink/80">
+                    {seekHint === 'back' ? <RotateCcw size={14} /> : <RotateCw size={14} />}
+                    {seekHint === 'back' ? '快退 10 秒' : '快进 10 秒'}
+                  </span>
+                </div>
               )}
-            </div>
+            </motion.div>
             <div className="w-full text-center">
               <h2 className="text-2xl font-bold text-ink/85">{song.name}</h2>
               <p className="mt-1 text-sm text-ink/50">{song.artist}</p>
               {audioError && <p className="mt-2 text-[11px] text-red-600">{audioError}</p>}
             </div>
-          </div>
+          </motion.div>
 
           <div className="glass-strong relative rounded-[var(--r-sheet)] p-5">
             <input

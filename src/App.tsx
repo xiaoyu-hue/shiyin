@@ -15,6 +15,8 @@ import PlayerView from './components/PlayerView'
 import LyricView from './components/LyricView'
 import SongMenu from './components/SongMenu'
 import QueueView from './components/QueueView'
+import SelectionBar from './components/SelectionBar'
+import OnboardingGuide from './components/OnboardingGuide'
 import ErrorBoundary from './components/common/ErrorBoundary'
 
 export default function App() {
@@ -50,6 +52,8 @@ export default function App() {
         <LyricView />
         <QueueView />
         <SongMenu />
+        <SelectionBar />
+        <OnboardingGuide />
         <span className="sr-only" aria-live="polite">当前页面：{tab}</span>
       </div>
     </ErrorBoundary>

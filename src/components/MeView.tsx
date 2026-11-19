@@ -112,7 +112,11 @@ function FavoritesPage() {
       ) : (
         <>
           <p className="mb-1 text-xs text-ink/40">共 {indices.length} 首</p>
-          <div onClick={() => setPlayerOpen(true)}>
+          <div
+            onClick={() => {
+              if (useStore.getState().selection === null) setPlayerOpen(true)
+            }}
+          >
             {indices.map((i) => <SongRow key={tracks[i].id} index={i} context={indices} />)}
           </div>
         </>
@@ -135,7 +139,11 @@ function HistoryPage() {
       ) : (
         <>
           <p className="mb-1 text-xs text-ink/40">最近 {indices.length} 首</p>
-          <div onClick={() => setPlayerOpen(true)}>
+          <div
+            onClick={() => {
+              if (useStore.getState().selection === null) setPlayerOpen(true)
+            }}
+          >
             {indices.map((i, rank) => <SongRow key={`${tracks[i].id}-${rank}`} index={i} context={indices} />)}
           </div>
         </>
@@ -151,6 +159,8 @@ function SettingsPage() {
   const setAppearance = useStore((s) => s.setAppearance)
   const smoothMode = useStore((s) => s.smoothMode)
   const setSmoothMode = useStore((s) => s.setSmoothMode)
+  const swipeAnywhere = useStore((s) => s.swipeAnywhere)
+  const setSwipeAnywhere = useStore((s) => s.setSwipeAnywhere)
   const dark = useResolvedDark()
   const tracks = useStore((s) => s.tracks)
   const [usage, setUsage] = useState<number | null>(null)
@@ -252,6 +262,29 @@ function SettingsPage() {
       </section>
 
       <section className="mb-7">
+        <h2 className="mb-3 text-base font-semibold">播放手势</h2>
+        <div className="flex items-center gap-3 rounded-2xl bg-surface/60 p-4 shadow-sm">
+          <div className="min-w-0 flex-1">
+            <p className="text-[15px] font-medium">播放页全屏滑动切歌</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+              默认只有封面区域左右滑能切歌。打开后，播放页任意处左右滑都可以切歌；点封面左右两侧快退 / 快进 10 秒不受影响。
+            </p>
+          </div>
+          <button
+            onClick={() => setSwipeAnywhere(!swipeAnywhere)}
+            aria-pressed={swipeAnywhere}
+            aria-label="播放页全屏滑动切歌开关"
+            className={`relative h-8 w-[52px] shrink-0 rounded-full transition-colors ${swipeAnywhere ? '' : 'bg-ink/15'}`}
+            style={swipeAnywhere ? { background: 'var(--accent)' } : undefined}
+          >
+            <span
+              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${swipeAnywhere ? 'left-[24px]' : 'left-1'}`}
+            />
+          </button>
+        </div>
+      </section>
+
+      <section className="mb-7">
         <h2 className="mb-3 text-base font-semibold">数据管理</h2>
         <div className="rounded-2xl bg-surface/60 p-4 shadow-sm">
           <div className="flex items-center justify-between text-sm">
@@ -295,7 +328,7 @@ function SettingsPage() {
       <section>
         <h2 className="mb-3 text-base font-semibold">关于</h2>
         <div className="rounded-2xl bg-surface/60 p-4 text-sm leading-relaxed text-ink/60 shadow-sm">
-          <p className="font-semibold text-ink/80">诗音 Shiyin · v1.1.0</p>
+          <p className="font-semibold text-ink/80">诗音 Shiyin · v1.2.0</p>
           <p className="mt-1.5">
             一款只播放你自己音乐的本地播放器：没有账号、没有上传、没有推荐流。你的音乐、收藏与歌单都只保存在这台设备上。
           </p>

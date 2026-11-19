@@ -6,7 +6,9 @@ import { hapticImpact } from '../platform/haptics'
 
 /**
  * 迷你播放条：悬浮液态玻璃胶囊（0.5.0 改版）。
- * 点按展开全屏播放器；左右横滑切歌（拖动超过 60px 触发，纵向拖动不响应）。
+ * 点按展开全屏播放器；左右横滑切歌（拖动超过 60px 触发）；
+ * 上滑展开播放页（1.2.0，超过 50px 触发）——纵/横靠方向锁区分，一次手势只认一个方向。
+ * 本条不在滚动容器内，触摸全由 JS 接管（touchAction none），不存在与页面滚动的争夺。
  */
 export default function MiniBar() {
   const cur = useStore((s) => s.cur)
@@ -26,17 +28,20 @@ export default function MiniBar() {
     <motion.div
       className="glass relative mx-4 mb-2 shrink-0 cursor-pointer overflow-hidden rounded-full py-2 pr-2 pl-2.5"
       data-pressable
-      style={{ touchAction: 'pan-y' }}
+      style={{ touchAction: 'none' }}
       onClick={() => setPlayerOpen(true)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && setPlayerOpen(true)}
-      drag="x"
+      drag
       dragDirectionLock
-      dragConstraints={{ left: 0, right: 0 }}
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.6}
       onDragEnd={(_, info) => {
-        if (info.offset.x <= -60) {
+        // 方向锁保证一次手势只有一个方向有显著位移：先判上滑展开，再判横滑切歌
+        if (info.offset.y <= -50) {
+          setPlayerOpen(true)
+        } else if (info.offset.x <= -60) {
           hapticImpact()
           next()
         } else if (info.offset.x >= 60) {

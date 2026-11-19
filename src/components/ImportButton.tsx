@@ -16,9 +16,15 @@ type Status =
 
 interface Props {
   className?: string
+  /** 按钮文案（空闲态）；不传用默认「导入本地音乐」 */
+  label?: string
+  /** 主按钮样式：实心强调色大按钮（首启引导用） */
+  primary?: boolean
+  /** 一次导入流程处理完文件后回调（首启引导据此落「已引导」标记）；用户取消选文件不会触发 */
+  onDone?: () => void
 }
 
-export default function ImportButton({ className = '' }: Props) {
+export default function ImportButton({ className = '', label, primary = false, onDone }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const addTracks = useStore((s) => s.addTracks)
@@ -115,6 +121,7 @@ export default function ImportButton({ className = '' }: Props) {
     }
     setStatus({ kind: 'done', added: added.length, skipped, lrc: lrcAttached })
     window.setTimeout(() => setStatus({ kind: 'idle' }), 4000)
+    onDone?.()
   }
 
   const busy = status.kind === 'busy'
@@ -134,11 +141,19 @@ export default function ImportButton({ className = '' }: Props) {
           else inputRef.current?.click()
         }}
         disabled={busy}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-2.5 text-sm font-medium transition-colors disabled:opacity-60"
-        style={{ borderColor: 'var(--accent)', color: 'var(--accent)', background: 'rgba(255,255,255,0.45)' }}
+        className={
+          primary
+            ? 'accent-bg flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-[15px] font-semibold text-white shadow-md transition-transform active:scale-[0.98] disabled:opacity-60'
+            : 'flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-2.5 text-sm font-medium transition-colors disabled:opacity-60'
+        }
+        style={
+          primary
+            ? undefined
+            : { borderColor: 'var(--accent)', color: 'var(--accent)', background: 'rgba(255,255,255,0.45)' }
+        }
       >
         {busy ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-        {busy ? `正在导入 ${status.done}/${status.total}` : '导入本地音乐'}
+        {busy ? `正在导入 ${status.done}/${status.total}` : (label ?? '导入本地音乐')}
       </button>
 
       <input
