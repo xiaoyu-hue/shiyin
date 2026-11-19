@@ -10,3 +10,9 @@ screenshots/
 
 # 系统文件
 .DS_Store
+
+# Tauri 构建产物
+src-tauri/target/
+
+# e2e 验收产物
+e2e/artifacts/

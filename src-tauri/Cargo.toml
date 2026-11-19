@@ -1,0 +1,24 @@
+[package]
+name = "shiyin"
+version = "1.2.1"
+description = "诗音 Shiyin - 本地音乐播放器（桌面端）"
+authors = ["xiaoyu-hue"]
+edition = "2021"
+
+# 桌面壳本体：界面与业务逻辑全在前端（与网页/安卓共用），
+# Rust 侧只做窗口/托盘/单实例与文件桥，见 src/lib.rs。
+[lib]
+name = "shiyin_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# 锁 Tauri 2.12.x 线（~ 限定次版本内），与 @tauri-apps/cli / api 的 2.12.x 对齐
+tauri = { version = "~2.12", features = ["tray-icon"] }
+tauri-plugin-fs = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
