@@ -1,7 +1,9 @@
+import { useEffect } from 'react'
 import { AnimatePresence, motion, Reorder, useDragControls } from 'motion/react'
 import { GripVertical, X } from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
+import { registerBackHandler } from '../platform/backButton'
 import EmptyState from './common/EmptyState'
 
 /** 播放队列页：查看/重排/移除待播曲目（拖拽手柄排序） */
@@ -11,6 +13,15 @@ export default function QueueView() {
   const queue = useStore((s) => s.queue)
   const setQueueOrder = useStore((s) => s.setQueueOrder)
   const clearQueue = useStore((s) => s.clearQueue)
+
+  // 安卓返回登记（1.1.0）：队列开着时返回先收队列
+  useEffect(() => {
+    if (!queueOpen) return
+    return registerBackHandler(() => {
+      setQueueOpen(false)
+      return true
+    })
+  }, [queueOpen, setQueueOpen])
 
   return (
     <AnimatePresence>
@@ -29,7 +40,8 @@ export default function QueueView() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[82vh] w-full max-w-[430px] flex-col rounded-t-[var(--r-sheet)] p-4 pb-6"
+            className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[82vh] w-full max-w-[430px] flex-col rounded-t-[var(--r-sheet)] p-4"
+            style={{ paddingBottom: 'calc(1.5rem + var(--sab))' }}
           >
             <div className="mx-auto mb-3 h-1.5 w-10 shrink-0 rounded-full bg-ink/15" />
             <div className="mb-3 flex items-center gap-2 px-1">
@@ -58,7 +70,7 @@ export default function QueueView() {
                 axis="y"
                 values={queue}
                 onReorder={setQueueOrder}
-                className="min-h-0 flex-1 overflow-y-auto"
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
               >
                 {queue.map((trackIndex, pos) => (
                   <QueueItem key={trackIndex} trackIndex={trackIndex} pos={pos} />
@@ -99,7 +111,7 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
         role="button"
         aria-label={`播放 ${song.name}`}
       >
-        {song.coverSrc && <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+        {song.coverSrc && <img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />}
         {isCurrent && playing && (
           <span className="pulsing relative grid h-5 w-5 place-items-center rounded-full bg-surface/90">
             <span className="h-2 w-2 rounded-full" style={{ background: 'var(--accent)' }} />

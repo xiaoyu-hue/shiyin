@@ -4,6 +4,7 @@ import { ChevronDown, ImagePlus, ScrollText } from 'lucide-react'
 import { useStore } from '../store'
 import { lyricIndex, toSeconds } from '../lib/lyric'
 import { sheetTransition } from '../lib/motion'
+import { getBlurredBackdrop } from '../lib/blurBackdrop'
 import LyricPoster from './LyricPoster'
 import { useLyricAttach } from './useLyricAttach'
 
@@ -25,6 +26,23 @@ export default function LyricView() {
   const [posterOpen, setPosterOpen] = useState(false)
   const lyricAttach = useLyricAttach()
 
+  // 预模糊氛围背景（1.1.0）：与播放页共用 lib/blurBackdrop 的缓存位图，替代整屏实时模糊
+  const [blurBg, setBlurBg] = useState<string | null>(null)
+  useEffect(() => {
+    let alive = true
+    const src = song ? (song.midCoverSrc ?? song.coverSrc) : null
+    if (song && src) {
+      void getBlurredBackdrop(song.id, src).then((url) => {
+        if (alive) setBlurBg(url)
+      })
+    } else {
+      setBlurBg(null)
+    }
+    return () => {
+      alive = false
+    }
+  }, [song?.id, song?.midCoverSrc, song?.coverSrc])
+
   // 高亮行变化时平滑滚动到可视区中部；刚展开时延后一帧等待布局
   useEffect(() => {
     if (!open || active < 0) return
@@ -39,8 +57,13 @@ export default function LyricView() {
     <AnimatePresence>
       {open && song && (
         <motion.div
-          className="absolute inset-0 z-40 flex flex-col overflow-hidden px-6 pt-5 pb-8"
-          style={{ background: `linear-gradient(180deg, var(--bg) 0%, var(--bg-end) 100%)` }}
+          className="absolute inset-0 z-40 flex flex-col overflow-hidden px-6"
+          style={{
+            background: `linear-gradient(180deg, var(--bg) 0%, var(--bg-end) 100%)`,
+            // 沉浸式：背景铺满全屏，顶部控件行垫安全区下移（1.1.0）
+            paddingTop: 'calc(1.25rem + var(--sat))',
+            paddingBottom: 'calc(2rem + var(--sab))',
+          }}
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
@@ -48,13 +71,13 @@ export default function LyricView() {
           role="dialog"
           aria-label="歌词"
         >
-          {/* 玻璃层：封面重度模糊作色彩场，上覆半透明白纱（图已模糊，不再叠 backdrop-filter 省性能） */}
-          {song.coverSrc && (
+          {/* 玻璃层：预模糊位图作色彩场，上覆半透明白纱（位图已糊，不再叠实时模糊省性能） */}
+          {blurBg && (
             <img
-              src={song.coverSrc}
+              src={blurBg}
               alt=""
               aria-hidden
-              className="pointer-events-none absolute inset-0 h-full w-full scale-150 object-cover opacity-60 blur-3xl"
+              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60"
             />
           )}
           <div className="pointer-events-none absolute inset-0 bg-surface/35" aria-hidden />
@@ -120,6 +143,7 @@ export default function LyricView() {
                       key={`${line.t}-${i}`}
                       ref={(el) => { lineRefs.current[i] = el }}
                       onClick={() => seek(toSeconds(line.t))}
+                      data-content
                       aria-current={isActive ? 'true' : undefined}
                       className={`w-full origin-left text-left text-lg leading-relaxed transition-all duration-300 ${level}`}
                       style={{ color: isActive ? 'var(--accent)' : 'var(--ink)' }}

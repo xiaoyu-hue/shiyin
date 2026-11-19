@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import { Play, Pause, SkipForward, MoonStar } from 'lucide-react'
 import { useStore } from '../store'
 import { pct } from '../lib/format'
+import { hapticImpact } from '../platform/haptics'
 
 /**
  * 迷你播放条：悬浮液态玻璃胶囊（0.5.0 改版）。
@@ -24,16 +25,24 @@ export default function MiniBar() {
   return (
     <motion.div
       className="glass relative mx-4 mb-2 shrink-0 cursor-pointer overflow-hidden rounded-full py-2 pr-2 pl-2.5"
+      data-pressable
+      style={{ touchAction: 'pan-y' }}
       onClick={() => setPlayerOpen(true)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && setPlayerOpen(true)}
       drag="x"
+      dragDirectionLock
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.6}
       onDragEnd={(_, info) => {
-        if (info.offset.x <= -60) next()
-        else if (info.offset.x >= 60) prev()
+        if (info.offset.x <= -60) {
+          hapticImpact()
+          next()
+        } else if (info.offset.x >= 60) {
+          hapticImpact()
+          prev()
+        }
       }}
       whileTap={{ scale: 0.99 }}
     >
@@ -43,7 +52,7 @@ export default function MiniBar() {
           style={{ ['--cover' as string]: song.color }}
         >
           {song.coverSrc ? (
-            <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <span className="h-4 w-4 rounded-full bg-surface/85" />
           )}
@@ -63,7 +72,7 @@ export default function MiniBar() {
           {playing ? <Pause size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} /> : <Play size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} />}
         </button>
         <button
-          onClick={(e) => { e.stopPropagation(); next() }}
+          onClick={(e) => { e.stopPropagation(); hapticImpact(); next() }}
           aria-label="下一首"
           className="grid h-11 w-11 place-items-center rounded-full"
         >

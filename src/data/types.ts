@@ -18,6 +18,12 @@ export interface Song {
   coverSrc?: string | null
   /** 内嵌封面图原图数据，仅用于持久化落盘；运行时展示用 coverSrc */
   coverBlob?: Blob | null
+  /** 封面缩略图地址（≤128px，1.1.0）：列表/菜单等小图场景用，缺失时回退 coverSrc */
+  thumbSrc?: string | null
+  /** 封面中图地址（≤512px，1.1.0）：播放页大封面用，缺失时回退 coverSrc */
+  midCoverSrc?: string | null
+  /** 缩略图是否已生成/确认过（小图无需生成也算确认）；未确认的老曲目恢复时异步补图 */
+  thumbDone?: boolean
   /** 本地曲目的文件指纹，用于去重与持久化定位 */
   localKey?: string
   /** 导入时间（毫秒时间戳），用于按导入时间排序与「最近导入」 */

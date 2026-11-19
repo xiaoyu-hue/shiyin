@@ -149,6 +149,8 @@ function SettingsPage() {
   const setTheme = useStore((s) => s.setTheme)
   const appearance = useStore((s) => s.appearance)
   const setAppearance = useStore((s) => s.setAppearance)
+  const smoothMode = useStore((s) => s.smoothMode)
+  const setSmoothMode = useStore((s) => s.setSmoothMode)
   const dark = useResolvedDark()
   const tracks = useStore((s) => s.tracks)
   const [usage, setUsage] = useState<number | null>(null)
@@ -227,6 +229,29 @@ function SettingsPage() {
       </section>
 
       <section className="mb-7">
+        <h2 className="mb-3 text-base font-semibold">流畅度</h2>
+        <div className="flex items-center gap-3 rounded-2xl bg-surface/60 p-4 shadow-sm">
+          <div className="min-w-0 flex-1">
+            <p className="text-[15px] font-medium">流畅模式</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+              关掉毛玻璃的实时模糊效果，换成不透明的质感填充。手机滚动或切页发卡时可以打开它。
+            </p>
+          </div>
+          <button
+            onClick={() => setSmoothMode(!smoothMode)}
+            aria-pressed={smoothMode}
+            aria-label="流畅模式开关"
+            className={`relative h-8 w-[52px] shrink-0 rounded-full transition-colors ${smoothMode ? '' : 'bg-ink/15'}`}
+            style={smoothMode ? { background: 'var(--accent)' } : undefined}
+          >
+            <span
+              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${smoothMode ? 'left-[24px]' : 'left-1'}`}
+            />
+          </button>
+        </div>
+      </section>
+
+      <section className="mb-7">
         <h2 className="mb-3 text-base font-semibold">数据管理</h2>
         <div className="rounded-2xl bg-surface/60 p-4 shadow-sm">
           <div className="flex items-center justify-between text-sm">
@@ -270,7 +295,7 @@ function SettingsPage() {
       <section>
         <h2 className="mb-3 text-base font-semibold">关于</h2>
         <div className="rounded-2xl bg-surface/60 p-4 text-sm leading-relaxed text-ink/60 shadow-sm">
-          <p className="font-semibold text-ink/80">诗音 Shiyin · v1.0.0</p>
+          <p className="font-semibold text-ink/80">诗音 Shiyin · v1.1.0</p>
           <p className="mt-1.5">
             一款只播放你自己音乐的本地播放器：没有账号、没有上传、没有推荐流。你的音乐、收藏与歌单都只保存在这台设备上。
           </p>

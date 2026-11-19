@@ -30,6 +30,12 @@ export interface LoadedTrack {
   coverSrc: string | null
   /** 封面原图数据（持久化落盘用）；无封面为 null */
   coverBlob: Blob | null
+  /** 封面缩略图地址（≤128px，1.1.0）；未生成时为 null，界面回退 coverSrc */
+  thumbSrc: string | null
+  /** 封面中图地址（≤512px，1.1.0）；未生成时为 null，界面回退 coverSrc */
+  midCoverSrc: string | null
+  /** 缩略图是否已生成/确认过；false 且有封面时恢复后异步补图 */
+  thumbDone: boolean
 }
 
 export interface TrackStore {
@@ -41,6 +47,8 @@ export interface TrackStore {
   deleteTrack(key: string): Promise<void>
   /** 只更新某首曲目的歌词（外挂歌词补挂用）；记录不存在时静默跳过 */
   updateTrackLyrics(key: string, lyrics: LyricLine[]): Promise<void>
+  /** 只更新某首曲目的缩略图/中图并标记已确认（导入生成与老歌库补图用）；记录不存在时静默跳过 */
+  updateTrackCovers(key: string, covers: { thumb: Blob | null; coverMid: Blob | null }): Promise<void>
   /** 清除全部曲目的持久化数据 */
   clearTracks(): Promise<void>
   /** 本地音乐占用的存储字节数；无法统计时返回 null */

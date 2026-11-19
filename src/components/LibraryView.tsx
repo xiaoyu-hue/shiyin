@@ -48,7 +48,7 @@ export default function LibraryView() {
         <DetailView indexed={indexed} />
       ) : (
         <>
-          <div className="glass mb-5 flex rounded-full p-1" role="tablist" aria-label="音乐库视图">
+          <div className="glass-fake mb-5 flex rounded-full p-1" role="tablist" aria-label="音乐库视图">
             {SEGMENTS.map(({ key, label }) => {
               const active = view === key
               return (
@@ -144,7 +144,7 @@ function AlbumsSection({ indexed }: { indexed: IndexedSong[] }) {
               style={{ ['--cover' as string]: a.color }}
             >
               {a.coverSrc ? (
-                <img src={a.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                <img src={a.midCoverSrc ?? a.coverSrc} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
               ) : (
                 <span className="px-3 text-center text-lg font-bold drop-shadow">{a.name}</span>
               )}
@@ -169,7 +169,7 @@ function ArtistsSection({ indexed }: { indexed: IndexedSong[] }) {
         <button
           key={a.name}
           onClick={() => setDetail({ kind: 'artist', key: a.name })}
-          className="flex w-full items-center gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors active:bg-ink/5"
+          className="flex w-full items-center gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors [contain-intrinsic-size:auto_68px] [content-visibility:auto] active:bg-ink/5"
         >
           <span
             className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-base font-bold text-white shadow-sm"
@@ -218,7 +218,7 @@ function PlaylistsSection({ indexed }: { indexed: IndexedSong[] }) {
       </div>
 
       {creating && (
-        <div className="glass mb-4 flex items-center gap-2 rounded-full p-1.5 pl-4">
+        <div className="glass-fake mb-4 flex items-center gap-2 rounded-full p-1.5 pl-4">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -243,14 +243,14 @@ function PlaylistsSection({ indexed }: { indexed: IndexedSong[] }) {
               <button
                 key={p.id}
                 onClick={() => setDetail({ kind: 'playlist', key: p.id })}
-                className="flex w-full items-center gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors active:bg-ink/5"
+                className="flex w-full items-center gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors [contain-intrinsic-size:auto_68px] [content-visibility:auto] active:bg-ink/5"
               >
                 <span
                   className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl text-white shadow-sm"
                   style={{ ['--cover' as string]: first?.color ?? '#9a8f80' }}
                 >
                   {first?.coverSrc ? (
-                    <img src={first.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                    <img src={first.thumbSrc ?? first.coverSrc} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
                   ) : (
                     <ListMusic size={20} className="opacity-90" />
                   )}
@@ -282,6 +282,7 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
   let subtitle = ''
   let items: IndexedSong[] = []
   let coverSrc: string | null | undefined
+  let midCoverSrc: string | null | undefined
   let color = '#888888'
 
   if (detail.kind === 'album') {
@@ -291,6 +292,7 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
     subtitle = `${g.artist} · ${g.items.length} 首`
     items = g.items
     coverSrc = g.coverSrc
+    midCoverSrc = g.midCoverSrc
     color = g.color
   } else if (detail.kind === 'artist') {
     const g: ArtistGroup | undefined = groupArtists(indexed).find((a) => a.name === detail.key)
@@ -316,7 +318,7 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
             style={{ ['--cover' as string]: color }}
           >
             {coverSrc ? (
-              <img src={coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <img src={midCoverSrc ?? coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
             ) : (
               <span className="px-3 text-xl font-bold drop-shadow">{title}</span>
             )}
@@ -380,7 +382,7 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
           style={{ ['--cover' as string]: first?.color ?? '#9a8f80' }}
         >
           {first?.coverSrc ? (
-            <img src={first.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <img src={first.midCoverSrc ?? first.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <ListMusic size={44} className="opacity-90" />
           )}

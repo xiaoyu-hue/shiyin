@@ -24,9 +24,16 @@
   --r-card: 16px;
   --r-sheet: 24px;
 
+  /* 安全区（1.1.0）：优先用 Capacitor SystemBars 注入的 --safe-area-inset-*
+     变量（新版 WebView 的 env() 值不可靠），无注入时回退 env()。
+     全站统一用 --sat / --sab，不再各处直读 env() */
+  --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+
   /* 液态玻璃参数：填充/描边走白色系（浅色主题），JS 不覆盖；
-     --glass-tint 由封面取色或主题强调色以低透明度混入 */
-  --glass-blur: 20px;
+     --glass-tint 由封面取色或主题强调色以低透明度混入。
+     模糊半径 1.1.0 起收敛到 14px（12–16 档）：半径是毛玻璃每帧成本的主变量 */
+  --glass-blur: 14px;
   --glass-saturate: 180%;
   --glass-fill: rgba(255, 255, 255, 0.52);
   --glass-fill-strong: rgba(255, 255, 255, 0.68);
@@ -42,13 +49,15 @@
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -0.5px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* 液态玻璃表面：半透明填充 + 背景模糊饱和 + 顶部高光描边（玻璃口反光） */
+/* 液态玻璃表面：半透明填充 + 背景模糊饱和 + 顶部高光描边（玻璃口反光）。
+   translateZ(0) 让外壳玻璃各自独立成合成层，避免滚动时连带底层重绘 */
 .glass {
   background: var(--glass-fill);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border: 1px solid var(--glass-stroke);
   box-shadow: var(--glass-shadow);
+  transform: translateZ(0);
 }
 
 .glass-strong {
@@ -57,7 +66,17 @@
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border: 1px solid var(--glass-stroke);
   box-shadow: var(--glass-shadow);
+  transform: translateZ(0);
 }
+
+/* 假玻璃：滚动内容内禁用实时模糊（每帧重模糊太贵），用更实的半透明
+   填充 + 高光描边 + 阴影模拟玻璃感（1.1.0 毛玻璃分级） */
+.glass-fake {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--glass-stroke);
+  box-shadow: var(--glass-shadow);
+}
+[data-appearance='dark'] .glass-fake { background: rgba(40, 34, 26, 0.85); }
 
 /* 不支持背景模糊时退化为更实的填充，保证可读性（老设备降级） */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -77,9 +96,48 @@
   }
 }
 
+/* 流畅模式（设置开关，根元素 .smooth-mode）：全局关实时模糊走假玻璃，
+   与系统「减少透明度」降级并存；弹层遮罩的小半径 backdrop 模糊一并关掉 */
+.smooth-mode .glass, .smooth-mode .glass-strong {
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.smooth-mode[data-appearance='dark'] .glass, .smooth-mode[data-appearance='dark'] .glass-strong {
+  background: rgba(34, 29, 22, 0.96);
+}
+.smooth-mode [class*='backdrop-blur'] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 * { box-sizing: border-box; }
 
 html, body, #root { height: 100%; margin: 0; }
+
+/* ===== 点按手感包（1.1.0，全局） =====
+   - 关点按灰闪，但必须成对补 :active 反馈（见下），否则点击像没反应；
+   - 反馈用 filter: brightness 而非 transform，不与 Motion 的变换动画打架；
+   - 控件禁文本选择/长按系统菜单，内容区（带 data-content，如歌词行）除外；
+   - 页面级关橡皮筋/下拉刷新，滚动容器各自 contain 防滚动穿透 */
+* { -webkit-tap-highlight-color: transparent; }
+
+html, body { overscroll-behavior: none; }
+
+button, [role='button'], input, select, textarea { touch-action: manipulation; }
+
+button, [role='button'] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+[data-content] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+button:active, [data-pressable]:active { filter: brightness(0.96); }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
@@ -91,7 +149,9 @@ body {
 /* 深色外观下画布外的底色同步压暗，避免桌面端两侧露白 */
 [data-appearance='dark'] body { background: #14110d; }
 
-/* 手机尺寸的画布，桌面居中显示 */
+/* 手机尺寸的画布，桌面居中显示。
+   顶部垫安全区：边到边下内容不再钻到状态栏下；壳的渐变背景画在
+   padding 区内，状态栏背后仍是渐变色而非白边（1.1.0） */
 .app-shell {
   width: 100%;
   max-width: 430px;
@@ -101,6 +161,7 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding-top: var(--sat);
   background: linear-gradient(160deg, var(--bg) 0%, var(--bg-end) 100%);
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
   transition: background 0.5s ease;
@@ -111,6 +172,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   padding-bottom: 8px;
+  overscroll-behavior: contain;
 }
 
 /* 隐藏滚动条但保留滚动 */
@@ -119,7 +181,7 @@ body {
 
 /* 歌词页滚动区：同样隐藏滚动条，上下留白让高亮行可滚到中部 */
 .lyric-scroll::-webkit-scrollbar { display: none; }
-.lyric-scroll { scrollbar-width: none; }
+.lyric-scroll { scrollbar-width: none; overscroll-behavior: contain; }
 
 .accent-text { color: var(--accent); }
 .accent-bg { background-color: var(--accent); }

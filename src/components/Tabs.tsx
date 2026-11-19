@@ -15,7 +15,7 @@ export default function Tabs() {
   const setTab = useStore((s) => s.setTab)
 
   return (
-    <div className="shrink-0 px-4 pt-1 pb-[max(env(safe-area-inset-bottom),10px)]">
+    <div className="shrink-0 px-4 pt-1 pb-[max(var(--sab),10px)]">
       <nav className="glass flex rounded-full p-1.5" aria-label="主导航">
         {items.map(({ key, label, icon: Icon }) => {
           const active = tab === key

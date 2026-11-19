@@ -5,6 +5,7 @@ import type { Song } from '../data/types'
 import { computePosterLayout, POSTER_H, POSTER_MAX_LINES, POSTER_W, toggleLineSelection, truncateToWidth } from '../lib/poster'
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
 import { sheetTransition } from '../lib/motion'
+import { registerBackHandler } from '../platform/backButton'
 
 const FONT_STACK = '-apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif'
 
@@ -145,6 +146,15 @@ export default function LyricPoster({ song, open, onClose }: Props) {
     }
   }, [open, song?.id])
 
+  // 安卓返回登记（1.1.0）：海报开着时返回先收海报（在歌词页之上，后登记先处理）
+  useEffect(() => {
+    if (!open) return
+    return registerBackHandler(() => {
+      onClose()
+      return true
+    })
+  }, [open, onClose])
+
   // 进入预览阶段后绘制海报
   useEffect(() => {
     if (phase !== 'preview' || !song || !canvasRef.current) return
@@ -221,7 +231,8 @@ export default function LyricPoster({ song, open, onClose }: Props) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={sheetTransition}
-            className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[88dvh] w-full max-w-[430px] flex-col rounded-t-[var(--r-sheet)] p-4 pb-6"
+            className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[88dvh] w-full max-w-[430px] flex-col rounded-t-[var(--r-sheet)] p-4"
+            style={{ paddingBottom: 'calc(1.5rem + var(--sab))' }}
           >
             <div className="mx-auto mb-3 h-1.5 w-10 shrink-0 rounded-full bg-ink/15" />
             <div className="mb-2 flex items-center px-1">
@@ -235,13 +246,14 @@ export default function LyricPoster({ song, open, onClose }: Props) {
 
             {phase === 'select' ? (
               <>
-                <div className="min-h-0 flex-1 overflow-y-auto">
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
                   {song.lyrics.map((line, i) => {
                     const isSel = selected.includes(i)
                     return (
                       <button
                         key={`${line.t}-${i}`}
                         className={rowCls(isSel)}
+                        data-content
                         onClick={() => setSelected((s) => toggleLineSelection(s, i))}
                         aria-pressed={isSel}
                       >
@@ -271,7 +283,7 @@ export default function LyricPoster({ song, open, onClose }: Props) {
               </>
             ) : (
               <>
-                <div className="min-h-0 flex-1 overflow-y-auto">
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
                   {/* 隐藏画布负责绘制，预览图展示同一结果 */}
                   <canvas ref={canvasRef} width={POSTER_W} height={POSTER_H} className="hidden" aria-hidden />
                   {dataUrl ? (

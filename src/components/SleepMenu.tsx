@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from 'motion/react'
 import { Check, MoonStar, X } from 'lucide-react'
 import { useStore } from '../store'
 import { formatRemaining, remainingMs, SLEEP_PRESETS_MIN } from '../lib/sleepTimer'
+import { registerBackHandler } from '../platform/backButton'
+import { hapticSelection } from '../platform/haptics'
 
 /** 睡眠定时按钮 + 玻璃菜单（放在播放页顶栏）：分钟预设 / 播完这首停 / 关闭 */
 export default function SleepMenu() {
@@ -23,6 +25,15 @@ export default function SleepMenu() {
     const t = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(t)
   }, [active, open])
+
+  // 安卓返回登记（1.1.0）：菜单开着时返回先收菜单
+  useEffect(() => {
+    if (!open) return
+    return registerBackHandler(() => {
+      setOpen(false)
+      return true
+    })
+  }, [open])
 
   const itemCls =
     'flex min-h-12 w-full items-center gap-3 rounded-2xl px-3 text-left text-[15px] transition-colors active:bg-ink/5'
@@ -56,7 +67,8 @@ export default function SleepMenu() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="glass-strong absolute inset-x-0 bottom-0 mx-auto w-full max-w-[430px] rounded-t-[var(--r-sheet)] p-4 pb-8"
+              className="glass-strong absolute inset-x-0 bottom-0 mx-auto w-full max-w-[430px] rounded-t-[var(--r-sheet)] p-4"
+              style={{ paddingBottom: 'calc(2rem + var(--sab))' }}
             >
               <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-ink/15" />
               <div className="mb-2 flex items-center px-1 pb-1">
@@ -74,7 +86,7 @@ export default function SleepMenu() {
                 <button
                   key={min}
                   className={itemCls}
-                  onClick={() => { setSleepMinutes(min); setOpen(false) }}
+                  onClick={() => { hapticSelection(); setSleepMinutes(min); setOpen(false) }}
                 >
                   <MoonStar size={19} style={{ color: 'var(--accent)' }} />
                   {min} 分钟后停播
@@ -83,7 +95,7 @@ export default function SleepMenu() {
 
               <button
                 className={itemCls}
-                onClick={() => { setSleepAfterTrack(true); setOpen(false) }}
+                onClick={() => { hapticSelection(); setSleepAfterTrack(true); setOpen(false) }}
               >
                 <MoonStar size={19} style={{ color: 'var(--accent)' }} />
                 播完这首就停

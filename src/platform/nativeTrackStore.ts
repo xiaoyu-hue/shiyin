@@ -26,11 +26,15 @@ import type { LoadedTrack, TrackStore } from './trackStore'
 import {
   COVERS_DIR,
   INDEX_FILE,
+  MIDCOVERS_DIR,
+  THUMBS_DIR,
   TRACKS_DIR,
   audioRelPath,
   coverRelPath,
+  midCoverRelPath,
   parseTrackIndex,
   serializeTrackIndex,
+  thumbRelPath,
   totalIndexSize,
   type TrackIndexEntry,
 } from '../lib/trackIndex'
@@ -155,6 +159,22 @@ export const nativeTrackStore: TrackStore = {
       coverSize = rec.cover.size
     }
 
+    // 缩略图/中图（1.1.0）：导入时已生成则随曲目一并落盘，路径按 key 固定
+    let thumbPath: string | null = null
+    let thumbSize = 0
+    if (rec.thumb) {
+      thumbPath = thumbRelPath(rec.key)
+      await writeBlobChunked(thumbPath, rec.thumb)
+      thumbSize = rec.thumb.size
+    }
+    let midCoverPath: string | null = null
+    let midCoverSize = 0
+    if (rec.coverMid) {
+      midCoverPath = midCoverRelPath(rec.key)
+      await writeBlobChunked(midCoverPath, rec.coverMid)
+      midCoverSize = rec.coverMid.size
+    }
+
     const entry: TrackIndexEntry = {
       key: rec.key,
       id: rec.id,
@@ -169,6 +189,11 @@ export const nativeTrackStore: TrackStore = {
       audioSize: rec.blob.size,
       coverPath,
       coverSize,
+      thumbPath,
+      thumbSize,
+      midCoverPath,
+      midCoverSize,
+      thumbDone: rec.thumbDone === true,
     }
 
     await withIndex(async (entries) => {
@@ -180,6 +205,8 @@ export const nativeTrackStore: TrackStore = {
       // 同 key 覆盖保存且路径变化时，清掉旧文件避免孤儿
       if (old && old.audioPath !== audioPath) await deleteFileQuiet(old.audioPath)
       if (old && old.coverPath && old.coverPath !== coverPath) await deleteFileQuiet(old.coverPath)
+      if (old && old.thumbPath && old.thumbPath !== thumbPath) await deleteFileQuiet(old.thumbPath)
+      if (old && old.midCoverPath && old.midCoverPath !== midCoverPath) await deleteFileQuiet(old.midCoverPath)
     })
   },
 
@@ -210,6 +237,9 @@ export const nativeTrackStore: TrackStore = {
         audioSrc,
         coverSrc,
         coverBlob,
+        thumbSrc: e.thumbPath ? await toRuntimeSrc(e.thumbPath) : null,
+        midCoverSrc: e.midCoverPath ? await toRuntimeSrc(e.midCoverPath) : null,
+        thumbDone: e.thumbDone === true,
       })
     }
     return out
@@ -223,6 +253,8 @@ export const nativeTrackStore: TrackStore = {
       await writeIndex(entries)
       await deleteFileQuiet(removed.audioPath)
       await deleteFileQuiet(removed.coverPath)
+      await deleteFileQuiet(removed.thumbPath ?? null)
+      await deleteFileQuiet(removed.midCoverPath ?? null)
     })
   },
 
@@ -235,10 +267,40 @@ export const nativeTrackStore: TrackStore = {
     })
   },
 
+  async updateTrackCovers(key: string, covers): Promise<void> {
+    // 先落文件再改索引：中途失败时索引仍指向旧状态，不会出现路径悬空
+    let thumbPath: string | null = null
+    let midCoverPath: string | null = null
+    if (covers.thumb) {
+      thumbPath = thumbRelPath(key)
+      await writeBlobChunked(thumbPath, covers.thumb)
+    }
+    if (covers.coverMid) {
+      midCoverPath = midCoverRelPath(key)
+      await writeBlobChunked(midCoverPath, covers.coverMid)
+    }
+    await withIndex(async (entries) => {
+      const entry = entries.find((e) => e.key === key)
+      if (!entry) return
+      const oldThumb = entry.thumbPath ?? null
+      const oldMid = entry.midCoverPath ?? null
+      entry.thumbPath = thumbPath
+      entry.thumbSize = covers.thumb ? covers.thumb.size : 0
+      entry.midCoverPath = midCoverPath
+      entry.midCoverSize = covers.coverMid ? covers.coverMid.size : 0
+      entry.thumbDone = true
+      await writeIndex(entries)
+      if (oldThumb && oldThumb !== thumbPath) await deleteFileQuiet(oldThumb)
+      if (oldMid && oldMid !== midCoverPath) await deleteFileQuiet(oldMid)
+    })
+  },
+
   async clearTracks(): Promise<void> {
     const { fs, dir } = await loadFs()
     await fs.rmdir({ path: TRACKS_DIR, directory: dir, recursive: true }).catch(() => undefined)
     await fs.rmdir({ path: COVERS_DIR, directory: dir, recursive: true }).catch(() => undefined)
+    await fs.rmdir({ path: THUMBS_DIR, directory: dir, recursive: true }).catch(() => undefined)
+    await fs.rmdir({ path: MIDCOVERS_DIR, directory: dir, recursive: true }).catch(() => undefined)
     await deleteFileQuiet(INDEX_FILE)
   },
 

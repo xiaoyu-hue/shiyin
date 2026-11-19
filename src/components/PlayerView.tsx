@@ -5,6 +5,8 @@ import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
 import { sheetTransition } from '../lib/motion'
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
+import { getBlurredBackdrop } from '../lib/blurBackdrop'
+import { hapticImpact } from '../platform/haptics'
 import { useResolvedDark } from '../hooks/useTheme'
 import SleepMenu from './SleepMenu'
 
@@ -38,8 +40,10 @@ export default function PlayerView() {
   const [glow, setGlow] = useState<string | null>(null)
   useEffect(() => {
     let alive = true
-    if (song?.coverSrc) {
-      void extractCoverGlow(song.coverSrc).then((c) => {
+    // 取色只采样 24px，中图已足够且解码更便宜（1.1.0）
+    const src = song ? (song.midCoverSrc ?? song.coverSrc) : null
+    if (src) {
+      void extractCoverGlow(src).then((c) => {
         if (alive) setGlow(c)
       })
     } else {
@@ -48,7 +52,25 @@ export default function PlayerView() {
     return () => {
       alive = false
     }
-  }, [song?.coverSrc, song?.id])
+  }, [song?.coverSrc, song?.midCoverSrc, song?.id])
+
+  // 预模糊氛围背景（1.1.0）：封面缩成小位图一次性糊好当背景（内存缓存），
+  // 替代原先整屏实时 blur-3xl；取中图作源已足够，失败回退纯渐变
+  const [blurBg, setBlurBg] = useState<string | null>(null)
+  useEffect(() => {
+    let alive = true
+    const src = song ? (song.midCoverSrc ?? song.coverSrc) : null
+    if (song && src) {
+      void getBlurredBackdrop(song.id, src).then((url) => {
+        if (alive) setBlurBg(url)
+      })
+    } else {
+      setBlurBg(null)
+    }
+    return () => {
+      alive = false
+    }
+  }, [song?.id, song?.midCoverSrc, song?.coverSrc])
 
   if (!song) return null
 
@@ -61,8 +83,13 @@ export default function PlayerView() {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="absolute inset-0 z-30 flex flex-col overflow-hidden px-6 pt-4 pb-8"
-          style={{ background: `linear-gradient(180deg, ${glowColor} 0%, var(--bg) 58%, var(--bg-end) 100%)` }}
+          className="absolute inset-0 z-30 flex flex-col overflow-hidden px-6"
+          style={{
+            background: `linear-gradient(180deg, ${glowColor} 0%, var(--bg) 58%, var(--bg-end) 100%)`,
+            // 沉浸式：渐变背景照样铺满全屏（含状态栏背后），顶部控件行垫安全区下移（1.1.0）
+            paddingTop: 'calc(1rem + var(--sat))',
+            paddingBottom: 'calc(2rem + var(--sab))',
+          }}
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
@@ -76,13 +103,13 @@ export default function PlayerView() {
             if (info.offset.y > 110 || info.velocity.y > 600) setOpen(false)
           }}
         >
-          {/* 封面光晕层：封面图重度模糊铺满，营造液态玻璃后的色彩场；深色下降低亮度避免刺眼 */}
-          {song.coverSrc && (
+          {/* 封面光晕层：预模糊小位图放大铺满作色彩场（位图本身已糊，不再实时模糊）；深色下降低亮度避免刺眼 */}
+          {blurBg && (
             <img
-              src={song.coverSrc}
+              src={blurBg}
               alt=""
               aria-hidden
-              className={`pointer-events-none absolute inset-0 h-full w-full scale-150 object-cover blur-3xl ${dark ? 'opacity-30' : 'opacity-50'}`}
+              className={`pointer-events-none absolute inset-0 h-full w-full object-cover ${dark ? 'opacity-30' : 'opacity-50'}`}
             />
           )}
           {dark && (
@@ -117,7 +144,7 @@ export default function PlayerView() {
               <button onClick={() => setLyricOpen(true)} aria-label="打开歌词" className="glass grid h-11 w-11 place-items-center rounded-full">
                 <Mic2 size={20} />
               </button>
-              <button onClick={() => toggleLike(song.id)} aria-label="收藏" className="glass grid h-11 w-11 place-items-center rounded-full">
+              <button onClick={() => { hapticImpact(); toggleLike(song.id) }} aria-label="收藏" className="glass grid h-11 w-11 place-items-center rounded-full">
                 <Heart size={21} fill={liked.has(song.id) ? 'var(--accent)' : 'none'} style={{ color: 'var(--accent)' }} />
               </button>
             </div>
@@ -130,7 +157,7 @@ export default function PlayerView() {
             >
               {song.coverSrc ? (
                 <>
-                  <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                  <img src={song.midCoverSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
                   <div className="relative h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
                 </>
               ) : (
@@ -162,13 +189,13 @@ export default function PlayerView() {
               <button onClick={cycleMode} aria-label="播放模式" className="grid h-11 w-11 place-items-center rounded-full">
                 <ModeIcon size={22} style={{ color: 'var(--accent)' }} />
               </button>
-              <button onClick={prev} aria-label="上一首" className="grid h-11 w-11 place-items-center rounded-full">
+              <button onClick={() => { hapticImpact(); prev() }} aria-label="上一首" className="grid h-11 w-11 place-items-center rounded-full">
                 <SkipBack size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
               </button>
               <button onClick={toggle} aria-label={playing ? '暂停' : '播放'} className="grid h-16 w-16 place-items-center rounded-full shadow-lg accent-bg">
                 {playing ? <Pause size={28} fill="white" className="text-white" /> : <Play size={28} fill="white" className="text-white" />}
               </button>
-              <button onClick={next} aria-label="下一首" className="grid h-11 w-11 place-items-center rounded-full">
+              <button onClick={() => { hapticImpact(); next() }} aria-label="下一首" className="grid h-11 w-11 place-items-center rounded-full">
                 <SkipForward size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
               </button>
               <button onClick={() => setQueueOpen(true)} aria-label="打开播放队列" className="grid h-11 w-11 place-items-center rounded-full">

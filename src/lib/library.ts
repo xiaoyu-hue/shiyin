@@ -37,6 +37,8 @@ export interface AlbumGroup {
   artist: string
   items: IndexedSong[]
   coverSrc?: string | null
+  /** 与 coverSrc 同一首歌的中图（≤512px，1.1.0）：网格/详情大图展示用，缺失回退 coverSrc */
+  midCoverSrc?: string | null
   color: string
 }
 
@@ -47,11 +49,21 @@ export function groupAlbums(list: IndexedSong[]): AlbumGroup[] {
     const name = item.song.album || '本地音乐'
     let g = map.get(name)
     if (!g) {
-      g = { name, artist: item.song.artist, items: [], coverSrc: item.song.coverSrc, color: item.song.color }
+      g = {
+        name,
+        artist: item.song.artist,
+        items: [],
+        coverSrc: item.song.coverSrc,
+        midCoverSrc: item.song.midCoverSrc,
+        color: item.song.color,
+      }
       map.set(name, g)
     }
     g.items.push(item)
-    if (!g.coverSrc && item.song.coverSrc) g.coverSrc = item.song.coverSrc
+    if (!g.coverSrc && item.song.coverSrc) {
+      g.coverSrc = item.song.coverSrc
+      g.midCoverSrc = item.song.midCoverSrc
+    }
   }
   return [...map.values()].sort((a, b) => collator.compare(a.name, b.name))
 }

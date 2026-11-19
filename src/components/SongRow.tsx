@@ -1,6 +1,8 @@
+import { memo } from 'react'
 import { Play, Heart, MoreHorizontal } from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
+import { hapticImpact } from '../platform/haptics'
 
 interface Props {
   index: number
@@ -9,7 +11,7 @@ interface Props {
   context?: number[]
 }
 
-export default function SongRow({ index, rank, context }: Props) {
+function SongRow({ index, rank, context }: Props) {
   const tracks = useStore((s) => s.tracks)
   const song = tracks[index]
   const cur = useStore((s) => s.cur)
@@ -26,7 +28,7 @@ export default function SongRow({ index, rank, context }: Props) {
 
   return (
     <div
-      className="flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors active:bg-ink/5"
+      className="flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors [contain-intrinsic-size:auto_68px] [content-visibility:auto] active:bg-ink/5"
       onClick={() => play(index, context)}
       role="button"
       tabIndex={0}
@@ -41,7 +43,15 @@ export default function SongRow({ index, rank, context }: Props) {
         className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl text-white shadow-sm"
         style={{ ['--cover' as string]: song.color }}
       >
-        {song.coverSrc && <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+        {song.coverSrc && (
+          <img
+            src={song.thumbSrc ?? song.coverSrc}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
         {isCurrent && playing ? (
           <span className="pulsing relative grid h-6 w-6 place-items-center rounded-full bg-surface/90">
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'var(--accent)' }} />
@@ -67,7 +77,7 @@ export default function SongRow({ index, rank, context }: Props) {
         {fmtTime(song.dur)}
       </span>
       <button
-        onClick={(e) => { e.stopPropagation(); toggleLike(song.id) }}
+        onClick={(e) => { e.stopPropagation(); hapticImpact(); toggleLike(song.id) }}
         aria-label={liked.has(song.id) ? '取消收藏' : '收藏'}
         className="shrink-0 p-1.5"
       >
@@ -83,3 +93,6 @@ export default function SongRow({ index, rank, context }: Props) {
     </div>
   )
 }
+
+/** 列表行：props 不变时跳过重渲染（行内状态走 store 订阅，不受 memo 影响） */
+export default memo(SongRow)

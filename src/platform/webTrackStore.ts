@@ -7,6 +7,7 @@ import {
   deleteTrack as idbDeleteTrack,
   loadTracks as idbLoadTracks,
   saveTrack as idbSaveTrack,
+  updateTrackCovers as idbUpdateTrackCovers,
   updateTrackLyrics as idbUpdateTrackLyrics,
   type StoredTrack,
 } from './idb'
@@ -32,6 +33,9 @@ export const webTrackStore: TrackStore = {
       audioSrc: URL.createObjectURL(rec.blob),
       coverSrc: rec.cover ? URL.createObjectURL(rec.cover) : null,
       coverBlob: rec.cover ?? null,
+      thumbSrc: rec.thumb ? URL.createObjectURL(rec.thumb) : null,
+      midCoverSrc: rec.coverMid ? URL.createObjectURL(rec.coverMid) : null,
+      thumbDone: rec.thumbDone === true,
     }))
   },
 
@@ -41,6 +45,10 @@ export const webTrackStore: TrackStore = {
 
   async updateTrackLyrics(key, lyrics): Promise<void> {
     await idbUpdateTrackLyrics(key, lyrics)
+  },
+
+  async updateTrackCovers(key, covers): Promise<void> {
+    await idbUpdateTrackCovers(key, covers)
   },
 
   async clearTracks(): Promise<void> {

@@ -7,6 +7,7 @@ import { trackStore } from '../platform/trackStore'
 import type { LyricLine } from '../data/types'
 import { naturalQueue } from '../lib/queue'
 import { sanitizeLyricLines } from '../lib/audioTags'
+import { generateCoverThumbs } from '../lib/coverThumbs'
 import { loadPlaylistsRaw, loadPrefsRaw, savePlaylistsRaw, savePrefsRaw } from '../platform/prefs'
 import { parsePlaylists, serializePlaylists } from '../lib/playlists'
 import { useStore } from './index'
@@ -80,6 +81,9 @@ export function restoreLocalTracks(): Promise<void> {
       audioSrc: rec.audioSrc,
       coverSrc: rec.coverSrc,
       coverBlob: rec.coverBlob,
+      thumbSrc: rec.thumbSrc,
+      midCoverSrc: rec.midCoverSrc,
+      thumbDone: rec.thumbDone,
       localKey: rec.key,
       addedAt: rec.addedAt,
     }))
@@ -87,8 +91,44 @@ export function restoreLocalTracks(): Promise<void> {
     // 恢复后队列初始化为自然顺序（与曲目列表一致）
     const len = useStore.getState().tracks.length
     useStore.setState({ queue: naturalQueue(len), queuePos: 0 })
+    // 1.1.0 前导入的老曲目没有缩略图：异步补生成并回存，失败不阻塞、不用重导入
+    void backfillCoverThumbs(restored)
   })()
   return restoring
+}
+
+/**
+ * 给恢复出的老曲目补生成封面缩略图/中图（1.1.0）：逐首异步进行，
+ * 生成后先回存持久化、再把运行时地址补进 store；单首失败跳过下次再试。
+ */
+async function backfillCoverThumbs(songs: Song[]): Promise<void> {
+  for (const song of songs) {
+    if (!song.localKey || !song.coverBlob || song.thumbDone) continue
+    const gen = await generateCoverThumbs(song.coverBlob).catch(() => null)
+    if (!gen) continue
+    await trackStore
+      .updateTrackCovers(song.localKey, { thumb: gen.thumb, coverMid: gen.player })
+      .catch(() => undefined)
+    const state = useStore.getState()
+    const at = state.tracks.findIndex((t) => t.localKey === song.localKey)
+    if (at < 0) continue
+    const cur = state.tracks[at]
+    const tracks = state.tracks.slice()
+    tracks[at] = {
+      ...cur,
+      thumbDone: true,
+      thumbSrc: gen.thumb ? URL.createObjectURL(gen.thumb) : cur.thumbSrc,
+      midCoverSrc: gen.player ? URL.createObjectURL(gen.player) : cur.midCoverSrc,
+    }
+    useStore.setState({ tracks })
+  }
+}
+
+/** 释放一首曲目的全部 blob 运行时地址（原生文件服务地址不以 blob: 开头，不受影响） */
+function revokeTrackUrls(track: Song): void {
+  for (const src of [track.audioSrc, track.coverSrc, track.thumbSrc, track.midCoverSrc]) {
+    if (src?.startsWith('blob:')) URL.revokeObjectURL(src)
+  }
 }
 
 /**
@@ -101,8 +141,7 @@ export async function deleteTrackEverywhere(index: number): Promise<void> {
   if (!track) return
   const wasCurrent = state.cur === index
   state.removeTrack(index)
-  if (track.audioSrc?.startsWith('blob:')) URL.revokeObjectURL(track.audioSrc)
-  if (track.coverSrc?.startsWith('blob:')) URL.revokeObjectURL(track.coverSrc)
+  revokeTrackUrls(track)
   if (wasCurrent) platform.audio.pause()
   if (track.localKey) await trackStore.deleteTrack(track.localKey).catch(() => undefined)
 }
@@ -129,8 +168,7 @@ export async function attachLyricsToTrack(index: number, lyrics: LyricLine[]): P
 export async function clearAllMusic(): Promise<void> {
   const s = useStore.getState()
   for (const t of s.tracks) {
-    if (t.audioSrc?.startsWith('blob:')) URL.revokeObjectURL(t.audioSrc)
-    if (t.coverSrc?.startsWith('blob:')) URL.revokeObjectURL(t.coverSrc)
+    revokeTrackUrls(t)
   }
   platform.audio.pause()
   await trackStore.clearTracks().catch(() => undefined)
@@ -161,6 +199,7 @@ export function restorePrefs(): void {
       history: prefs.history,
       themeIdx: prefs.themeIdx,
       appearance: prefs.appearance,
+      smoothMode: prefs.smoothMode,
     })
   }
   useStore.setState({ playlists: parsePlaylists(loadPlaylistsRaw()) })
@@ -180,7 +219,8 @@ export function bindPrefsPersistence(): void {
       state.liked === prev.liked &&
       state.history === prev.history &&
       state.themeIdx === prev.themeIdx &&
-      state.appearance === prev.appearance
+      state.appearance === prev.appearance &&
+      state.smoothMode === prev.smoothMode
     ) {
       return
     }
@@ -190,13 +230,31 @@ export function bindPrefsPersistence(): void {
         history: state.history,
         themeIdx: state.themeIdx,
         appearance: state.appearance,
+        smoothMode: state.smoothMode,
       }),
     )
   })
 }
 
-/** 持久化一首已导入曲目 */
+/**
+ * 持久化一首已导入曲目。
+ * 有封面时顺带生成缩略图/中图（1.1.0）：生成结果随记录落盘，
+ * 本次会话的运行时地址直接挂回 track（后续恢复由 trackStore 生成地址）。
+ * 生成失败不阻断落盘，thumbDone 保持未确认，恢复时再补。
+ */
 export async function persistTrack(file: File, track: Song, key: string): Promise<void> {
+  let thumb: Blob | null = null
+  let coverMid: Blob | null = null
+  if (track.coverBlob) {
+    const gen = await generateCoverThumbs(track.coverBlob).catch(() => null)
+    if (gen) {
+      thumb = gen.thumb
+      coverMid = gen.player
+      track.thumbDone = true
+      if (thumb) track.thumbSrc = URL.createObjectURL(thumb)
+      if (coverMid) track.midCoverSrc = URL.createObjectURL(coverMid)
+    }
+  }
   const record: StoredTrack = {
     key,
     id: track.id,
@@ -209,6 +267,9 @@ export async function persistTrack(file: File, track: Song, key: string): Promis
     addedAt: Date.now(),
     lyrics: track.lyrics,
     cover: track.coverBlob ?? null,
+    thumb,
+    coverMid,
+    thumbDone: track.thumbDone === true,
   }
   await trackStore.saveTrack(record)
 }

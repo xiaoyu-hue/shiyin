@@ -23,6 +23,12 @@ export interface StoredTrack {
   lyrics?: LyricLine[]
   /** 内嵌封面图原图（0.4.0 起）；旧记录无此字段，恢复时按无封面处理 */
   cover?: Blob | null
+  /** 封面缩略图（≤128px，1.1.0 起）；旧记录无此字段，恢复时异步补生成 */
+  thumb?: Blob | null
+  /** 封面中图（≤512px，1.1.0 起）；旧记录无此字段，恢复时异步补生成 */
+  coverMid?: Blob | null
+  /** 缩略图是否已生成/确认过（1.1.0 起）；旧记录无此字段视为未确认 */
+  thumbDone?: boolean
 }
 
 function hasIDB(): boolean {
@@ -81,6 +87,32 @@ export async function updateTrackLyrics(key: string, lyrics: LyricLine[]): Promi
     getReq.onsuccess = () => {
       const rec = getReq.result as StoredTrack | undefined
       if (rec) store.put({ ...rec, lyrics })
+    }
+    tx.oncomplete = () => {
+      db.close()
+      resolve()
+    }
+    tx.onerror = () => {
+      db.close()
+      resolve()
+    }
+  })
+}
+
+/** 只更新某条记录的缩略图字段并标记已确认（补图回存用）；记录不存在时静默跳过 */
+export async function updateTrackCovers(
+  key: string,
+  covers: { thumb: Blob | null; coverMid: Blob | null },
+): Promise<void> {
+  if (!hasIDB()) return
+  const db = await openDB()
+  return new Promise<void>((resolve) => {
+    const tx = db.transaction(STORE, 'readwrite')
+    const store = tx.objectStore(STORE)
+    const getReq = store.get(key)
+    getReq.onsuccess = () => {
+      const rec = getReq.result as StoredTrack | undefined
+      if (rec) store.put({ ...rec, thumb: covers.thumb, coverMid: covers.coverMid, thumbDone: true })
     }
     tx.oncomplete = () => {
       db.close()

@@ -27,10 +27,22 @@ export interface TrackIndexEntry {
   coverPath: string | null
   /** 封面文件字节数；无封面时为 0 */
   coverSize: number
+  /** 封面缩略图（≤128px）相对路径（1.1.0 起，旧索引无此字段）；无缩略图时为 null */
+  thumbPath?: string | null
+  /** 缩略图文件字节数；无缩略图时为 0 */
+  thumbSize?: number
+  /** 封面中图（≤512px）相对路径（1.1.0 起，旧索引无此字段）；无中图时为 null */
+  midCoverPath?: string | null
+  /** 中图文件字节数；无中图时为 0 */
+  midCoverSize?: number
+  /** 缩略图是否已生成/确认过（1.1.0 起）；旧索引无此字段视为未确认，恢复时补图 */
+  thumbDone?: boolean
 }
 
 const AUDIO_DIR = 'tracks'
 const COVER_DIR = 'covers'
+const THUMB_DIR = 'thumbs'
+const MIDCOVER_DIR = 'midcovers'
 
 /** FNV-1a 32 位哈希 → 8 位十六进制。同一 key 永远得到同一文件名，避免 key 中的特殊字符进路径 */
 export function keyHash(key: string): string {
@@ -66,8 +78,20 @@ export function coverRelPath(key: string, mime: string): string {
   return `${COVER_DIR}/${keyHash(key)}.${extOfMime(mime)}`
 }
 
+/** 缩略图文件相对路径：thumbs/<哈希>.jpg（生成产物固定 JPEG） */
+export function thumbRelPath(key: string): string {
+  return `${THUMB_DIR}/${keyHash(key)}.jpg`
+}
+
+/** 中图文件相对路径：midcovers/<哈希>.jpg（生成产物固定 JPEG） */
+export function midCoverRelPath(key: string): string {
+  return `${MIDCOVER_DIR}/${keyHash(key)}.jpg`
+}
+
 export const TRACKS_DIR = AUDIO_DIR
 export const COVERS_DIR = COVER_DIR
+export const THUMBS_DIR = THUMB_DIR
+export const MIDCOVERS_DIR = MIDCOVER_DIR
 export const INDEX_FILE = 'tracks-index.json'
 
 function cleanString(v: unknown): string {
@@ -99,6 +123,8 @@ function cleanEntry(v: unknown): TrackIndexEntry | null {
   // key 与音频路径是定位文件的命脉，缺一即视为坏记录丢弃
   if (!key || !audioPath) return null
   const coverPath = typeof o.coverPath === 'string' && o.coverPath ? o.coverPath : null
+  const thumbPath = typeof o.thumbPath === 'string' && o.thumbPath ? o.thumbPath : null
+  const midCoverPath = typeof o.midCoverPath === 'string' && o.midCoverPath ? o.midCoverPath : null
   return {
     key,
     id: cleanNumber(o.id),
@@ -113,6 +139,11 @@ function cleanEntry(v: unknown): TrackIndexEntry | null {
     audioSize: cleanNumber(o.audioSize),
     coverPath,
     coverSize: coverPath ? cleanNumber(o.coverSize) : 0,
+    thumbPath,
+    thumbSize: thumbPath ? cleanNumber(o.thumbSize) : 0,
+    midCoverPath,
+    midCoverSize: midCoverPath ? cleanNumber(o.midCoverSize) : 0,
+    thumbDone: o.thumbDone === true,
   }
 }
 
@@ -143,7 +174,7 @@ export function parseTrackIndex(raw: string | null | undefined): TrackIndexEntry
   }
 }
 
-/** 索引内全部文件的总字节数（设置页占用统计用） */
+/** 索引内全部文件的总字节数（设置页占用统计用；含 1.1.0 起的缩略图/中图） */
 export function totalIndexSize(entries: TrackIndexEntry[]): number {
-  return entries.reduce((sum, e) => sum + e.audioSize + e.coverSize, 0)
+  return entries.reduce((sum, e) => sum + e.audioSize + e.coverSize + (e.thumbSize ?? 0) + (e.midCoverSize ?? 0), 0)
 }

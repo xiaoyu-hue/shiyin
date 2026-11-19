@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ChevronRight, Heart, ListEnd, ListMusic, ListPlus, Play, Plus, ScrollText, Trash2, X } from 'lucide-react'
 import { useStore } from '../store'
 import { deleteTrackEverywhere } from '../store/bootstrap'
+import { registerBackHandler } from '../platform/backButton'
 import { useLyricAttach } from './useLyricAttach'
 
 /** 单曲操作菜单：玻璃底部抽屉（下一首播放 / 加入队列 / 加入歌单 / 收藏 / 删除） */
@@ -34,6 +35,19 @@ export default function SongMenu() {
   const close = () => setMenuTrack(null)
   const open = menuTrack !== null && song !== undefined
 
+  // 安卓返回登记（1.1.0）：菜单开着时返回先收菜单；在子视图（选歌单/确认删除）时先回主视图
+  useEffect(() => {
+    if (!open) return
+    return registerBackHandler(() => {
+      if (view !== 'main') {
+        setView('main')
+        return true
+      }
+      close()
+      return true
+    })
+  }, [open, view])
+
   const itemCls =
     'flex min-h-12 w-full items-center gap-3 rounded-2xl px-3 text-left text-[15px] transition-colors active:bg-ink/5'
 
@@ -54,7 +68,8 @@ export default function SongMenu() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="glass-strong absolute inset-x-0 bottom-0 mx-auto w-full max-w-[430px] rounded-t-[var(--r-sheet)] p-4 pb-8"
+            className="glass-strong absolute inset-x-0 bottom-0 mx-auto w-full max-w-[430px] rounded-t-[var(--r-sheet)] p-4"
+            style={{ paddingBottom: 'calc(2rem + var(--sab))' }}
           >
             <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-ink/15" />
 
@@ -66,7 +81,7 @@ export default function SongMenu() {
                     style={{ ['--cover' as string]: song.color }}
                   >
                     {song.coverSrc ? (
-                      <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                      <img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
                     ) : (
                       <Play size={18} fill="white" className="opacity-90" />
                     )}
@@ -133,7 +148,7 @@ export default function SongMenu() {
                   <p className="px-1 py-3 text-sm text-ink/55">已加入「{addedTo}」 ✓</p>
                 ) : (
                   <>
-                    <div className="max-h-56 overflow-y-auto">
+                    <div className="max-h-56 overflow-y-auto overscroll-contain">
                       {playlists.length === 0 && (
                         <p className="px-1 py-2 text-sm text-ink/45">还没有歌单，先新建一个：</p>
                       )}
