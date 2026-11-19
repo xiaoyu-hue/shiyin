@@ -270,7 +270,7 @@ function SettingsPage() {
       <section>
         <h2 className="mb-3 text-base font-semibold">关于</h2>
         <div className="rounded-2xl bg-surface/60 p-4 text-sm leading-relaxed text-ink/60 shadow-sm">
-          <p className="font-semibold text-ink/80">诗音 Shiyin · v0.8.1</p>
+          <p className="font-semibold text-ink/80">诗音 Shiyin · v1.0.0</p>
           <p className="mt-1.5">
             一款只播放你自己音乐的本地播放器：没有账号、没有上传、没有推荐流。你的音乐、收藏与歌单都只保存在这台设备上。
           </p>
