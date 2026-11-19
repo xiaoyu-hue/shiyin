@@ -1,10 +1,16 @@
 name: windows-spike
 
-# Windows 阶段验证包（Spike）专用工作流：手动触发。
+# Windows 阶段验证包（Spike）专用工作流。
 # 在真实 Windows runner 上完成「打包 NSIS → 静默安装 → 自动化验收 → 卸载」全链，
 # 产物（安装包 + 验收截图/报告）走 artifact 下载，不发 Release、不进主线。
+# 触发方式：workflow_dispatch 要求工作流文件已在默认分支上（GitHub 限制），
+# 验证包阶段文件只在 spike 分支，故同时挂 push 触发（仅限本分支）方便迭代；
+# 正式版转正时删掉 push 触发、只留 dispatch/tag。
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - spike/tauri-windows
 
 jobs:
   spike:
