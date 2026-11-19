@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand'
 import { stepIndex, shuffleIndex, onTail } from '../lib/player'
+import { HISTORY_LIMIT } from '../lib/prefs'
 import { platform } from '../platform/instance'
 import type { AppState, PlayerSlice } from './types'
 
@@ -32,7 +33,7 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
       pos: 0,
       playing: true,
       audioError: null,
-      history: [index, ...s.history.filter((i) => i !== index)],
+      history: [index, ...s.history.filter((i) => i !== index)].slice(0, HISTORY_LIMIT),
     }))
     syncEngine(get())
   },

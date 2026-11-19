@@ -1,6 +1,9 @@
 import type { Song } from '../data/types'
+import { DEFAULT_THEME_INDEX, themes } from '../data/sample'
+import { parsePrefs, serializePrefs } from '../lib/prefs'
 import { platform } from '../platform/instance'
 import { loadTracks, saveTrack, type StoredTrack } from '../platform/idb'
+import { loadPrefsRaw, savePrefsRaw } from '../platform/prefs'
 import { useStore } from './index'
 
 let bound = false
@@ -48,6 +51,37 @@ export function restoreLocalTracks(): Promise<void> {
     useStore.getState().addTracks(restored)
   })()
   return restoring
+}
+
+/** 从本地存储恢复收藏、历史与主题（同步读取，应在首帧渲染前调用） */
+export function restorePrefs(): void {
+  const prefs = parsePrefs(loadPrefsRaw(), themes.length, DEFAULT_THEME_INDEX)
+  if (!prefs) return
+  useStore.setState({
+    liked: new Set(prefs.liked),
+    history: prefs.history,
+    themeIdx: prefs.themeIdx,
+  })
+}
+
+let prefsBound = false
+
+/** 订阅收藏 / 历史 / 主题变化并写回本地存储，应用生命周期内只绑定一次 */
+export function bindPrefsPersistence(): void {
+  if (prefsBound) return
+  prefsBound = true
+  useStore.subscribe((state, prev) => {
+    if (state.liked === prev.liked && state.history === prev.history && state.themeIdx === prev.themeIdx) {
+      return
+    }
+    savePrefsRaw(
+      serializePrefs({
+        liked: [...state.liked],
+        history: state.history,
+        themeIdx: state.themeIdx,
+      }),
+    )
+  })
 }
 
 /** 持久化一首已导入曲目 */
