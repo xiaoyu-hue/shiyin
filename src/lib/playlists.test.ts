@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   addTrackToList,
+  addTracksToList,
   cleanPlaylists,
   newPlaylist,
   parsePlaylists,
@@ -77,5 +78,13 @@ describe('歌单操作（不可变）', () => {
     const purged = purgeTrackFromAll(base, 3)
     expect(purged[1].trackIds).toEqual([])
     expect(purged[0].trackIds).toEqual([1, 2])
+  })
+
+  it('批量加入：已在的不重复、新歌按入参顺序追加、其他歌单不动', () => {
+    expect(addTracksToList(base, 'pl-a', [2, 9, 8])[0].trackIds).toEqual([1, 2, 9, 8])
+    expect(addTracksToList(base, 'pl-a', [9, 9])[0].trackIds).toEqual([1, 2, 9])
+    expect(addTracksToList(base, 'pl-a', [])[0]).toBe(base[0])
+    expect(addTracksToList(base, 'pl-a', [7])[1]).toBe(base[1])
+    expect(addTracksToList(base, 'not-exist', [7])).toEqual(base)
   })
 })

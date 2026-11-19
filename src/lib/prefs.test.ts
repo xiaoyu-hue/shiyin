@@ -6,12 +6,28 @@ const DEFAULT_THEME = 5
 
 describe('serializePrefs / parsePrefs 往返', () => {
   it('正常数据往返一致', () => {
-    const data: PrefsData = { liked: [3, 1001, 8], history: [2, 0, 5], themeIdx: 2, appearance: 'dark', smoothMode: true }
+    const data: PrefsData = {
+      liked: [3, 1001, 8],
+      history: [2, 0, 5],
+      themeIdx: 2,
+      appearance: 'dark',
+      smoothMode: true,
+      swipeAnywhere: true,
+      onboarded: true,
+    }
     expect(parsePrefs(serializePrefs(data), THEME_COUNT, DEFAULT_THEME)).toEqual(data)
   })
 
   it('空状态往返一致', () => {
-    const data: PrefsData = { liked: [], history: [], themeIdx: 0, appearance: 'system', smoothMode: false }
+    const data: PrefsData = {
+      liked: [],
+      history: [],
+      themeIdx: 0,
+      appearance: 'system',
+      smoothMode: false,
+      swipeAnywhere: false,
+      onboarded: false,
+    }
     expect(parsePrefs(serializePrefs(data), THEME_COUNT, DEFAULT_THEME)).toEqual(data)
   })
 })
@@ -36,6 +52,22 @@ describe('parsePrefs 容错', () => {
       themeIdx: 3,
       appearance: 'system',
       smoothMode: false,
+      swipeAnywhere: false,
+      onboarded: false,
+    })
+  })
+
+  it('1.2 开关清洗：只有明确的 true 为真，旧数据缺失为假', () => {
+    const mk = (extra: Record<string, unknown>) => JSON.stringify({ liked: [], history: [], themeIdx: 0, ...extra })
+    expect(parsePrefs(mk({}), THEME_COUNT, DEFAULT_THEME)?.swipeAnywhere).toBe(false)
+    expect(parsePrefs(mk({}), THEME_COUNT, DEFAULT_THEME)?.onboarded).toBe(false)
+    expect(parsePrefs(mk({ swipeAnywhere: 'yes', onboarded: 1 }), THEME_COUNT, DEFAULT_THEME)).toMatchObject({
+      swipeAnywhere: false,
+      onboarded: false,
+    })
+    expect(parsePrefs(mk({ swipeAnywhere: true, onboarded: true }), THEME_COUNT, DEFAULT_THEME)).toMatchObject({
+      swipeAnywhere: true,
+      onboarded: true,
     })
   })
 

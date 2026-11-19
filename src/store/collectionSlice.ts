@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand'
 import type { AppState, CollectionSlice } from './types'
 import {
   addTrackToList,
+  addTracksToList,
   newPlaylist,
   purgeTrackFromAll,
   removeFromList,
@@ -10,7 +11,7 @@ import {
 } from '../lib/playlists'
 import { naturalQueue, posOf, remapAfterRemove, remapCurrent } from '../lib/queue'
 
-export const createCollectionSlice: StateCreator<AppState, [], [], CollectionSlice> = (set) => ({
+export const createCollectionSlice: StateCreator<AppState, [], [], CollectionSlice> = (set, get) => ({
   tracks: [],
   liked: new Set<number>(),
   history: [],
@@ -55,8 +56,17 @@ export const createCollectionSlice: StateCreator<AppState, [], [], CollectionSli
         cur,
         playing: wasCurrent ? false : s.playing,
         pos: wasCurrent ? 0 : s.pos,
+        // 多选中的下标同属一套坐标，一并重映射，避免删歌后选中错位
+        selection: s.selection === null ? null : remapAfterRemove(s.selection, index),
+        selectionScope: remapAfterRemove(s.selectionScope, index),
       }
     }),
+
+  removeTracks: (indices) => {
+    // 从大到小逐个删：每次单删内部完成全部重映射，后续下标不受前面删除影响
+    const sorted = [...new Set(indices)].sort((a, b) => b - a)
+    for (const i of sorted) get().removeTrack(i)
+  },
 
   createPlaylist: (name) => {
     const p = newPlaylist(name, Date.now())
@@ -70,6 +80,9 @@ export const createCollectionSlice: StateCreator<AppState, [], [], CollectionSli
   deletePlaylist: (id) => set((s) => ({ playlists: removeFromList(s.playlists, id) })),
 
   addToPlaylist: (id, trackId) => set((s) => ({ playlists: addTrackToList(s.playlists, id, trackId) })),
+
+  addManyToPlaylist: (id, trackIds) =>
+    set((s) => ({ playlists: addTracksToList(s.playlists, id, trackIds) })),
 
   removeFromPlaylist: (id, trackId) =>
     set((s) => ({ playlists: removeTrackFromList(s.playlists, id, trackId) })),

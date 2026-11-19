@@ -68,6 +68,8 @@ export function restoreLocalTracks(): Promise<void> {
   if (restoring) return restoring
   restoring = (async () => {
     const records = await trackStore.loadTracks().catch(() => [])
+    // 无论有无记录、是否失败，走到这里都算恢复完成：首启引导据此判断空库（1.2.0）
+    useStore.getState().setRestored(true)
     if (!records.length) return
     const restored: Song[] = records.map((rec) => ({
       id: rec.id,
@@ -147,6 +149,17 @@ export async function deleteTrackEverywhere(index: number): Promise<void> {
 }
 
 /**
+ * 批量彻底删除（1.2.0 多选删除）：从大到小逐个走单删全链路
+ *（store 连带清理 + 运行时地址释放 + 持久化删除），下标互不影响。
+ */
+export async function deleteTracksEverywhere(indices: number[]): Promise<void> {
+  const sorted = [...new Set(indices)].sort((a, b) => b - a)
+  for (const i of sorted) {
+    await deleteTrackEverywhere(i)
+  }
+}
+
+/**
  * 给一首曲目挂上（或更换）歌词：更新 store 并写回持久化存储，
  * 刷新后仍在。外挂歌词文件导入与批量同名配对共用此入口。
  */
@@ -200,6 +213,8 @@ export function restorePrefs(): void {
       themeIdx: prefs.themeIdx,
       appearance: prefs.appearance,
       smoothMode: prefs.smoothMode,
+      swipeAnywhere: prefs.swipeAnywhere,
+      onboarded: prefs.onboarded,
     })
   }
   useStore.setState({ playlists: parsePlaylists(loadPlaylistsRaw()) })
@@ -220,7 +235,9 @@ export function bindPrefsPersistence(): void {
       state.history === prev.history &&
       state.themeIdx === prev.themeIdx &&
       state.appearance === prev.appearance &&
-      state.smoothMode === prev.smoothMode
+      state.smoothMode === prev.smoothMode &&
+      state.swipeAnywhere === prev.swipeAnywhere &&
+      state.onboarded === prev.onboarded
     ) {
       return
     }
@@ -231,6 +248,8 @@ export function bindPrefsPersistence(): void {
         themeIdx: state.themeIdx,
         appearance: state.appearance,
         smoothMode: state.smoothMode,
+        swipeAnywhere: state.swipeAnywhere,
+        onboarded: state.onboarded,
       }),
     )
   })

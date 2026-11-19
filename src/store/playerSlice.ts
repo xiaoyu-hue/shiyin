@@ -1,6 +1,15 @@
 import type { StateCreator } from 'zustand'
 import { stepIndex, shuffleIndex } from '../lib/player'
-import { appendToQueue, insertNext, moveInQueue, naturalQueue, posOf, removeAtPos } from '../lib/queue'
+import {
+  appendManyToQueue,
+  appendToQueue,
+  insertManyNext,
+  insertNext,
+  moveInQueue,
+  naturalQueue,
+  posOf,
+  removeAtPos,
+} from '../lib/queue'
 import { endsAtFromMinutes } from '../lib/sleepTimer'
 import { HISTORY_LIMIT } from '../lib/prefs'
 import { platform } from '../platform/instance'
@@ -149,6 +158,20 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
     set((s) => {
       const q = effectiveQueue(s)
       const queue = appendToQueue(q, trackIndex)
+      return { queue, queuePos: posOf(queue, s.cur) }
+    }),
+
+  playNextMany: (trackIndices) =>
+    set((s) => {
+      const q = effectiveQueue(s)
+      const queue = insertManyNext(q, posOf(q, s.cur), trackIndices)
+      return { queue, queuePos: posOf(queue, s.cur) }
+    }),
+
+  enqueueMany: (trackIndices) =>
+    set((s) => {
+      const q = effectiveQueue(s)
+      const queue = appendManyToQueue(q, trackIndices)
       return { queue, queuePos: posOf(queue, s.cur) }
     }),
 

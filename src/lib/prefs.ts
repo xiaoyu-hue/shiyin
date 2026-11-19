@@ -21,6 +21,10 @@ export interface PrefsData {
   appearance: Appearance
   /** 流畅模式（1.1.0 起）：开启时全局关实时毛玻璃走假玻璃；旧数据无此字段时为关 */
   smoothMode: boolean
+  /** 播放页全屏滑动切歌（1.2.0 起）：开启后播放页任意处横滑可切歌；旧数据无此字段时为关 */
+  swipeAnywhere: boolean
+  /** 首启导入引导是否已完成（1.2.0 起）：导入完成或「稍后再说」后为真，不再弹引导；旧数据无此字段时为假 */
+  onboarded: boolean
 }
 
 /** 历史最多保留条数，超出截断最旧的 */
@@ -68,6 +72,11 @@ export function cleanSmoothMode(value: unknown): boolean {
   return value === true
 }
 
+/** 布尔偏好清洗（1.2.0 全屏滑动切歌 / 首启引导标记共用）：只有明确的 true 才为真 */
+export function cleanFlag(value: unknown): boolean {
+  return value === true
+}
+
 /** 把偏好数据序列化为落盘字符串 */
 export function serializePrefs(data: PrefsData): string {
   return JSON.stringify({
@@ -77,6 +86,8 @@ export function serializePrefs(data: PrefsData): string {
     themeIdx: data.themeIdx,
     appearance: cleanAppearance(data.appearance),
     smoothMode: cleanSmoothMode(data.smoothMode),
+    swipeAnywhere: cleanFlag(data.swipeAnywhere),
+    onboarded: cleanFlag(data.onboarded),
   })
 }
 
@@ -104,5 +115,7 @@ export function parsePrefs(
     themeIdx: cleanThemeIdx(rec.themeIdx, themeCount, defaultThemeIdx),
     appearance: cleanAppearance(rec.appearance),
     smoothMode: cleanSmoothMode(rec.smoothMode),
+    swipeAnywhere: cleanFlag(rec.swipeAnywhere),
+    onboarded: cleanFlag(rec.onboarded),
   }
 }

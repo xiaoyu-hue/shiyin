@@ -1,4 +1,5 @@
 import type { StateCreator } from 'zustand'
+import { toggleInSelection } from '../lib/selection'
 import type { AppState, UiSlice } from './types'
 
 export const createUiSlice: StateCreator<AppState, [], [], UiSlice> = (set) => ({
@@ -13,6 +14,9 @@ export const createUiSlice: StateCreator<AppState, [], [], UiSlice> = (set) => (
   menuTrack: null,
   queueOpen: false,
   mePage: null,
+  selection: null,
+  selectionScope: [],
+  restored: false,
 
   setTab: (tab) => set({ tab }),
   setPlayerOpen: (playerOpen) => set({ playerOpen }),
@@ -24,4 +28,13 @@ export const createUiSlice: StateCreator<AppState, [], [], UiSlice> = (set) => (
   setMenuTrack: (menuTrack) => set({ menuTrack }),
   setQueueOpen: (queueOpen) => set({ queueOpen }),
   setMePage: (mePage) => set({ mePage }),
+  enterSelection: (index, scope) =>
+    set({ selection: [index], selectionScope: scope.length ? [...scope] : [index] }),
+  toggleSelected: (index) =>
+    set((s) => (s.selection === null ? s : { selection: toggleInSelection(s.selection, index) })),
+  selectAllSelection: () =>
+    set((s) => (s.selection === null ? s : { selection: [...s.selectionScope] })),
+  clearSelection: () => set((s) => (s.selection === null ? s : { selection: [] })),
+  exitSelection: () => set({ selection: null, selectionScope: [] }),
+  setRestored: (restored) => set({ restored }),
 })

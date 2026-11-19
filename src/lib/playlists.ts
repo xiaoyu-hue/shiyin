@@ -79,6 +79,15 @@ export function addTrackToList(list: Playlist[], id: string, trackId: number): P
   )
 }
 
+/** 批量把曲目加入歌单（1.2.0）：已在歌单内的不重复添加，新歌按入参顺序追加到末尾 */
+export function addTracksToList(list: Playlist[], id: string, trackIds: number[]): Playlist[] {
+  return list.map((p) => {
+    if (p.id !== id) return p
+    const fresh = [...new Set(trackIds)].filter((t) => !p.trackIds.includes(t))
+    return fresh.length ? { ...p, trackIds: [...p.trackIds, ...fresh] } : p
+  })
+}
+
 export function removeTrackFromList(list: Playlist[], id: string, trackId: number): Playlist[] {
   return list.map((p) => (p.id === id ? { ...p, trackIds: p.trackIds.filter((t) => t !== trackId) } : p))
 }

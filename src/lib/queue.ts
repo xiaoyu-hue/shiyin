@@ -32,6 +32,32 @@ export function appendToQueue(queue: number[], trackIndex: number): number[] {
   return [...queue.filter((t) => t !== trackIndex), trackIndex]
 }
 
+/**
+ * 批量「下一首播放」（1.2.0）：整批移到当前播放位置的正后方，保持批内顺序。
+ * 已在队列的先摘出再插入，不产生重复；批内含当前曲目时当前曲目留在原位
+ *（当前曲目的位置即是整批的锚点），其余成员排到它后面。
+ */
+export function insertManyNext(queue: number[], curPos: number, trackIndices: number[]): number[] {
+  const curTrack = queue[curPos]
+  const batch = [...new Set(trackIndices)].filter((t) => t !== curTrack)
+  if (!batch.length) return queue
+  const batchSet = new Set(batch)
+  const without = queue.filter((t) => !batchSet.has(t))
+  const newCurPos = without.indexOf(curTrack)
+  const insertAt = (newCurPos >= 0 ? newCurPos : curPos) + 1
+  const out = [...without]
+  out.splice(Math.min(insertAt, out.length), 0, ...batch)
+  return out
+}
+
+/** 批量加入队列末尾（1.2.0）：已在队列的先摘出再整批追加，保持批内顺序，不产生重复 */
+export function appendManyToQueue(queue: number[], trackIndices: number[]): number[] {
+  const batch = [...new Set(trackIndices)]
+  if (!batch.length) return queue
+  const batchSet = new Set(batch)
+  return [...queue.filter((t) => !batchSet.has(t)), ...batch]
+}
+
 /** 拖拽重排：把 from 处的曲目移动到 to 处 */
 export function moveInQueue(queue: number[], from: number, to: number): number[] {
   if (from === to || from < 0 || to < 0 || from >= queue.length || to >= queue.length) return queue

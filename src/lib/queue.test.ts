@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  appendManyToQueue,
   appendToQueue,
+  insertManyNext,
   insertNext,
   moveInQueue,
   naturalQueue,
@@ -54,6 +56,47 @@ describe('appendToQueue / moveInQueue / removeAtPos', () => {
 
   it('按位置移除', () => {
     expect(removeAtPos([0, 1, 2], 1)).toEqual([0, 2])
+  })
+})
+
+describe('insertManyNext / appendManyToQueue 批量防重（1.2.0）', () => {
+  it('整批插到当前之后并保持批内顺序', () => {
+    expect(insertManyNext([0, 1, 2, 3, 4], 0, [3, 2])).toEqual([0, 3, 2, 1, 4])
+    expect(insertManyNext([0, 1, 2], 1, [8, 9])).toEqual([0, 1, 8, 9, 2])
+  })
+
+  it('已在队列的成员先摘出再插入，不产生重复', () => {
+    const out = insertManyNext([0, 1, 2, 3], 0, [2, 3])
+    expect(out).toEqual([0, 2, 3, 1])
+    expect(new Set(out).size).toBe(out.length)
+  })
+
+  it('批内含当前曲目：当前留原位，其余排到其后，当前下标不变', () => {
+    const queue = [0, 1, 2, 3]
+    const out = insertManyNext(queue, 1, [1, 3, 0])
+    expect(out).toEqual([1, 3, 0, 2])
+    expect(posOf(out, 1)).toBe(0) // 注意：0 被摘出后当前曲目位置随之修正（posOf 反推即为新位置）
+    expect(out.filter((t) => t === 1)).toHaveLength(1)
+  })
+
+  it('移动后当前曲目的新位置可由 posOf 正确反推（当前在被移动成员之后）', () => {
+    // 当前曲目 3 原在位置 3，把它前面的 0 移到它后面后，它应左移到位置 2
+    const out = insertManyNext([0, 1, 2, 3], 3, [0])
+    expect(out).toEqual([1, 2, 3, 0])
+    expect(posOf(out, 3)).toBe(2)
+  })
+
+  it('批内重复与空批不改变队列', () => {
+    expect(insertManyNext([0, 1], 0, [1, 1])).toEqual([0, 1])
+    expect(insertManyNext([0, 1], 0, [])).toEqual([0, 1])
+    expect(insertManyNext([], 0, [5, 6])).toEqual([5, 6])
+  })
+
+  it('appendManyToQueue 整批移到末尾并保持顺序、去重', () => {
+    expect(appendManyToQueue([0, 1, 2, 3], [3, 1])).toEqual([0, 2, 3, 1])
+    expect(appendManyToQueue([0, 1], [5, 6])).toEqual([0, 1, 5, 6])
+    expect(appendManyToQueue([0, 1], [1, 1])).toEqual([0, 1])
+    expect(appendManyToQueue([0, 1], [])).toEqual([0, 1])
   })
 })
 
