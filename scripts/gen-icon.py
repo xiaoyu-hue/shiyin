@@ -76,6 +76,30 @@ def make_foreground(size: int) -> Image.Image:
     return img.resize((size, size), Image.LANCZOS)
 
 
+def make_monochrome(size: int) -> Image.Image:
+    """自适应图标单色层（Android 13+ 主题图标用，1.1.0 新增）。
+
+    系统只取 alpha 形状并按壁纸色重新着色，因此画纯黑唱片剪影：
+    盘体实心、中心标挖空成环、中心孔再挖空，与前景层同一几何。
+    没有这一层时新系统会自动生成主题图标，形状不可控。
+    """
+    big = size * SS
+    mask = Image.new("L", (big, big), 0)
+    d = ImageDraw.Draw(mask)
+    cx = cy = big // 2
+    r = int(big * 0.31)
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=255)
+    # 中心标挖空（留环形剪影）
+    lr = int(r * 0.38)
+    d.ellipse([cx - lr, cy - lr, cx + lr, cy + lr], fill=0)
+    # 中心孔保留一小点实心，与唱片中心标点呼应
+    hr = int(r * 0.075)
+    d.ellipse([cx - hr, cy - hr, cx + hr, cy + hr], fill=255)
+    img = Image.new("RGBA", (big, big), (0, 0, 0, 255))
+    img.putalpha(mask)
+    return img.resize((size, size), Image.LANCZOS)
+
+
 def make_round(size: int) -> Image.Image:
     """圆形图标：完整图标加圆形 alpha 蒙版"""
     icon = make_icon().resize((size * SS, size * SS), Image.LANCZOS)
@@ -112,6 +136,7 @@ def write_android_res(res_dir: str = "android/app/src/main/res") -> None:
     for density, px in foreground.items():
         folder = os.path.join(res_dir, f"mipmap-{density}")
         make_foreground(px).save(os.path.join(folder, "ic_launcher_foreground.png"))
+        make_monochrome(px).save(os.path.join(folder, "ic_launcher_monochrome.png"))
     # 启动图：按工程内既有文件的原始尺寸逐个重绘
     for path in glob.glob(os.path.join(res_dir, "**", "splash.png"), recursive=True):
         with Image.open(path) as old:
