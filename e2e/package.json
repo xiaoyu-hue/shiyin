@@ -1,0 +1,1 @@
+{"dependencies":{"webdriverio":"^10.2.0"},"description":"诗音桌面验证包的 CI 自动化验收（WebdriverIO remote + tauri-driver），与主工程依赖隔离","name":"shiyin-e2e","private":true,"scripts":{"test":"node run.mjs"},"type":"module","version":"0.0.0"}
