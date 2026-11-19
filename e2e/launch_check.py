@@ -27,4 +27,5 @@ def cb(hwnd, _):
 
 
 win32gui.EnumWindows(cb, None)
-print(json.dumps({"alive": alive, "exitCode": p.poll(), "windows": titles}, ensure_ascii=False))
+# 注意：runner 的 stdout 是 cp1252，中文标题必须走 ensure_ascii 转义否则打印崩溃
+print(json.dumps({"alive": alive, "exitCode": p.poll(), "windows": titles}))

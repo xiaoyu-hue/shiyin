@@ -19,6 +19,7 @@
 import { remote } from 'webdriverio'
 import { spawn, execFile } from 'node:child_process'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -49,11 +50,23 @@ function killApp() {
   })
 }
 
+/**
+ * 本次会话专用的 WebView2 用户数据目录（UDF）。
+ * msedgedriver 靠 UDF 里的 DevToolsActivePort 文件附着 WebView2：
+ * 驱动子进程的环境变量与 tauri:options 必须指向同一个 UDF，
+ * 否则应用按 Tauri 默认目录启动、驱动在别处等文件，会话创建超时
+ *（报 "DevToolsActivePort file doesn't exist"）。
+ * UDF 只装 WebView 本地存储；诗音曲库在 fs 插件的 AppData 目录，不受影响。
+ */
+const UDF = join(tmpdir(), `shiyin-wd-udf-${process.pid}`)
+mkdirSync(UDF, { recursive: true })
+process.env.WEBVIEW2_USER_DATA_FOLDER = UDF
+
 /** 拉起 tauri-driver 并等其 WebDriver 端口就绪 */
 async function startDriver() {
   const args = ['--port', '4444']
   if (process.env.MSEDGEDRIVER) args.push('--native-driver', process.env.MSEDGEDRIVER)
-  const proc = spawn(process.env.TAURI_DRIVER || 'tauri-driver', args, { stdio: 'pipe' })
+  const proc = spawn(process.env.TAURI_DRIVER || 'tauri-driver', args, { stdio: 'pipe', env: process.env })
   proc.stdout.on('data', (d) => process.stdout.write(`[tauri-driver] ${d}`))
   proc.stderr.on('data', (d) => process.stderr.write(`[tauri-driver] ${d}`))
   for (let i = 0; i < 60; i += 1) {
