@@ -149,13 +149,21 @@ jobs:
             Get-ItemProperty $root -ErrorAction SilentlyContinue |
               Where-Object { $_.DisplayName -like 'Shiyin*' } |
               ForEach-Object {
-                $loc = $_.InstallLocation
+                # Tauri NSIS 写入的 InstallLocation 带引号，先剥掉再用
+                $loc = $_.InstallLocation.Trim('"')
+                "注册表命中：$($_.DisplayName) @ $loc"
                 if ($loc -and (Test-Path $loc)) {
                   $c = Get-ChildItem $loc -Filter *.exe | Where-Object { $_.Name -ne 'uninstall.exe' } | Select-Object -First 1
                   if ($c) { $exe = $c.FullName }
                 }
               }
             if ($exe) { break }
+          }
+          if (-not $exe) {
+            # 兜底：Tauri NSIS 默认安装目录（当前用户 / 全机两种）
+            foreach ($cand in @("$env:LOCALAPPDATA\Shiyin\shiyin.exe", "$env:ProgramFiles\Shiyin\shiyin.exe")) {
+              if (Test-Path $cand) { $exe = $cand; break }
+            }
           }
           if (-not $exe) { throw '注册表/安装目录里找不到已安装的诗音 exe' }
           "已安装 exe：$exe"
