@@ -155,33 +155,36 @@ async function main() {
     gate('render', true)
     await browser.saveScreenshot(join(ART, '01-home-initial.png'))
 
-    // 等测试钩子导入完成（导入成功会自动尝试播放第一首，audio 元素出现 src）
+    // 等测试钩子导入完成：判定以音乐库 DOM 为准（两首都在列表里）。
+    // 不拿 audio.src 当导入信号——导入后的自动播放可能被 WebView2 的
+    // 自动播放策略拦下（引擎有专门提示文案），那是播放环节的事，不属导入成败。
+    await clickTabByText(browser, '音乐库')
     let imported = false
     try {
       await browser.waitUntil(
         async () => {
-          const s = await browser.execute(sampleFn)
-          return s.audio && s.audio.src
+          const t = await browser.execute(() => document.body.innerText)
+          return t.includes(SHORT) && t.includes(LONG)
         },
-        { ...waitOpts, timeout: 120000, interval: 1000 },
+        { ...waitOpts, timeout: 90000, interval: 1000 },
       )
       imported = true
     } catch {
       imported = false
     }
-    const s0 = await browser.execute(sampleFn)
-    report.info.autoplayWorked = Boolean(s0.audio && !s0.audio.paused)
-    report.samples.push({ at: 'after-import', ...s0, text: undefined })
-
-    // 音乐库里两首都在（点开音乐库 Tab 后查正文）
-    await clickTabByText(browser, '音乐库')
-    await sleep(800)
-    const libText = await browser.execute(() => document.body.innerText)
-    gate('import', imported && libText.includes(SHORT) && libText.includes(LONG), {
-      shortInLib: libText.includes(SHORT),
-      longInLib: libText.includes(LONG),
-    })
+    gate('import', imported)
     await browser.saveScreenshot(join(ART, '02-library-after-import.png'))
+
+    // 导入后自动播放是否生效（只记录）：采样引擎状态与页面上的拦截提示文案
+    const s0 = await browser.execute(sampleFn)
+    report.info.autoplayAfterImport = {
+      worked: Boolean(s0.audio && !s0.audio.paused),
+      paused: s0.audio?.paused,
+      src: s0.audio?.src,
+      msState: s0.msState,
+      blockedHintShown: s0.text.includes('自动播放'),
+    }
+    report.samples.push({ at: 'after-import', ...s0, text: undefined })
 
     // 若自动播放被宿主策略拦下，点一次播放按钮（真实用户手势）再继续采样
     let s = await browser.execute(sampleFn)
