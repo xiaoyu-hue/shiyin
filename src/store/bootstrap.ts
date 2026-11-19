@@ -30,17 +30,28 @@ export function bindAudioEngine(): void {
 
 let sleepBound = false
 
-/** 睡眠定时看守：每秒检查分钟定时是否到期，到期停播并清除（应用生命周期内只绑定一次） */
+function checkSleepDue(): void {
+  const s = useStore.getState()
+  if (s.sleepEndsAt !== null && Date.now() >= s.sleepEndsAt) {
+    useStore.setState({ playing: false, sleepEndsAt: null, sleepAfterTrack: false })
+    platform.audio.pause()
+  }
+}
+
+/**
+ * 睡眠定时看守：每秒检查分钟定时是否到期，到期停播并清除（应用生命周期内只绑定一次）。
+ * 后台时定时器可能被系统节流，回前台（visibilitychange）时立即补判一次，
+ * 避免息屏期间已到期却迟迟不停；「播完这首停」走引擎 ended 事件链，不受此影响。
+ */
 export function bindSleepTimer(): void {
   if (sleepBound) return
   sleepBound = true
-  setInterval(() => {
-    const s = useStore.getState()
-    if (s.sleepEndsAt !== null && Date.now() >= s.sleepEndsAt) {
-      useStore.setState({ playing: false, sleepEndsAt: null, sleepAfterTrack: false })
-      platform.audio.pause()
-    }
-  }, 1000)
+  setInterval(checkSleepDue, 1000)
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') checkSleepDue()
+    })
+  }
 }
 
 /** 分配本地曲目 id，从 1000 起与历史数据保持距离 */

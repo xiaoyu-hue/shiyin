@@ -32,6 +32,26 @@ export function savePrefsRaw(raw: string): void {
   }
 }
 
+const BATTERY_GUIDE_KEY = 'shiyin:battery-guide-dismissed:v1'
+
+/** 电池引导卡是否已被用户关闭（仅原生环境展示，关闭后不再出现） */
+export function loadBatteryGuideDismissed(): boolean {
+  try {
+    return storage()?.getItem(BATTERY_GUIDE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+/** 记录电池引导卡已关闭 */
+export function saveBatteryGuideDismissed(): void {
+  try {
+    storage()?.setItem(BATTERY_GUIDE_KEY, '1')
+  } catch {
+    // 存储不可用时静默忽略
+  }
+}
+
 const PLAYLISTS_KEY = 'shiyin:playlists:v1'
 
 /** 读取已保存的歌单原文；无记录或不可用时返回 null */

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import SongRow from './SongRow'
 import ImportButton from './ImportButton'
+import BatteryGuideCard from './BatteryGuideCard'
 import EmptyState from './common/EmptyState'
 import { useStore } from '../store'
 import { greetingLine } from '../lib/greeting'
@@ -21,6 +22,8 @@ export default function HomeView() {
         <p className="text-xs tracking-widest" style={{ color: 'var(--accent)' }}>SHIYIN · 诗音</p>
         <h1 className="mt-1 text-2xl font-bold">{greetingLine(now)}</h1>
       </div>
+
+      <BatteryGuideCard />
 
       <section>
         <div className="mb-2 flex items-baseline justify-between">

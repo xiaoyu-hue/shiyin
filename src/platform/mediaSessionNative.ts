@@ -1,17 +1,17 @@
 /**
- * 原生媒体会话桥（第二阶段 spike 验证模块）。
+ * 原生媒体会话桥（1.0.0 转正；spike 阶段已真机验证锁屏控制链路成立）。
  *
  * 作用：把播放状态同步给手机系统媒体会话（锁屏/通知栏控制条），并把系统侧的
  * 播放/暂停/上一首/下一首动作转发回 store。播放引擎仍是网页的 HTMLAudio，
- * 本模块只验证「系统媒体会话 + 前台服务」这条链路在真机上是否成立。
+ * 靠插件的前台服务在息屏/后台保活。
  *
  * 仅在 Capacitor 原生环境启用；普通浏览器里直接返回，网页版行为零变化。
  * 插件 API 以 @capgo/capacitor-media-session 的类型定义为准（与 W3C Media Session 同构）：
  * setMetadata / setPlaybackState / setPositionState / setActionHandler。
  */
-import { Capacitor } from '@capacitor/core'
 import { MediaSession } from '@capgo/capacitor-media-session'
 import { useStore } from '../store/index'
+import { isNativePlatform } from './env'
 
 let bound = false
 
@@ -19,7 +19,7 @@ let bound = false
 export function bindNativeMediaSession(): void {
   if (bound) return
   bound = true
-  if (!Capacitor.isNativePlatform()) return
+  if (!isNativePlatform()) return
 
   const s = () => useStore.getState()
   const ignore = () => undefined
@@ -60,7 +60,8 @@ export function bindNativeMediaSession(): void {
       }
       return
     }
-    const metaKey = `${track.id}|${track.name}|${track.artist}|${track.album}`
+    // 封面地址纳入 metaKey：恢复完成后 coverSrc 从空变为文件地址时也要刷新一次元数据
+    const metaKey = `${track.id}|${track.name}|${track.artist}|${track.album}|${track.coverSrc ?? ''}`
     if (metaKey !== lastMetaKey) {
       lastMetaKey = metaKey
       lastPosSec = -1
@@ -68,7 +69,8 @@ export function bindNativeMediaSession(): void {
         title: track.name,
         artist: track.artist,
         album: track.album,
-        // 封面是 WebView 内的 blob 地址，原生侧不一定能取到，属尽力而为
+        // 1.0.0 起封面是 App 本地文件服务地址（convertFileSrc），与音频同源，
+        // 系统侧应可直接加载；真机显示效果仍属验收项
         artwork: track.coverSrc ? [{ src: track.coverSrc }] : undefined,
       }).catch(ignore)
     }
