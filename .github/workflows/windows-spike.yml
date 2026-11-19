@@ -46,21 +46,6 @@ jobs:
           "installer=$($f.FullName)" >> $env:GITHUB_OUTPUT
           "安装包：$($f.FullName)（$($f.Length) 字节）"
 
-      - name: tauri-driver 缓存
-        id: driver-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/bin/tauri-driver.exe
-          key: tauri-driver-${{ runner.os }}-v1
-
-      - name: 安装 tauri-driver（缓存未命中时）
-        if: steps.driver-cache.outputs.cache-hit != 'true'
-        run: cargo install tauri-driver --locked
-
-      - name: tauri-driver 加入 PATH
-        shell: pwsh
-        run: '"{0}\.cargo\bin" -f $env:USERPROFILE | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8'
-
       - name: 下载与 WebView2 版本匹配的 msedgedriver
         shell: pwsh
         run: |

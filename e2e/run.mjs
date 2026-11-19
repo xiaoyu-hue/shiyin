@@ -1,15 +1,18 @@
 /**
  * 诗音桌面验证包 CI 验收编排（Windows runner 上运行）。
  *
- * 链路：拉起 tauri-driver（外挂与 WebView2 版本匹配的 msedgedriver）
- * → WebdriverIO remote 会话驱动已安装的应用 → DOM/JS 采样断言
- * → pywinauto 托盘断言（子进程）→ 杀进程重启验曲库恢复。
+ * 驱动方式：attach（附着）模式——微软 WebView2 WebDriver 官方文档的第二条路线。
+ * 编排器自己拉起已安装的应用（带 WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS
+ * =--remote-debugging-port 让 WebView2 开调试口），再让 msedgedriver
+ * 按 debuggerAddress 附着。不走 tauri-driver 的 launch 模式：
+ * 该模式下 msedgedriver 拉起应用后始终等不到 DevToolsActivePort
+ *（CI 第 2/4/5/6 轮均复现，应用独立启动正常、版本与 UDF 对齐均无效），
+ * 故在验证包阶段改用 attach 模式完成同一组断言。
  *
  * 环境变量：
  * - SHIYIN_EXE     已安装的诗音 exe 绝对路径（必填）
- * - SHIYIN_PROC    进程名（如 shiyin.exe，托盘脚本用）
- * - TAURI_DRIVER   tauri-driver 可执行路径（默认从 PATH 找）
- * - MSEDGEDRIVER   msedgedriver.exe 路径（透传给 tauri-driver --native-driver）
+ * - SHIYIN_PROC    进程名（如 shiyin.exe，清理与托盘脚本用）
+ * - MSEDGEDRIVER   msedgedriver.exe 路径（必填，与 WebView2 版本匹配）
  * - HOOK_PATH      test-import.json 的绝对路径（验其被应用删除）
  * - SHORT_NAME / LONG_NAME  两首测试音频的曲名（文件名去扩展名）
  *
@@ -19,7 +22,6 @@
 import { remote } from 'webdriverio'
 import { spawn, execFile } from 'node:child_process'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -28,13 +30,16 @@ const ART = join(HERE, 'artifacts')
 mkdirSync(ART, { recursive: true })
 
 const EXE = process.env.SHIYIN_EXE
-if (!EXE) {
-  console.error('SHIYIN_EXE 未设置')
+const EDGE = process.env.MSEDGEDRIVER
+if (!EXE || !EDGE) {
+  console.error('SHIYIN_EXE / MSEDGEDRIVER 未设置')
   process.exit(2)
 }
 const SHORT = process.env.SHORT_NAME || 'TestToneShort'
 const LONG = process.env.LONG_NAME || 'TestToneLong'
 const HOOK = process.env.HOOK_PATH || ''
+const DEBUG_PORT = 9229
+const DRIVER_PORT = 9515
 
 const report = { checks: {}, info: {}, samples: [] }
 const gate = (name, ok, extra = {}) => {
@@ -50,44 +55,61 @@ function killApp() {
   })
 }
 
-/**
- * 本次会话专用的 WebView2 用户数据目录（UDF）。
- * msedgedriver 靠 UDF 里的 DevToolsActivePort 文件附着 WebView2：
- * 驱动子进程的环境变量与 tauri:options 必须指向同一个 UDF，
- * 否则应用按 Tauri 默认目录启动、驱动在别处等文件，会话创建超时
- *（报 "DevToolsActivePort file doesn't exist"）。
- * UDF 只装 WebView 本地存储；诗音曲库在 fs 插件的 AppData 目录，不受影响。
- */
-const UDF = join(tmpdir(), `shiyin-wd-udf-${process.pid}`)
-mkdirSync(UDF, { recursive: true })
-process.env.WEBVIEW2_USER_DATA_FOLDER = UDF
-
-/** 拉起 tauri-driver 并等其 WebDriver 端口就绪 */
-async function startDriver() {
-  const args = ['--port', '4444']
-  if (process.env.MSEDGEDRIVER) args.push('--native-driver', process.env.MSEDGEDRIVER)
-  const proc = spawn(process.env.TAURI_DRIVER || 'tauri-driver', args, { stdio: 'pipe', env: process.env })
-  proc.stdout.on('data', (d) => process.stdout.write(`[tauri-driver] ${d}`))
-  proc.stderr.on('data', (d) => process.stderr.write(`[tauri-driver] ${d}`))
+/** 拉起应用（带 WebView2 远程调试口）并等调试口探活 */
+async function launchApp() {
+  const child = spawn(EXE, [], {
+    env: {
+      ...process.env,
+      WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${DEBUG_PORT}`,
+    },
+    stdio: 'ignore',
+  })
+  child.on('error', (e) => console.error('应用拉起失败：', e))
   for (let i = 0; i < 60; i += 1) {
     try {
-      const res = await fetch('http://127.0.0.1:4444/status')
+      const res = await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/version`)
+      if (res.ok) {
+        const info = await res.json().catch(() => ({}))
+        report.info.webviewDebug = { open: true, browser: info.Browser }
+        return child
+      }
+    } catch {
+      /* 端口还没开 */
+    }
+    await sleep(500)
+  }
+  report.info.webviewDebug = { open: false }
+  throw new Error(`WebView2 调试口 ${DEBUG_PORT} 30 秒内未开启（环境变量未被采纳？）`)
+}
+
+/** 拉起 msedgedriver 并等其 WebDriver 端口就绪 */
+async function startDriver() {
+  const proc = spawn(EDGE, [`--port=${DRIVER_PORT}`], { stdio: 'pipe' })
+  proc.stdout.on('data', (d) => process.stdout.write(`[msedgedriver] ${d}`))
+  proc.stderr.on('data', (d) => process.stderr.write(`[msedgedriver] ${d}`))
+  for (let i = 0; i < 60; i += 1) {
+    try {
+      const res = await fetch(`http://127.0.0.1:${DRIVER_PORT}/status`)
       if (res.ok) return proc
     } catch {
       /* 还没起来 */
     }
     await sleep(500)
   }
-  throw new Error('tauri-driver 30 秒内未就绪')
+  throw new Error('msedgedriver 30 秒内未就绪')
 }
 
-async function newSession() {
+/** 附着到已运行应用的 WebView2 调试口 */
+async function attachSession() {
   return remote({
     hostname: '127.0.0.1',
-    port: 4444,
+    port: DRIVER_PORT,
     path: '/',
     logLevel: 'warn',
-    capabilities: { 'tauri:options': { application: EXE, webviewOptions: { userDataFolder: UDF } } },
+    capabilities: {
+      browserName: 'webview2',
+      'ms:edgeOptions': { debuggerAddress: `localhost:${DEBUG_PORT}`, useWebView: true },
+    },
   })
 }
 
@@ -130,7 +152,7 @@ async function clickTabByText(browser, text) {
   }, text)
 }
 
-/** 媒体键模拟（informational）：SendInput 路径的 keybd_event 发送 VK_MEDIA_PLAY_PAUSE(0xB3) */
+/** 媒体键模拟（informational）：keybd_event 发送 VK_MEDIA_PLAY_PAUSE(0xB3) */
 function sendMediaPlayPause() {
   const ps =
     "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; " +
@@ -144,9 +166,11 @@ function sendMediaPlayPause() {
 async function main() {
   const driver = await startDriver()
   let browser
+  let app
   try {
     // ---------- 会话 A：渲染 / 导入 / 播放 ----------
-    browser = await newSession()
+    app = await launchApp()
+    browser = await attachSession()
     const waitOpts = { timeoutMsg: '等待超时' }
 
     await browser.waitUntil(async () => (await browser.execute(sampleFn)).hasShell, {
@@ -288,7 +312,8 @@ async function main() {
 
   // ---------- 会话 B：杀进程重启后曲库恢复 ----------
   try {
-    browser = await newSession()
+    app = await launchApp()
+    browser = await attachSession()
     await browser.waitUntil(async () => (await browser.execute(sampleFn)).hasShell, {
       timeout: 60000,
       interval: 1000,
