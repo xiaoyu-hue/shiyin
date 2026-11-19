@@ -1,5 +1,5 @@
 import type { Song } from '../data/types'
-import { DEFAULT_THEME_INDEX, themes } from '../data/sample'
+import { DEFAULT_THEME_INDEX, themes } from '../data/themes'
 import { parsePrefs, serializePrefs } from '../lib/prefs'
 import { platform } from '../platform/instance'
 import { loadTracks, saveTrack, type StoredTrack } from '../platform/idb'
@@ -23,7 +23,7 @@ export function bindAudioEngine(): void {
   })
 }
 
-/** 分配本地曲目 id，与内置示例曲目（1~8）保持距离 */
+/** 分配本地曲目 id，从 1000 起与历史数据保持距离 */
 export function nextLocalId(): number {
   const max = useStore.getState().tracks.reduce((m, t) => Math.max(m, t.id), 1000)
   return max + 1
@@ -44,9 +44,11 @@ export function restoreLocalTracks(): Promise<void> {
       album: rec.album,
       dur: rec.dur,
       color: rec.color,
-      lyrics: [],
+      lyrics: rec.lyrics ?? [],
       audioSrc: URL.createObjectURL(rec.blob),
-      source: 'local',
+      coverSrc: rec.cover ? URL.createObjectURL(rec.cover) : null,
+      coverBlob: rec.cover ?? null,
+      localKey: rec.key,
     }))
     useStore.getState().addTracks(restored)
   })()
@@ -96,6 +98,8 @@ export async function persistTrack(file: File, track: Song, key: string): Promis
     dur: track.dur,
     blob: file,
     addedAt: Date.now(),
+    lyrics: track.lyrics,
+    cover: track.coverBlob ?? null,
   }
   await saveTrack(record)
 }

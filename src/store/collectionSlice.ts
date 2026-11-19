@@ -1,9 +1,8 @@
 import type { StateCreator } from 'zustand'
-import { songs } from '../data/sample'
 import type { AppState, CollectionSlice } from './types'
 
 export const createCollectionSlice: StateCreator<AppState, [], [], CollectionSlice> = (set) => ({
-  tracks: [...songs],
+  tracks: [],
   liked: new Set<number>(),
   history: [],
 

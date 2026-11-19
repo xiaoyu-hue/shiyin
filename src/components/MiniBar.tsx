@@ -28,10 +28,14 @@ export default function MiniBar() {
       </div>
       <div className="flex items-center gap-3">
         <div
-          className={`cover grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white ${playing ? 'pulsing' : ''}`}
+          className={`cover relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl text-white ${playing ? 'pulsing' : ''}`}
           style={{ ['--cover' as string]: song.color }}
         >
-          <span className="h-4 w-4 rounded-full bg-white/85" />
+          {song.coverSrc ? (
+            <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
+            <span className="h-4 w-4 rounded-full bg-white/85" />
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{song.name}</p>

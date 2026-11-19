@@ -2,6 +2,7 @@
  * 本地曲目的浏览器持久化（IndexedDB）。
  * 只存音频 Blob 与元数据；blob URL 不持久化，每次启动重新生成。
  */
+import type { LyricLine } from '../data/types'
 
 const DB_NAME = 'shiyin'
 const DB_VERSION = 1
@@ -18,6 +19,10 @@ export interface StoredTrack {
   dur: number
   blob: Blob
   addedAt: number
+  /** 内嵌歌词（0.4.0 起）；旧记录无此字段，恢复时按无歌词处理 */
+  lyrics?: LyricLine[]
+  /** 内嵌封面图原图（0.4.0 起）；旧记录无此字段，恢复时按无封面处理 */
+  cover?: Blob | null
 }
 
 function hasIDB(): boolean {

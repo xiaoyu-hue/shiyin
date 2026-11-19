@@ -12,7 +12,6 @@ export interface PlayerSlice {
   toggle: () => void
   next: () => void
   prev: () => void
-  tick: () => void
   seek: (sec: number) => void
   cycleMode: () => void
   /** 由音频引擎 timeupdate 回调写入实时进度 */
@@ -36,7 +35,7 @@ export interface UiSlice {
 
 /** 集合切片：曲目列表、收藏与最近播放历史 */
 export interface CollectionSlice {
-  /** 统一曲目源：内置示例曲在前，本地导入曲追加在后 */
+  /** 统一曲目源：全部为用户导入的本地曲目（启动时从 IndexedDB 恢复） */
   tracks: Song[]
   liked: Set<number>
   history: number[]

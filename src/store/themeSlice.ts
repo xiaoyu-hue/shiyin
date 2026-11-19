@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand'
-import { DEFAULT_THEME_INDEX } from '../data/sample'
+import { DEFAULT_THEME_INDEX } from '../data/themes'
 import type { AppState, ThemeSlice } from './types'
 
 export const createThemeSlice: StateCreator<AppState, [], [], ThemeSlice> = (set) => ({

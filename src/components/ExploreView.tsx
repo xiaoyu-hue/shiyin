@@ -1,9 +1,10 @@
 import SongRow from './SongRow'
+import EmptyState from './common/EmptyState'
 import { useStore } from '../store'
 
 export default function ExploreView() {
   const tracks = useStore((s) => s.tracks)
-  const ranked = tracks.map((_, i) => i).slice(0, 6)
+  const recent = tracks.map((_, i) => i).slice(-6).reverse()
 
   return (
     <div className="px-4 pt-6">
@@ -25,10 +26,12 @@ export default function ExploreView() {
       </section>
 
       <section>
-        <h2 className="mb-2 text-base font-semibold">热歌榜</h2>
-        {ranked.map((i, rank) => (
-          <SongRow key={tracks[i].id} index={i} rank={rank + 1} />
-        ))}
+        <h2 className="mb-2 text-base font-semibold">最近导入</h2>
+        {recent.length === 0 ? (
+          <EmptyState icon="🎵" title="还没有音乐" description="先去主页导入本地音乐，这里会显示你最近加入的曲目" />
+        ) : (
+          recent.map((i) => <SongRow key={tracks[i].id} index={i} />)
+        )}
       </section>
     </div>
   )

@@ -8,7 +8,7 @@ export default function MeView() {
   const liked = useStore((s) => s.liked)
   const tracks = useStore((s) => s.tracks)
   const history = useStore((s) => s.history)
-  const localCount = tracks.filter((t) => t.source === 'local').length
+  const localCount = tracks.length
 
   return (
     <div className="px-4 pt-6">
@@ -55,7 +55,7 @@ export default function MeView() {
         </div>
       </section>
       <p className="mt-8 text-center text-[11px] text-black/30">
-        诗音 v0.2 · 本地 {localCount} 首 / 示例 {tracks.length - localCount} 首
+        诗音 · 共 {localCount} 首本地音乐
       </p>
     </div>
   )

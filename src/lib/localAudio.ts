@@ -1,4 +1,5 @@
 import type { Song } from '../data/types'
+import { extractAudioTags, mergeTrackMeta } from './audioTags'
 
 const AUDIO_EXT = /\.(mp3|m4a|m4b|aac|wav|flac|ogg|oga|opus|weba|webm|aif|aiff)$/i
 
@@ -80,20 +81,28 @@ export function fileKey(file: File): string {
   return `${file.name}::${file.size}::${file.lastModified}`
 }
 
-/** 把用户选择的音频文件转成曲目（含 blob URL 与真实时长） */
+/**
+ * 把用户选择的音频文件转成曲目（含 blob URL 与真实时长）。
+ * 优先采用文件内嵌标签（歌名 / 歌手 / 专辑 / 封面 / 歌词），
+ * 标签缺失或解析失败的字段逐项回退到文件名推断，不阻断导入。
+ */
 export async function buildLocalTrack(file: File, id: number): Promise<Song> {
-  const { name, artist } = parseTrackName(file.name)
+  const fallback = parseTrackName(file.name)
+  const tags = await extractAudioTags(file)
+  const meta = mergeTrackMeta(fallback, tags)
   const audioSrc = URL.createObjectURL(file)
-  const dur = await readDuration(audioSrc)
+  const dur = tags?.duration ? Math.round(tags.duration) : await readDuration(audioSrc)
+  const coverBlob = tags?.coverBlob ?? null
   return {
     id,
-    name,
-    artist,
-    album: '本地音乐',
+    name: meta.name,
+    artist: meta.artist,
+    album: meta.album,
     dur,
-    color: pickCover(name),
-    lyrics: [],
+    color: pickCover(meta.name),
+    lyrics: tags?.lyrics ?? [],
     audioSrc,
-    source: 'local',
+    coverSrc: coverBlob ? URL.createObjectURL(coverBlob) : null,
+    coverBlob,
   }
 }

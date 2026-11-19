@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useStore } from './store'
 import { bindAudioEngine, restoreLocalTracks } from './store/bootstrap'
-import { useTicker } from './hooks/useTicker'
 import { useTheme } from './hooks/useTheme'
 import Tabs from './components/Tabs'
 import HomeView from './components/HomeView'
@@ -14,7 +13,6 @@ import LyricView from './components/LyricView'
 import ErrorBoundary from './components/common/ErrorBoundary'
 
 export default function App() {
-  useTicker()
   useTheme()
   const tab = useStore((s) => s.tab)
 

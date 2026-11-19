@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { themeVariables } from './theme'
-import { themes } from '../data/sample'
+import { themes } from '../data/themes'
 
 describe('themeVariables 主题映射', () => {
   it('每套主题产出三个变量且值非空', () => {

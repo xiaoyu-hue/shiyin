@@ -35,14 +35,15 @@ export default function SongRow({ index, rank }: Props) {
         </span>
       )}
       <div
-        className="cover relative grid h-12 w-12 shrink-0 place-items-center rounded-xl text-white shadow-sm"
+        className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl text-white shadow-sm"
         style={{ ['--cover' as string]: song.color }}
       >
+        {song.coverSrc && <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />}
         {isCurrent && playing ? (
-          <span className="pulsing grid h-6 w-6 place-items-center rounded-full bg-white/90">
+          <span className="pulsing relative grid h-6 w-6 place-items-center rounded-full bg-white/90">
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'var(--accent)' }} />
           </span>
-        ) : (
+        ) : song.coverSrc ? null : (
           <Play size={18} fill="white" className="opacity-90" />
         )}
       </div>

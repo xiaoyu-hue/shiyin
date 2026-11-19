@@ -29,7 +29,9 @@ export default function SearchView() {
         )}
       </div>
 
-      {hits.length === 0 ? (
+      {tracks.length === 0 ? (
+        <EmptyState icon="🎵" title="音乐库是空的" description="先导入本地音乐，再来这里搜索" />
+      ) : hits.length === 0 ? (
         <EmptyState title={`没有找到「${query}」相关的歌曲`} />
       ) : (
         <div>

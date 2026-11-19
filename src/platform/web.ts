@@ -1,21 +1,4 @@
-import type { AudioEngine, Platform, StyleAdapter, Ticker } from './index'
-
-/** Web 计时器：封装 window.setInterval，底层平台 API 不扩散到 hooks */
-export function createWebTicker(): Ticker {
-  let id: number | null = null
-  return {
-    start(cb, intervalMs) {
-      if (id !== null) window.clearInterval(id)
-      id = window.setInterval(cb, intervalMs)
-    },
-    stop() {
-      if (id !== null) {
-        window.clearInterval(id)
-        id = null
-      }
-    },
-  }
-}
+import type { AudioEngine, Platform, StyleAdapter } from './index'
 
 /** Web 样式适配：把主题变量写入根元素，并同步浏览器主题色 */
 export function createWebStyleAdapter(): StyleAdapter {
@@ -155,11 +138,10 @@ export function createWebAudioEngine(): AudioEngine {
 /** 本期 Web 平台实现 */
 export function createWebPlatform(): Platform {
   return {
-    ticker: createWebTicker(),
     style: createWebStyleAdapter(),
     audio: createWebAudioEngine(),
   }
 }
 
-/** 模块级单例：计时器、样式适配与音频引擎在应用生命周期内唯一 */
+/** 模块级单例：样式适配与音频引擎在应用生命周期内唯一 */
 export const webPlatform = createWebPlatform()

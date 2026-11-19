@@ -61,17 +61,21 @@ export default function PlayerView() {
 
           <div className="flex flex-1 flex-col items-center justify-center gap-8">
             <div
-              className={`cover grid h-64 w-64 place-items-center rounded-full shadow-2xl ${playing ? 'spinning' : ''}`}
+              className={`cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ${playing ? 'spinning' : ''}`}
               style={{ ['--cover' as string]: song.color }}
             >
-              <div className="h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
+              {song.coverSrc ? (
+                <>
+                  <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                  <div className="relative h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
+                </>
+              ) : (
+                <div className="h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
+              )}
             </div>
             <div className="w-full text-center">
               <h2 className="text-2xl font-bold text-black/85">{song.name}</h2>
               <p className="mt-1 text-sm text-black/50">{song.artist}</p>
-              {!song.audioSrc && !audioError && (
-                <p className="mt-2 text-[11px] text-black/35">示例曲目 · 无音频文件，导入本地音乐后可真实播放</p>
-              )}
               {audioError && <p className="mt-2 text-[11px] text-red-600">{audioError}</p>}
             </div>
           </div>

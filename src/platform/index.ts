@@ -4,12 +4,6 @@
  * 本期 Web 实现；阶段二/三以 Tauri + Rust 引擎替换实现，上层不动。
  */
 
-/** 计时器：驱动示例曲目的模拟进度与界面刷新 */
-export interface Ticker {
-  start(cb: () => void, intervalMs: number): void
-  stop(): void
-}
-
 /** 样式适配：把主题变量注入宿主 */
 export interface StyleAdapter {
   applyTheme(vars: Record<string, string>): void
@@ -36,7 +30,6 @@ export interface AudioEngine {
 }
 
 export interface Platform {
-  ticker: Ticker
   style: StyleAdapter
   audio: AudioEngine
 }

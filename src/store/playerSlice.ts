@@ -6,10 +6,7 @@ import type { AppState, PlayerSlice } from './types'
 
 const engine = platform.audio
 
-/**
- * 让音频引擎与 store 保持一致。
- * 本地曲目交由引擎播放；无音频的示例曲目仅保留界面演示，引擎停止。
- */
+/** 让音频引擎与 store 保持一致：当前曲目交由引擎播放，无曲目时引擎停止。 */
 function syncEngine(state: AppState) {
   const track = state.tracks[state.cur]
   if (!track?.audioSrc) {
@@ -65,26 +62,6 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
       audioError: null,
     })
     syncEngine(get())
-  },
-
-  tick: () => {
-    const before = get()
-    const track = before.tracks[before.cur]
-    // 真实音频的进度由 timeupdate 回调驱动；未播放或空列表不推进
-    if (!track || track.audioSrc || !before.playing) return
-
-    set((s) => {
-      if (s.pos + 1 >= track.dur) {
-        const action = onTail(s.mode, s.tracks.length, s.cur)
-        if (action.kind === 'replay') return { pos: 0 }
-        return { cur: action.index, pos: 0 }
-      }
-      return { pos: s.pos + 1 }
-    })
-
-    // 示例曲目播完自动切到下一首时，若下一首是本地曲目则启动引擎
-    const after = get()
-    if (after.cur !== before.cur) syncEngine(after)
   },
 
   seek: (sec) => {

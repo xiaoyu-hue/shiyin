@@ -59,7 +59,7 @@ export default function LyricView() {
               <p className="text-sm text-black/40">
                 该曲目暂无歌词
                 <br />
-                <span className="text-xs text-black/30">本地导入的音频暂不解析内嵌歌词</span>
+                <span className="text-xs text-black/30">这首歌的文件里没有内嵌歌词</span>
               </p>
             </div>
           ) : (
