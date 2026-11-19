@@ -19,6 +19,8 @@ export interface PrefsData {
   themeIdx: number
   /** 外观模式（旧数据无此字段时默认跟随系统） */
   appearance: Appearance
+  /** 流畅模式（1.1.0 起）：开启时全局关实时毛玻璃走假玻璃；旧数据无此字段时为关 */
+  smoothMode: boolean
 }
 
 /** 历史最多保留条数，超出截断最旧的 */
@@ -61,6 +63,11 @@ function cleanThemeIdx(value: unknown, themeCount: number, defaultThemeIdx: numb
   return defaultThemeIdx
 }
 
+/** 流畅模式清洗：只有明确的 true 才开启，其余（包括旧数据缺失）一律关 */
+export function cleanSmoothMode(value: unknown): boolean {
+  return value === true
+}
+
 /** 把偏好数据序列化为落盘字符串 */
 export function serializePrefs(data: PrefsData): string {
   return JSON.stringify({
@@ -69,6 +76,7 @@ export function serializePrefs(data: PrefsData): string {
     history: cleanHistory(data.history),
     themeIdx: data.themeIdx,
     appearance: cleanAppearance(data.appearance),
+    smoothMode: cleanSmoothMode(data.smoothMode),
   })
 }
 
@@ -95,5 +103,6 @@ export function parsePrefs(
     history: cleanHistory(rec.history),
     themeIdx: cleanThemeIdx(rec.themeIdx, themeCount, defaultThemeIdx),
     appearance: cleanAppearance(rec.appearance),
+    smoothMode: cleanSmoothMode(rec.smoothMode),
   }
 }

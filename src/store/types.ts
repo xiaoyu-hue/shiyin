@@ -104,12 +104,15 @@ export interface CollectionSlice {
   removeFromPlaylist: (id: string, trackId: number) => void
 }
 
-/** 主题切片：当前主题索引 */
+/** 主题切片：当前主题索引、外观与流畅模式 */
 export interface ThemeSlice {
   themeIdx: number
   appearance: Appearance
+  /** 流畅模式（1.1.0）：开启时全局关实时毛玻璃走假玻璃，低端机保帧率 */
+  smoothMode: boolean
   setTheme: (i: number) => void
   setAppearance: (a: Appearance) => void
+  setSmoothMode: (v: boolean) => void
 }
 
 export type AppState = PlayerSlice & UiSlice & CollectionSlice & ThemeSlice

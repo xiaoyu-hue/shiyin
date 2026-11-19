@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { useStore } from './store'
 import { bindAudioEngine, bindSleepTimer, restoreLocalTracks } from './store/bootstrap'
 import { bindNativeMediaSession } from './platform/mediaSessionNative'
+import { bindBackButton } from './platform/backButton'
+import { hideSplashScreen } from './platform/splashScreen'
 import { useTheme } from './hooks/useTheme'
 import Tabs from './components/Tabs'
 import HomeView from './components/HomeView'
@@ -24,7 +26,11 @@ export default function App() {
     bindAudioEngine()
     bindSleepTimer()
     bindNativeMediaSession()
+    bindBackButton()
     void restoreLocalTracks()
+    // 首帧已挂载：下一帧隐藏原生启动屏（config 里关了自动隐藏），避免白屏闪与桥调用被拖慢
+    const raf = requestAnimationFrame(() => hideSplashScreen())
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   const views = {

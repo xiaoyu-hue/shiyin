@@ -6,12 +6,12 @@ const DEFAULT_THEME = 5
 
 describe('serializePrefs / parsePrefs 往返', () => {
   it('正常数据往返一致', () => {
-    const data: PrefsData = { liked: [3, 1001, 8], history: [2, 0, 5], themeIdx: 2, appearance: 'dark' }
+    const data: PrefsData = { liked: [3, 1001, 8], history: [2, 0, 5], themeIdx: 2, appearance: 'dark', smoothMode: true }
     expect(parsePrefs(serializePrefs(data), THEME_COUNT, DEFAULT_THEME)).toEqual(data)
   })
 
   it('空状态往返一致', () => {
-    const data: PrefsData = { liked: [], history: [], themeIdx: 0, appearance: 'system' }
+    const data: PrefsData = { liked: [], history: [], themeIdx: 0, appearance: 'system', smoothMode: false }
     expect(parsePrefs(serializePrefs(data), THEME_COUNT, DEFAULT_THEME)).toEqual(data)
   })
 })
@@ -35,7 +35,16 @@ describe('parsePrefs 容错', () => {
       history: [1, 2],
       themeIdx: 3,
       appearance: 'system',
+      smoothMode: false,
     })
+  })
+
+  it('流畅模式清洗：只有明确的 true 开启，旧数据缺失为关', () => {
+    const mk = (smoothMode?: unknown) => JSON.stringify({ liked: [], history: [], themeIdx: 0, smoothMode })
+    expect(parsePrefs(mk(), THEME_COUNT, DEFAULT_THEME)?.smoothMode).toBe(false)
+    expect(parsePrefs(mk('yes'), THEME_COUNT, DEFAULT_THEME)?.smoothMode).toBe(false)
+    expect(parsePrefs(mk(1), THEME_COUNT, DEFAULT_THEME)?.smoothMode).toBe(false)
+    expect(parsePrefs(mk(true), THEME_COUNT, DEFAULT_THEME)?.smoothMode).toBe(true)
   })
 
   it('外观清洗：旧数据缺失或非法值回退跟随系统，合法值保留', () => {

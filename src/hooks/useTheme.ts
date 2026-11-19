@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useStore, themes } from '../store'
 import { themeVariables } from '../lib/theme'
 import { webPlatform } from '../platform/web'
+import { syncSystemBarsStyle } from '../platform/systemBars'
 
 const DARK_QUERY = '(prefers-color-scheme: dark)'
 
@@ -30,6 +31,7 @@ export function useResolvedDark(): boolean {
 export function useTheme() {
   const themeIdx = useStore((s) => s.themeIdx)
   const appearance = useStore((s) => s.appearance)
+  const smoothMode = useStore((s) => s.smoothMode)
   const [systemDark, setSystemDark] = useState<boolean>(
     () => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(DARK_QUERY).matches,
   )
@@ -48,5 +50,12 @@ export function useTheme() {
   useEffect(() => {
     webPlatform.style.applyTheme(themeVariables(themes[themeIdx], dark))
     document.documentElement.dataset.appearance = dark ? 'dark' : 'light'
+    // 系统栏图标明暗跟随 App 自己解析出的明暗（仅原生生效，网页为空操作）
+    syncSystemBarsStyle(dark)
   }, [themeIdx, dark])
+
+  // 流畅模式：在根元素打标记，CSS 据此全局关实时毛玻璃（见 index.css）
+  useEffect(() => {
+    document.documentElement.classList.toggle('smooth-mode', smoothMode)
+  }, [smoothMode])
 }
