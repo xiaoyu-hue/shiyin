@@ -5,6 +5,8 @@ import { buildLocalTrack, fileKey, isAudioFile } from '../lib/localAudio'
 import { isLyricFileName, pairLyricFiles, readLyricFile } from '../lib/lyricFile'
 import type { LyricLine } from '../data/types'
 import { attachLyricsToTrack, nextLocalId, persistTrack } from '../store/bootstrap'
+import { isNativePlatform } from '../platform/env'
+import { pickFilesNative } from '../platform/nativeFiles'
 
 type Status =
   | { kind: 'idle' }
@@ -22,9 +24,9 @@ export default function ImportButton({ className = '' }: Props) {
   const addTracks = useStore((s) => s.addTracks)
   const play = useStore((s) => s.play)
 
-  async function handleFiles(list: FileList | null) {
-    if (!list || !list.length) return
-    const all = Array.from(list)
+  /** 导入管线（网页与原生共用）：入参已统一为 File 数组，后续配对/解析/落盘逻辑不分平台 */
+  async function handleFiles(all: File[]) {
+    if (!all.length) return
     const audioFiles = all.filter(isAudioFile)
     const lyricFiles = all.filter((f) => isLyricFileName(f.name))
 
@@ -117,11 +119,20 @@ export default function ImportButton({ className = '' }: Props) {
 
   const busy = status.kind === 'busy'
 
+  /** 原生环境走系统文件选择器（多选），选完转成 File 数组喂同一条导入管线 */
+  async function pickNative() {
+    const files = await pickFilesNative(0)
+    if (files.length) await handleFiles(files)
+  }
+
   return (
     <div className={className}>
       <button
         type="button"
-        onClick={() => inputRef.current?.click()}
+        onClick={() => {
+          if (isNativePlatform()) void pickNative()
+          else inputRef.current?.click()
+        }}
         disabled={busy}
         className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-2.5 text-sm font-medium transition-colors disabled:opacity-60"
         style={{ borderColor: 'var(--accent)', color: 'var(--accent)', background: 'rgba(255,255,255,0.45)' }}
@@ -137,7 +148,7 @@ export default function ImportButton({ className = '' }: Props) {
         multiple
         className="hidden"
         onChange={(e) => {
-          void handleFiles(e.target.files)
+          void handleFiles(Array.from(e.target.files ?? []))
           e.target.value = ''
         }}
       />
