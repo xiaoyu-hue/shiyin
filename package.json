@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:native": "tsc --noEmit && vite build --base ./",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capgo/capacitor-media-session": "^8.1.11",
     "clsx": "2.1.1",
     "lucide-react": "1.75.0",
     "motion": "14.14.0",
@@ -21,6 +25,7 @@
     "zustand": "5.1.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.6.2",
     "@tailwindcss/vite": "4.3.5",
     "@types/node": "24.10.1",
     "@types/react": "19.3.0",

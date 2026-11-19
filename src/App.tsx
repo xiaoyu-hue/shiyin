@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useStore } from './store'
 import { bindAudioEngine, bindSleepTimer, restoreLocalTracks } from './store/bootstrap'
+import { bindNativeMediaSession } from './platform/mediaSessionNative'
 import { useTheme } from './hooks/useTheme'
 import Tabs from './components/Tabs'
 import HomeView from './components/HomeView'
@@ -22,6 +23,7 @@ export default function App() {
   useEffect(() => {
     bindAudioEngine()
     bindSleepTimer()
+    bindNativeMediaSession()
     void restoreLocalTracks()
   }, [])
 
