@@ -84,8 +84,8 @@ export interface UiSlice {
   selectionScope: number[]
   /** 本地曲目恢复是否已完成（首启引导据此避免恢复途中误判空库） */
   restored: boolean
-  /** 「我的」二级页面：收藏 / 历史 / 设置；null 为主页 */
-  mePage: 'favorites' | 'history' | 'settings' | null
+  /** 「我的」二级页面：收藏 / 历史 / 设置 / 开源许可；null 为主页 */
+  mePage: 'favorites' | 'history' | 'settings' | 'licenses' | null
   setTab: (t: Tab) => void
   setPlayerOpen: (v: boolean) => void
   setLyricOpen: (v: boolean) => void
@@ -106,7 +106,7 @@ export interface UiSlice {
   /** 退出多选模式 */
   exitSelection: () => void
   setRestored: (v: boolean) => void
-  setMePage: (p: 'favorites' | 'history' | 'settings' | null) => void
+  setMePage: (p: 'favorites' | 'history' | 'settings' | 'licenses' | null) => void
 }
 
 /** 集合切片：曲目列表、收藏、最近播放历史与自建歌单 */

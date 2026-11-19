@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Check, ChevronLeft, ChevronRight, Heart, History, ListMusic, Monitor, Moon, Settings, Sun } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, FileText, Heart, History, ListMusic, Monitor, Moon, Settings, Sun } from 'lucide-react'
 import { useStore, themes } from '../store'
 import type { Appearance } from '../data/types'
+import {
+  OPEN_SOURCE_ENTRIES,
+  PROJECT_CODE_LICENSE,
+  PROJECT_COPYRIGHT,
+  PROJECT_DOCS_LICENSE,
+} from '../data/openSource'
 import { useResolvedDark } from '../hooks/useTheme'
 import ImportButton from './ImportButton'
 import SongRow from './SongRow'
@@ -26,6 +32,7 @@ export default function MeView() {
   if (mePage === 'favorites') return <FavoritesPage />
   if (mePage === 'history') return <HistoryPage />
   if (mePage === 'settings') return <SettingsPage />
+  if (mePage === 'licenses') return <LicensesPage />
 
   return (
     <div className="px-4 pt-6">
@@ -153,6 +160,7 @@ function HistoryPage() {
 }
 
 function SettingsPage() {
+  const setMePage = useStore((s) => s.setMePage)
   const themeIdx = useStore((s) => s.themeIdx)
   const setTheme = useStore((s) => s.setTheme)
   const appearance = useStore((s) => s.appearance)
@@ -328,11 +336,77 @@ function SettingsPage() {
       <section>
         <h2 className="mb-3 text-base font-semibold">关于</h2>
         <div className="rounded-2xl bg-surface/60 p-4 text-sm leading-relaxed text-ink/60 shadow-sm">
-          <p className="font-semibold text-ink/80">诗音 Shiyin · v1.2.0</p>
+          <p className="font-semibold text-ink/80">诗音 Shiyin · v1.2.1</p>
           <p className="mt-1.5">
             一款只播放你自己音乐的本地播放器：没有账号、没有上传、没有推荐流。你的音乐、收藏与歌单都只保存在这台设备上。
           </p>
         </div>
+        <button
+          onClick={() => setMePage('licenses')}
+          className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-surface/60 px-4 py-4 text-left shadow-sm transition-transform active:scale-[0.99]"
+        >
+          <FileText size={20} style={{ color: 'var(--accent)' }} />
+          <span className="flex-1">
+            <span className="block text-[15px] font-medium">开源许可与致谢</span>
+            <span className="mt-0.5 block text-xs text-ink/45">本项目许可证与第三方开源组件清单</span>
+          </span>
+          <ChevronRight size={18} className="text-ink/30" />
+        </button>
+      </section>
+    </div>
+  )
+}
+
+function LicensesPage() {
+  return (
+    <div className="px-4 pt-6">
+      <BackHeader title="开源许可与致谢" />
+
+      <section className="mb-7">
+        <h2 className="mb-3 text-base font-semibold">本项目许可证</h2>
+        <div className="rounded-2xl bg-surface/60 p-4 text-sm leading-relaxed text-ink/60 shadow-sm">
+          <p>
+            <span className="font-medium text-ink/80">源代码</span> · {PROJECT_CODE_LICENSE.name}（
+            {PROJECT_CODE_LICENSE.short}）
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-ink/45">{PROJECT_CODE_LICENSE.summary}</p>
+          <p className="mt-3">
+            <span className="font-medium text-ink/80">项目文档</span> · {PROJECT_DOCS_LICENSE.name}（
+            {PROJECT_DOCS_LICENSE.short}）
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-ink/45">{PROJECT_DOCS_LICENSE.summary}</p>
+          <p className="mt-3 text-xs text-ink/40">{PROJECT_COPYRIGHT}</p>
+        </div>
+      </section>
+
+      <section className="mb-7">
+        <h2 className="mb-3 text-base font-semibold">第三方开源组件</h2>
+        <p className="mb-3 text-xs leading-relaxed text-ink/45">
+          诗音基于以下开源组件构建，各组件保持其各自的原始许可证：
+        </p>
+        <div className="overflow-hidden rounded-2xl bg-surface/60 shadow-sm">
+          {OPEN_SOURCE_ENTRIES.map((e, i) => (
+            <div key={e.name} className={`px-4 py-3 ${i > 0 ? 'border-t border-ink/5' : ''}`}>
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="min-w-0 break-all text-sm font-medium text-ink/80">{e.name}</p>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                    e.keepOriginal ? 'bg-amber-500/15 text-amber-600' : 'bg-ink/5 text-ink/55'
+                  }`}
+                >
+                  {e.license}
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+                {e.purpose}
+                {e.keepOriginal && ' · 该组件保持其原始许可证 MPL-2.0，不随本项目许可证变更'}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-ink/40">
+          这里只列主要组件。完整清单（含全部传递依赖与版本）见项目仓库根目录的 THIRD-PARTY-LICENSES.md。
+        </p>
       </section>
     </div>
   )
