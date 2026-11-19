@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
 import { readLyricFile } from '../lib/lyricFile'
 import { attachLyricsToTrack } from '../store/bootstrap'
-import { isNativePlatform } from '../platform/env'
+import { isNativePlatform, isTauriPlatform } from '../platform/env'
 import { pickFilesNative } from '../platform/nativeFiles'
+import { pickFilesTauri } from '../platform/tauriFiles'
 
 /**
  * 「给某首歌导入歌词文件」的共享交互：隐藏文件框 + 打开/处理逻辑。
@@ -33,6 +34,13 @@ export function useLyricAttach(onAttached?: () => void) {
     if (isNativePlatform()) {
       void (async () => {
         const files = await pickFilesNative(1)
+        if (files.length) await attachFile(files[0], index)
+      })()
+      return
+    }
+    if (isTauriPlatform()) {
+      void (async () => {
+        const files = await pickFilesTauri(1)
         if (files.length) await attachFile(files[0], index)
       })()
       return

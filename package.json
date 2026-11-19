@@ -8,6 +8,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "build:native": "tsc --noEmit && vite build --base ./",
+    "build:desktop": "tsc --noEmit && vite build --base ./",
+    "tauri": "tauri",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -21,6 +23,9 @@
     "@capacitor/splash-screen": "^8.0.2",
     "@capawesome/capacitor-file-picker": "^8.1.1",
     "@capgo/capacitor-media-session": "^8.1.11",
+    "@tauri-apps/api": "^2.12.5",
+    "@tauri-apps/plugin-dialog": "^2.8.4",
+    "@tauri-apps/plugin-fs": "^2.7.1",
     "clsx": "2.1.1",
     "lucide-react": "1.75.0",
     "motion": "14.14.0",
@@ -33,6 +38,7 @@
   "devDependencies": {
     "@capacitor/cli": "^8.6.2",
     "@tailwindcss/vite": "4.3.5",
+    "@tauri-apps/cli": "^2.12.6",
     "@types/node": "24.10.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

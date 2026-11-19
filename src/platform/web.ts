@@ -57,6 +57,14 @@ export function createWebAudioEngine(): AudioEngine {
   const el = new Audio()
   el.preload = 'metadata'
 
+  // CI 自动化验收钩子：引擎的 audio 元素不在 DOM 里，把引用挂到 window
+  // 供 WebDriver 采样 currentTime/paused（仅供测试读取，无界面影响）
+  try {
+    ;(window as unknown as { __shiyinAudioEl?: HTMLAudioElement }).__shiyinAudioEl = el
+  } catch {
+    /* 非浏览器环境忽略 */
+  }
+
   let progressCb: ((sec: number) => void) | null = null
   let endedCb: (() => void) | null = null
   let errorCb: ((message: string) => void) | null = null
