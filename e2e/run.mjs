@@ -87,7 +87,7 @@ async function newSession() {
     port: 4444,
     path: '/',
     logLevel: 'warn',
-    capabilities: { 'tauri:options': { application: EXE } },
+    capabilities: { 'tauri:options': { application: EXE, webviewOptions: { userDataFolder: UDF } } },
   })
 }
 
