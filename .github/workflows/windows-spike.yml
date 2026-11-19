@@ -171,7 +171,7 @@ jobs:
           "SHIYIN_PROC=$([IO.Path]::GetFileName($exe))" >> $env:GITHUB_ENV
 
       - name: 安装 pywinauto（托盘断言）
-        run: pip install pywinauto
+        run: pip install pywinauto psutil
 
       - name: 应用独立启动自检（诊断：不经 WebDriver 直接拉起）
         shell: pwsh
