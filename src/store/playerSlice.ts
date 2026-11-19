@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand'
 import { stepIndex, shuffleIndex } from '../lib/player'
 import { appendToQueue, insertNext, moveInQueue, naturalQueue, posOf, removeAtPos } from '../lib/queue'
+import { endsAtFromMinutes } from '../lib/sleepTimer'
 import { HISTORY_LIMIT } from '../lib/prefs'
 import { platform } from '../platform/instance'
 import type { AppState, PlayerSlice } from './types'
@@ -36,6 +37,18 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
   audioError: null,
   queue: [],
   queuePos: 0,
+  sleepEndsAt: null,
+  sleepAfterTrack: false,
+
+  setSleepMinutes: (min) =>
+    set({
+      sleepEndsAt: min === null ? null : endsAtFromMinutes(min, Date.now()),
+      sleepAfterTrack: min === null ? get().sleepAfterTrack : false,
+    }),
+
+  setSleepAfterTrack: (v) => set({ sleepAfterTrack: v, sleepEndsAt: v ? null : get().sleepEndsAt }),
+
+  clearSleep: () => set({ sleepEndsAt: null, sleepAfterTrack: false }),
 
   play: (index, context) => {
     set((s) => {
@@ -100,6 +113,12 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
 
   handleTrackEnd: () => {
     const s = get()
+    // 睡眠定时「播完这首」优先于一切播放模式：停播并清除定时
+    if (s.sleepAfterTrack) {
+      set({ playing: false, pos: 0, sleepAfterTrack: false, sleepEndsAt: null })
+      syncEngine(get())
+      return
+    }
     if (s.mode === 'repeat') {
       const track = s.tracks[s.cur]
       if (track?.audioSrc) {

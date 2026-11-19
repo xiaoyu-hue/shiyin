@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useStore } from './store'
-import { bindAudioEngine, restoreLocalTracks } from './store/bootstrap'
+import { bindAudioEngine, bindSleepTimer, restoreLocalTracks } from './store/bootstrap'
 import { useTheme } from './hooks/useTheme'
 import Tabs from './components/Tabs'
 import HomeView from './components/HomeView'
@@ -21,6 +21,7 @@ export default function App() {
   // 音频事件接入与本地曲目恢复：仅需在应用启动时执行一次
   useEffect(() => {
     bindAudioEngine()
+    bindSleepTimer()
     void restoreLocalTracks()
   }, [])
 

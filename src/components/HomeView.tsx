@@ -25,7 +25,7 @@ export default function HomeView() {
       <section>
         <div className="mb-2 flex items-baseline justify-between">
           <h2 className="text-base font-semibold">全部曲目</h2>
-          <span className="text-xs text-black/40">{tracks.length > 0 ? `共 ${tracks.length} 首` : ''}</span>
+          <span className="text-xs text-ink/40">{tracks.length > 0 ? `共 ${tracks.length} 首` : ''}</span>
         </div>
 
         <ImportButton className="mb-3 w-full" />
@@ -37,7 +37,7 @@ export default function HomeView() {
             <div onClick={() => setPlayerOpen(true)}>
               {tracks.map((s, i) => <SongRow key={s.id} index={i} context={tracks.map((_, j) => j)} />)}
             </div>
-            <p className="mt-2 text-center text-[11px] text-black/35">点击任意曲目展开播放器</p>
+            <p className="mt-2 text-center text-[11px] text-ink/35">点击任意曲目展开播放器</p>
           </>
         )}
       </section>

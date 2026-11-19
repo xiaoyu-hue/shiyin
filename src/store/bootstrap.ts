@@ -25,6 +25,21 @@ export function bindAudioEngine(): void {
   })
 }
 
+let sleepBound = false
+
+/** 睡眠定时看守：每秒检查分钟定时是否到期，到期停播并清除（应用生命周期内只绑定一次） */
+export function bindSleepTimer(): void {
+  if (sleepBound) return
+  sleepBound = true
+  setInterval(() => {
+    const s = useStore.getState()
+    if (s.sleepEndsAt !== null && Date.now() >= s.sleepEndsAt) {
+      useStore.setState({ playing: false, sleepEndsAt: null, sleepAfterTrack: false })
+      platform.audio.pause()
+    }
+  }, 1000)
+}
+
 /** 分配本地曲目 id，从 1000 起与历史数据保持距离 */
 export function nextLocalId(): number {
   const max = useStore.getState().tracks.reduce((m, t) => Math.max(m, t.id), 1000)
@@ -121,6 +136,7 @@ export function restorePrefs(): void {
       liked: new Set(prefs.liked),
       history: prefs.history,
       themeIdx: prefs.themeIdx,
+      appearance: prefs.appearance,
     })
   }
   useStore.setState({ playlists: parsePlaylists(loadPlaylistsRaw()) })
@@ -128,7 +144,7 @@ export function restorePrefs(): void {
 
 let prefsBound = false
 
-/** 订阅收藏 / 历史 / 主题变化并写回本地存储，应用生命周期内只绑定一次 */
+/** 订阅收藏 / 历史 / 主题 / 外观变化并写回本地存储，应用生命周期内只绑定一次 */
 export function bindPrefsPersistence(): void {
   if (prefsBound) return
   prefsBound = true
@@ -136,7 +152,12 @@ export function bindPrefsPersistence(): void {
     if (state.playlists !== prev.playlists) {
       savePlaylistsRaw(serializePlaylists(state.playlists))
     }
-    if (state.liked === prev.liked && state.history === prev.history && state.themeIdx === prev.themeIdx) {
+    if (
+      state.liked === prev.liked &&
+      state.history === prev.history &&
+      state.themeIdx === prev.themeIdx &&
+      state.appearance === prev.appearance
+    ) {
       return
     }
     savePrefsRaw(
@@ -144,6 +165,7 @@ export function bindPrefsPersistence(): void {
         liked: [...state.liked],
         history: state.history,
         themeIdx: state.themeIdx,
+        appearance: state.appearance,
       }),
     )
   })

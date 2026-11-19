@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ImagePlus } from 'lucide-react'
 import { useStore } from '../store'
 import { lyricIndex, toSeconds } from '../lib/lyric'
 import { sheetTransition } from '../lib/motion'
+import LyricPoster from './LyricPoster'
 
 /**
  * 歌词页（PRD §5.8）：全屏沉浸、逐行高亮、点击跳转、高亮行平滑滚动居中。
@@ -20,6 +21,7 @@ export default function LyricView() {
   const song = tracks[cur]
   const active = song && song.lyrics.length ? lyricIndex(song, pos) : -1
   const lineRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const [posterOpen, setPosterOpen] = useState(false)
 
   // 高亮行变化时平滑滚动到可视区中部；刚展开时延后一帧等待布局
   useEffect(() => {
@@ -31,6 +33,7 @@ export default function LyricView() {
   }, [active, open, cur])
 
   return (
+    <>
     <AnimatePresence>
       {open && song && (
         <motion.div
@@ -52,25 +55,31 @@ export default function LyricView() {
               className="pointer-events-none absolute inset-0 h-full w-full scale-150 object-cover opacity-60 blur-3xl"
             />
           )}
-          <div className="pointer-events-none absolute inset-0 bg-white/35" aria-hidden />
+          <div className="pointer-events-none absolute inset-0 bg-surface/35" aria-hidden />
 
-          <div className="relative flex items-center justify-between text-black/70">
+          <div className="relative flex items-center justify-between text-ink/70">
             <button onClick={() => setOpen(false)} aria-label="收起歌词" className="glass grid h-11 w-11 place-items-center rounded-full">
               <ChevronDown size={24} />
             </button>
             <div className="text-center">
-              <p className="text-[11px] text-black/45">歌词</p>
-              <p className="max-w-[16rem] truncate text-sm font-semibold text-black/85">{song.name}</p>
+              <p className="text-[11px] text-ink/45">歌词</p>
+              <p className="max-w-[16rem] truncate text-sm font-semibold text-ink/85">{song.name}</p>
             </div>
-            <div className="w-11" />
+            {song.lyrics.length > 0 ? (
+              <button onClick={() => setPosterOpen(true)} aria-label="生成歌词海报" className="glass grid h-11 w-11 place-items-center rounded-full">
+                <ImagePlus size={20} />
+              </button>
+            ) : (
+              <div className="w-11" />
+            )}
           </div>
 
           {song.lyrics.length === 0 ? (
             <div className="relative flex flex-1 items-center justify-center px-6 text-center">
-              <p className="text-sm text-black/40">
+              <p className="text-sm text-ink/40">
                 该曲目暂无歌词
                 <br />
-                <span className="text-xs text-black/30">这首歌的文件里没有内嵌歌词</span>
+                <span className="text-xs text-ink/30">这首歌的文件里没有内嵌歌词</span>
               </p>
             </div>
           ) : (
@@ -96,7 +105,7 @@ export default function LyricView() {
                       onClick={() => seek(toSeconds(line.t))}
                       aria-current={isActive ? 'true' : undefined}
                       className={`w-full origin-left text-left text-lg leading-relaxed transition-all duration-300 ${level}`}
-                      style={{ color: isActive ? 'var(--accent)' : '#1f1b16' }}
+                      style={{ color: isActive ? 'var(--accent)' : 'var(--ink)' }}
                     >
                       {line.text}
                     </button>
@@ -106,11 +115,13 @@ export default function LyricView() {
             </div>
           )}
 
-          <p className="relative text-center text-[11px] text-black/40">
+          <p className="relative text-center text-[11px] text-ink/40">
             {song.lyrics.length ? '点击任意歌词行可跳转播放进度' : ''}
           </p>
         </motion.div>
       )}
     </AnimatePresence>
+    <LyricPoster song={song ?? null} open={posterOpen} onClose={() => setPosterOpen(false)} />
+    </>
   )
 }

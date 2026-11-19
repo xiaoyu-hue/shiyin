@@ -25,7 +25,7 @@ export default function Tabs() {
               onClick={() => setTab(key)}
               aria-current={active ? 'page' : undefined}
               className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 rounded-full py-1.5 text-[11px] transition-all duration-300 ${
-                active ? 'bg-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_8px_rgba(31,27,22,0.10)]' : ''
+                active ? 'bg-surface/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_8px_rgba(31,27,22,0.10)]' : ''
               }`}
               style={{ color: active ? 'var(--accent)' : '#8a8176' }}
             >

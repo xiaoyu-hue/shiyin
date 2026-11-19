@@ -1,4 +1,4 @@
-import type { Playlist, PlayMode, Song, Tab } from '../data/types'
+import type { Appearance, Playlist, PlayMode, Song, Tab } from '../data/types'
 import type { SortDir, SortKey } from '../lib/library'
 
 /** 播放切片：当前曲目、进度、模式、播放队列与播放动作（架构 §4.4） */
@@ -12,6 +12,15 @@ export interface PlayerSlice {
   /** 播放队列：曲目下标的排列（不重复）；queuePos 为当前曲目在队列中的位置 */
   queue: number[]
   queuePos: number
+  /** 睡眠定时：分钟模式的到期时间戳（null 为未设）；sleepAfterTrack 为「播完这首停」 */
+  sleepEndsAt: number | null
+  sleepAfterTrack: boolean
+  /** 设置分钟定时（null 取消分钟定时）；与「播完这首」互斥 */
+  setSleepMinutes: (min: number | null) => void
+  /** 设置「播完这首停」；与分钟定时互斥 */
+  setSleepAfterTrack: (v: boolean) => void
+  /** 清除全部睡眠定时 */
+  clearSleep: () => void
   /** 播放某曲；context 给出时以该列表顺序重建队列（如从专辑页播放） */
   play: (index: number, context?: number[]) => void
   toggle: () => void
@@ -98,7 +107,9 @@ export interface CollectionSlice {
 /** 主题切片：当前主题索引 */
 export interface ThemeSlice {
   themeIdx: number
+  appearance: Appearance
   setTheme: (i: number) => void
+  setAppearance: (a: Appearance) => void
 }
 
 export type AppState = PlayerSlice & UiSlice & CollectionSlice & ThemeSlice

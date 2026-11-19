@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { Play, Pause, SkipForward } from 'lucide-react'
+import { Play, Pause, SkipForward, MoonStar } from 'lucide-react'
 import { useStore } from '../store'
 import { pct } from '../lib/format'
 
@@ -16,6 +16,7 @@ export default function MiniBar() {
   const prev = useStore((s) => s.prev)
   const setPlayerOpen = useStore((s) => s.setPlayerOpen)
   const tracks = useStore((s) => s.tracks)
+  const sleepActive = useStore((s) => s.sleepEndsAt !== null || s.sleepAfterTrack)
   const song = tracks[cur]
 
   if (!song) return null
@@ -44,17 +45,20 @@ export default function MiniBar() {
           {song.coverSrc ? (
             <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
-            <span className="h-4 w-4 rounded-full bg-white/85" />
+            <span className="h-4 w-4 rounded-full bg-surface/85" />
           )}
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{song.name}</p>
-          <p className="truncate text-xs text-black/45">{song.artist}</p>
+          <p className="flex items-center gap-1 truncate text-xs text-ink/45">
+            {sleepActive && <MoonStar size={11} style={{ color: 'var(--accent)' }} aria-label="睡眠定时已开启" />}
+            {song.artist}
+          </p>
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); toggle() }}
           aria-label={playing ? '暂停' : '播放'}
-          className="grid h-11 w-11 place-items-center rounded-full bg-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_8px_rgba(31,27,22,0.10)]"
+          className="grid h-11 w-11 place-items-center rounded-full bg-surface/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_8px_rgba(31,27,22,0.10)]"
         >
           {playing ? <Pause size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} /> : <Play size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} />}
         </button>
@@ -67,7 +71,7 @@ export default function MiniBar() {
         </button>
       </div>
       {/* 底部细进度线：贴合胶囊弧度，居中收窄 */}
-      <div className="absolute right-6 bottom-0.5 left-6 h-0.5 overflow-hidden rounded-full bg-black/10">
+      <div className="absolute right-6 bottom-0.5 left-6 h-0.5 overflow-hidden rounded-full bg-ink/10">
         <div className="h-full rounded-full accent-bg transition-all" style={{ width: `${pct(pos, song.dur)}%` }} />
       </div>
     </motion.div>

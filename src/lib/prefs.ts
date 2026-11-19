@@ -1,7 +1,13 @@
 /**
- * 用户偏好持久化的纯逻辑：收藏、最近播放历史与主题选择的序列化 / 反序列化。
+ * 用户偏好持久化的纯逻辑：收藏、最近播放历史、主题与外观的序列化 / 反序列化。
  * 只做数据校验与清洗，不触碰任何存储介质（读写在 platform/prefs.ts）。
  */
+import type { Appearance } from '../data/types'
+
+/** 外观清洗：只接受 system/light/dark，其余（包括旧数据缺失）回退跟随系统 */
+export function cleanAppearance(value: unknown): Appearance {
+  return value === 'light' || value === 'dark' || value === 'system' ? value : 'system'
+}
 
 /** 偏好数据的可序列化形态（收藏用数组存曲目 id，落盘时再转 Set） */
 export interface PrefsData {
@@ -11,6 +17,8 @@ export interface PrefsData {
   history: number[]
   /** 当前主题索引 */
   themeIdx: number
+  /** 外观模式（旧数据无此字段时默认跟随系统） */
+  appearance: Appearance
 }
 
 /** 历史最多保留条数，超出截断最旧的 */
@@ -60,6 +68,7 @@ export function serializePrefs(data: PrefsData): string {
     liked: cleanIds(data.liked),
     history: cleanHistory(data.history),
     themeIdx: data.themeIdx,
+    appearance: cleanAppearance(data.appearance),
   })
 }
 
@@ -85,5 +94,6 @@ export function parsePrefs(
     liked: cleanIds(rec.liked),
     history: cleanHistory(rec.history),
     themeIdx: cleanThemeIdx(rec.themeIdx, themeCount, defaultThemeIdx),
+    appearance: cleanAppearance(rec.appearance),
   }
 }

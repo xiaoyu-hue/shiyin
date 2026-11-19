@@ -30,7 +30,14 @@ export interface Theme {
   accent: string
   bg: string
   bgEnd: string
+  /** 深色外观下的变体（同色系压暗背景、提亮强调色） */
+  accentDark: string
+  bgDark: string
+  bgEndDark: string
 }
+
+/** 外观模式：跟随系统 / 浅色 / 深色 */
+export type Appearance = 'system' | 'light' | 'dark'
 
 /** 用户自建歌单：只保存名称与曲目 id 清单，曲目本体在 tracks 中 */
 export interface Playlist {

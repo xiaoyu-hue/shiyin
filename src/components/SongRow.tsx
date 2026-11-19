@@ -26,7 +26,7 @@ export default function SongRow({ index, rank, context }: Props) {
 
   return (
     <div
-      className="flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors active:bg-black/5"
+      className="flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors active:bg-ink/5"
       onClick={() => play(index, context)}
       role="button"
       tabIndex={0}
@@ -43,7 +43,7 @@ export default function SongRow({ index, rank, context }: Props) {
       >
         {song.coverSrc && <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />}
         {isCurrent && playing ? (
-          <span className="pulsing relative grid h-6 w-6 place-items-center rounded-full bg-white/90">
+          <span className="pulsing relative grid h-6 w-6 place-items-center rounded-full bg-surface/90">
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'var(--accent)' }} />
           </span>
         ) : song.coverSrc ? null : (
@@ -54,9 +54,9 @@ export default function SongRow({ index, rank, context }: Props) {
         <div className={`truncate text-sm ${isCurrent ? 'font-semibold' : 'font-medium'}`} style={isCurrent ? { color: 'var(--accent)' } : undefined}>
           {song.name}
         </div>
-        <div className="mt-0.5 truncate text-xs text-black/45">{song.artist} · {song.album}</div>
+        <div className="mt-0.5 truncate text-xs text-ink/45">{song.artist} · {song.album}</div>
       </div>
-      <span className="flex shrink-0 items-center gap-1.5 text-xs text-black/35">
+      <span className="flex shrink-0 items-center gap-1.5 text-xs text-ink/35">
         {isLocal && (
           <span
             className="h-1.5 w-1.5 rounded-full"
@@ -76,7 +76,7 @@ export default function SongRow({ index, rank, context }: Props) {
       <button
         onClick={(e) => { e.stopPropagation(); setMenuTrack(index) }}
         aria-label={`《${song.name}》的更多操作`}
-        className="-ml-1 grid h-10 w-9 shrink-0 place-items-center rounded-full text-black/35"
+        className="-ml-1 grid h-10 w-9 shrink-0 place-items-center rounded-full text-ink/35"
       >
         <MoreHorizontal size={19} />
       </button>

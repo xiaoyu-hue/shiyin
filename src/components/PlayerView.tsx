@@ -5,6 +5,8 @@ import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
 import { sheetTransition } from '../lib/motion'
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
+import { useResolvedDark } from '../hooks/useTheme'
+import SleepMenu from './SleepMenu'
 
 const modeIcon = { list: ListMusic, repeat: Repeat, shuffle: Shuffle }
 
@@ -26,6 +28,7 @@ export default function PlayerView() {
   const setQueueOpen = useStore((s) => s.setQueueOpen)
   const tracks = useStore((s) => s.tracks)
   const audioError = useStore((s) => s.audioError)
+  const dark = useResolvedDark()
   const song = tracks[cur]
   const ModeIcon = modeIcon[mode]
   // 下拉关闭只从顶部手柄/标题区发起拖拽，避免与进度条拖动冲突
@@ -73,13 +76,20 @@ export default function PlayerView() {
             if (info.offset.y > 110 || info.velocity.y > 600) setOpen(false)
           }}
         >
-          {/* 封面光晕层：封面图重度模糊铺满，营造液态玻璃后的色彩场 */}
+          {/* 封面光晕层：封面图重度模糊铺满，营造液态玻璃后的色彩场；深色下降低亮度避免刺眼 */}
           {song.coverSrc && (
             <img
               src={song.coverSrc}
               alt=""
               aria-hidden
-              className="pointer-events-none absolute inset-0 h-full w-full scale-150 object-cover opacity-50 blur-3xl"
+              className={`pointer-events-none absolute inset-0 h-full w-full scale-150 object-cover blur-3xl ${dark ? 'opacity-30' : 'opacity-50'}`}
+            />
+          )}
+          {dark && (
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.30) 0%, transparent 58%)' }}
+              aria-hidden
             />
           )}
           {/* 顶部拖拽手柄：按住下拉可关闭播放页 */}
@@ -88,21 +98,22 @@ export default function PlayerView() {
             onPointerDown={(e) => dragControls.start(e)}
             aria-hidden
           >
-            <div className="h-1 w-10 rounded-full bg-black/20" />
+            <div className="h-1 w-10 rounded-full bg-ink/20" />
           </div>
 
           <div
-            className="relative flex items-center justify-between text-black/70"
+            className="relative flex items-center justify-between text-ink/70"
             onPointerDown={(e) => dragControls.start(e)}
           >
             <button onClick={() => setOpen(false)} aria-label="收起播放器" className="glass grid h-11 w-11 place-items-center rounded-full">
               <ChevronDown size={24} />
             </button>
             <div className="text-center">
-              <p className="text-[11px] text-black/45">正在播放</p>
-              <p className="max-w-[13rem] truncate text-sm font-semibold text-black/85">{song.album}</p>
+              <p className="text-[11px] text-ink/45">正在播放</p>
+              <p className="max-w-[13rem] truncate text-sm font-semibold text-ink/85">{song.album}</p>
             </div>
             <div className="flex items-center gap-2">
+              <SleepMenu />
               <button onClick={() => setLyricOpen(true)} aria-label="打开歌词" className="glass grid h-11 w-11 place-items-center rounded-full">
                 <Mic2 size={20} />
               </button>
@@ -127,8 +138,8 @@ export default function PlayerView() {
               )}
             </div>
             <div className="w-full text-center">
-              <h2 className="text-2xl font-bold text-black/85">{song.name}</h2>
-              <p className="mt-1 text-sm text-black/50">{song.artist}</p>
+              <h2 className="text-2xl font-bold text-ink/85">{song.name}</h2>
+              <p className="mt-1 text-sm text-ink/50">{song.artist}</p>
               {audioError && <p className="mt-2 text-[11px] text-red-600">{audioError}</p>}
             </div>
           </div>
@@ -143,7 +154,7 @@ export default function PlayerView() {
               className="w-full accent-[var(--accent)]"
               aria-label="播放进度"
             />
-            <div className="mt-1 flex justify-between text-xs text-black/45">
+            <div className="mt-1 flex justify-between text-xs text-ink/45">
               <span>{fmtTime(pos)}</span>
               <span>{song.dur > 0 ? fmtTime(song.dur) : '--:--'}</span>
             </div>

@@ -31,21 +31,21 @@ export default function QueueView() {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[82vh] w-full max-w-[430px] flex-col rounded-t-[var(--r-sheet)] p-4 pb-6"
           >
-            <div className="mx-auto mb-3 h-1.5 w-10 shrink-0 rounded-full bg-black/15" />
+            <div className="mx-auto mb-3 h-1.5 w-10 shrink-0 rounded-full bg-ink/15" />
             <div className="mb-3 flex items-center gap-2 px-1">
               <h2 className="flex-1 text-base font-bold">播放队列</h2>
-              <span className="text-xs text-black/45">{queue.length} 首</span>
+              <span className="text-xs text-ink/45">{queue.length} 首</span>
               <button
                 onClick={clearQueue}
                 disabled={queue.length <= 1}
-                className="min-h-9 rounded-full bg-white/50 px-3 text-xs text-black/55 disabled:opacity-40"
+                className="min-h-9 rounded-full bg-surface/50 px-3 text-xs text-ink/55 disabled:opacity-40"
               >
                 清空
               </button>
               <button
                 onClick={() => setQueueOpen(false)}
                 aria-label="关闭队列"
-                className="grid h-11 w-11 place-items-center rounded-full text-black/45"
+                className="grid h-11 w-11 place-items-center rounded-full text-ink/45"
               >
                 <X size={20} />
               </button>
@@ -65,7 +65,7 @@ export default function QueueView() {
                 ))}
               </Reorder.Group>
             )}
-            <p className="pt-2 text-center text-[11px] text-black/35">按住右侧手柄拖动可调整顺序</p>
+            <p className="pt-2 text-center text-[11px] text-ink/35">按住右侧手柄拖动可调整顺序</p>
           </motion.div>
         </div>
       )}
@@ -90,7 +90,7 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
       value={trackIndex}
       dragListener={false}
       dragControls={controls}
-      className={`flex items-center gap-3 rounded-2xl px-2 py-2 ${isCurrent ? 'bg-white/50' : ''}`}
+      className={`flex items-center gap-3 rounded-2xl px-2 py-2 ${isCurrent ? 'bg-surface/50' : ''}`}
     >
       <div
         className="cover relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-lg text-white shadow-sm"
@@ -101,7 +101,7 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
       >
         {song.coverSrc && <img src={song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />}
         {isCurrent && playing && (
-          <span className="pulsing relative grid h-5 w-5 place-items-center rounded-full bg-white/90">
+          <span className="pulsing relative grid h-5 w-5 place-items-center rounded-full bg-surface/90">
             <span className="h-2 w-2 rounded-full" style={{ background: 'var(--accent)' }} />
           </span>
         )}
@@ -114,7 +114,7 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
         <p className={`truncate text-sm ${isCurrent ? 'font-semibold' : 'font-medium'}`} style={isCurrent ? { color: 'var(--accent)' } : undefined}>
           {song.name}
         </p>
-        <p className="mt-0.5 truncate text-xs text-black/45">
+        <p className="mt-0.5 truncate text-xs text-ink/45">
           {isCurrent ? '正在播放 · ' : ''}{song.artist} · {fmtTime(song.dur)}
         </p>
       </div>
@@ -122,7 +122,7 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
         <button
           onClick={() => removeQueueAt(pos)}
           aria-label={`从队列移除 ${song.name}`}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-black/35"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink/35"
         >
           <X size={17} />
         </button>
@@ -130,7 +130,7 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
       <button
         onPointerDown={(e) => controls.start(e)}
         aria-label={`拖动调整 ${song.name} 的顺序`}
-        className="grid h-11 w-9 shrink-0 cursor-grab touch-none place-items-center rounded-full text-black/30"
+        className="grid h-11 w-9 shrink-0 cursor-grab touch-none place-items-center rounded-full text-ink/30"
       >
         <GripVertical size={18} />
       </button>
