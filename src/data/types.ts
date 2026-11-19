@@ -12,9 +12,9 @@ export interface Song {
   dur: number
   color: string
   lyrics: LyricLine[]
-  /** 本地导入曲目的音频地址（blob URL） */
+  /** 本地导入曲目的音频地址（网页为 blob URL，原生为本地文件服务地址） */
   audioSrc?: string | null
-  /** 内嵌封面图的运行时地址（blob URL）；无内嵌封面时为空，界面回退渐变色块 */
+  /** 内嵌封面图的运行时地址（网页为 blob URL，原生为本地文件服务地址）；无内嵌封面时为空，界面回退渐变色块 */
   coverSrc?: string | null
   /** 内嵌封面图原图数据，仅用于持久化落盘；运行时展示用 coverSrc */
   coverBlob?: Blob | null
