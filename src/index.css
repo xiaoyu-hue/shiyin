@@ -5,6 +5,55 @@
   --accent: #7B5738;
   --bg: #FFF8EC;
   --bg-end: #EEE2D4;
+
+  /* ===== 设计令牌（0.5.0 起全站唯一标准，数值依据调研报告） =====
+     间距：4 的倍数，常用档 4/8/12/16/20/24（页面左右边距统一 16）
+     圆角：封面 12 / 卡片 16 / 大卡与抽屉 24 / 胶囊 999
+     字阶：大标题 24 / 标题 16 / 正文 15 / 副文 13 / 标签 11
+     触控：可点区域最小 44×44 */
+  --r-cover: 12px;
+  --r-card: 16px;
+  --r-sheet: 24px;
+
+  /* 液态玻璃参数：填充/描边走白色系（浅色主题），JS 不覆盖；
+     --glass-tint 由封面取色或主题强调色以低透明度混入 */
+  --glass-blur: 20px;
+  --glass-saturate: 180%;
+  --glass-fill: rgba(255, 255, 255, 0.52);
+  --glass-fill-strong: rgba(255, 255, 255, 0.68);
+  --glass-stroke: rgba(255, 255, 255, 0.65);
+  --glass-shadow: 0 8px 32px rgba(31, 27, 22, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 -0.5px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* 液态玻璃表面：半透明填充 + 背景模糊饱和 + 顶部高光描边（玻璃口反光） */
+.glass {
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-stroke);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-strong {
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-stroke);
+  box-shadow: var(--glass-shadow);
+}
+
+/* 不支持背景模糊时退化为更实的填充，保证可读性（老设备降级） */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass, .glass-strong { background: rgba(255, 255, 255, 0.88); }
+}
+
+/* 用户在系统里要求减少透明度时同样降级 */
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-strong {
+    background: rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 * { box-sizing: border-box; }
