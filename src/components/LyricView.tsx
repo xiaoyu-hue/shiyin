@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ChevronDown, ImagePlus } from 'lucide-react'
+import { ChevronDown, ImagePlus, ScrollText } from 'lucide-react'
 import { useStore } from '../store'
 import { lyricIndex, toSeconds } from '../lib/lyric'
 import { sheetTransition } from '../lib/motion'
 import LyricPoster from './LyricPoster'
+import { useLyricAttach } from './useLyricAttach'
 
 /**
  * 歌词页（PRD §5.8）：全屏沉浸、逐行高亮、点击跳转、高亮行平滑滚动居中。
@@ -22,6 +23,7 @@ export default function LyricView() {
   const active = song && song.lyrics.length ? lyricIndex(song, pos) : -1
   const lineRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [posterOpen, setPosterOpen] = useState(false)
+  const lyricAttach = useLyricAttach()
 
   // 高亮行变化时平滑滚动到可视区中部；刚展开时延后一帧等待布局
   useEffect(() => {
@@ -75,12 +77,27 @@ export default function LyricView() {
           </div>
 
           {song.lyrics.length === 0 ? (
-            <div className="relative flex flex-1 items-center justify-center px-6 text-center">
+            <div className="relative flex flex-1 flex-col items-center justify-center px-6 text-center">
               <p className="text-sm text-ink/40">
                 该曲目暂无歌词
                 <br />
                 <span className="text-xs text-ink/30">这首歌的文件里没有内嵌歌词</span>
               </p>
+              <button
+                onClick={() => lyricAttach.openPicker(cur)}
+                className="glass mt-5 flex min-h-11 items-center gap-2 rounded-full px-5 text-sm font-medium"
+              >
+                <ScrollText size={17} style={{ color: 'var(--accent)' }} />
+                导入歌词文件（.lrc）
+              </button>
+              {lyricAttach.error && <p className="mt-3 text-xs text-red-500">{lyricAttach.error}</p>}
+              <input
+                ref={lyricAttach.inputRef}
+                type="file"
+                accept=".lrc,.txt"
+                className="hidden"
+                onChange={(e) => { void lyricAttach.onChange(e) }}
+              />
             </div>
           ) : (
             <div className="lyric-scroll relative mt-2 flex-1 overflow-y-auto py-24">

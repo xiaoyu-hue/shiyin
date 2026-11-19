@@ -44,6 +44,10 @@ export function formatLyricTime(ms: number): string {
 }
 
 const LRC_STAMP = /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g
+/** 增强 LRC 的行内逐词标签 <mm:ss.xx>，展示层只做行级，解析时剥离 */
+const LRC_WORD_STAMP = /<\d{1,3}:\d{2}(?:[.:]\d{1,3})?>/g
+/** [offset:+123] / [offset:-123] 全局偏移（毫秒） */
+const LRC_OFFSET = /\[offset:\s*([+-]?\d+)\s*\]/i
 
 function stampToMs(min: string, sec: string, frac?: string): number {
   let ms = Number(min) * 60000 + Number(sec) * 1000
@@ -56,16 +60,20 @@ function stampToMs(min: string, sec: string, frac?: string): number {
 
 /**
  * 解析 LRC 文本为逐行歌词。一行多时间戳会展开为多行；
- * [ti:] / [ar:] 等元信息行与无时间戳行忽略。结果按时间升序。
+ * [ti:] / [ar:] 等元信息行与无时间戳行忽略；[offset:] 全局偏移按主流约定应用
+ * （正偏移使歌词提前显示，即时间戳减去偏移量）；行内逐词标签被剥离。结果按时间升序。
  */
 export function parseLrcText(text: string): LyricLine[] {
+  const offsetMs = Number(text.match(LRC_OFFSET)?.[1] ?? 0)
   const out: { ms: number; text: string }[] = []
   for (const raw of text.split(/\r?\n/)) {
     const stamps = [...raw.matchAll(LRC_STAMP)]
     if (!stamps.length) continue
-    const lyric = raw.replace(LRC_STAMP, '').trim()
+    const lyric = raw.replace(LRC_STAMP, '').replace(LRC_WORD_STAMP, '').trim()
     if (!lyric) continue
-    for (const m of stamps) out.push({ ms: stampToMs(m[1], m[2], m[3]), text: lyric })
+    for (const m of stamps) {
+      out.push({ ms: Math.max(0, stampToMs(m[1], m[2], m[3]) - offsetMs), text: lyric })
+    }
   }
   return out.sort((a, b) => a.ms - b.ms).map((l) => ({ t: formatLyricTime(l.ms), text: l.text }))
 }

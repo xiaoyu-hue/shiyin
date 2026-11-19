@@ -70,6 +70,29 @@ export function deleteTrack(key: string): Promise<undefined> {
   return run<undefined>('readwrite', (store) => store.delete(key) as IDBRequest<undefined>)
 }
 
+/** 只更新某条记录的歌词字段（外挂歌词补挂用）；记录不存在时静默跳过 */
+export async function updateTrackLyrics(key: string, lyrics: LyricLine[]): Promise<void> {
+  if (!hasIDB()) return
+  const db = await openDB()
+  return new Promise<void>((resolve) => {
+    const tx = db.transaction(STORE, 'readwrite')
+    const store = tx.objectStore(STORE)
+    const getReq = store.get(key)
+    getReq.onsuccess = () => {
+      const rec = getReq.result as StoredTrack | undefined
+      if (rec) store.put({ ...rec, lyrics })
+    }
+    tx.oncomplete = () => {
+      db.close()
+      resolve()
+    }
+    tx.onerror = () => {
+      db.close()
+      resolve()
+    }
+  })
+}
+
 export function clearTracks(): Promise<undefined> {
   return run<undefined>('readwrite', (store) => store.clear() as IDBRequest<undefined>)
 }

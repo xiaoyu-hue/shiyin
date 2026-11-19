@@ -2,7 +2,8 @@ import type { Song } from '../data/types'
 import { DEFAULT_THEME_INDEX, themes } from '../data/themes'
 import { parsePrefs, serializePrefs } from '../lib/prefs'
 import { platform } from '../platform/instance'
-import { clearTracks, deleteTrack as deleteStoredTrack, loadTracks, saveTrack, type StoredTrack } from '../platform/idb'
+import { clearTracks, deleteTrack as deleteStoredTrack, loadTracks, saveTrack, updateTrackLyrics, type StoredTrack } from '../platform/idb'
+import type { LyricLine } from '../data/types'
 import { naturalQueue } from '../lib/queue'
 import { loadPlaylistsRaw, loadPrefsRaw, savePlaylistsRaw, savePrefsRaw } from '../platform/prefs'
 import { parsePlaylists, serializePlaylists } from '../lib/playlists'
@@ -90,6 +91,20 @@ export async function deleteTrackEverywhere(index: number): Promise<void> {
   if (track.coverSrc?.startsWith('blob:')) URL.revokeObjectURL(track.coverSrc)
   if (wasCurrent) platform.audio.pause()
   if (track.localKey) await deleteStoredTrack(track.localKey).catch(() => undefined)
+}
+
+/**
+ * 给一首曲目挂上（或更换）歌词：更新 store 并写回 IndexedDB，
+ * 刷新后仍在。外挂歌词文件导入与批量同名配对共用此入口。
+ */
+export async function attachLyricsToTrack(index: number, lyrics: LyricLine[]): Promise<void> {
+  const state = useStore.getState()
+  const track = state.tracks[index]
+  if (!track) return
+  const tracks = state.tracks.slice()
+  tracks[index] = { ...track, lyrics }
+  useStore.setState({ tracks })
+  if (track.localKey) await updateTrackLyrics(track.localKey, lyrics).catch(() => undefined)
 }
 
 /**

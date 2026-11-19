@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ChevronRight, Heart, ListEnd, ListMusic, ListPlus, Play, Plus, Trash2, X } from 'lucide-react'
+import { ChevronRight, Heart, ListEnd, ListMusic, ListPlus, Play, Plus, ScrollText, Trash2, X } from 'lucide-react'
 import { useStore } from '../store'
 import { deleteTrackEverywhere } from '../store/bootstrap'
+import { useLyricAttach } from './useLyricAttach'
 
 /** 单曲操作菜单：玻璃底部抽屉（下一首播放 / 加入队列 / 加入歌单 / 收藏 / 删除） */
 export default function SongMenu() {
@@ -20,6 +21,7 @@ export default function SongMenu() {
   const [view, setView] = useState<'main' | 'playlists' | 'confirmDelete'>('main')
   const [newName, setNewName] = useState('')
   const [addedTo, setAddedTo] = useState<string | null>(null)
+  const lyricAttach = useLyricAttach(() => setMenuTrack(null))
 
   useEffect(() => {
     if (menuTrack !== null) {
@@ -102,6 +104,21 @@ export default function SongMenu() {
                   />
                   {liked.has(song.id) ? '取消收藏' : '收藏'}
                 </button>
+                <button className={itemCls} onClick={() => lyricAttach.openPicker(menuTrack)}>
+                  <ScrollText size={20} style={{ color: 'var(--accent)' }} />
+                  <span className="flex-1">
+                    导入歌词文件
+                    {song.lyrics.length > 0 && <span className="block text-xs font-normal text-ink/40">已有歌词，导入将覆盖</span>}
+                  </span>
+                </button>
+                {lyricAttach.error && <p className="px-3 pb-1 text-xs text-red-500">{lyricAttach.error}</p>}
+                <input
+                  ref={lyricAttach.inputRef}
+                  type="file"
+                  accept=".lrc,.txt"
+                  className="hidden"
+                  onChange={(e) => { void lyricAttach.onChange(e) }}
+                />
                 <button className={`${itemCls} text-red-500`} onClick={() => setView('confirmDelete')}>
                   <Trash2 size={20} />
                   删除这首歌

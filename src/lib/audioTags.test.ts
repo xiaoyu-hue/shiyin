@@ -79,6 +79,22 @@ describe('parseLrcText LRC 解析', () => {
     expect(parseLrcText('[01:02.345]甲')).toEqual([{ t: '01:02.34', text: '甲' }])
     expect(parseLrcText('[01:02:50]乙')).toEqual([{ t: '01:02.50', text: '乙' }])
   })
+
+  it('支持整秒与一位小数的时间戳（外挂歌词常见变体）', () => {
+    expect(parseLrcText('[00:07]整秒')).toEqual([{ t: '00:07', text: '整秒' }])
+    expect(parseLrcText('[00:07.5]一位小数')).toEqual([{ t: '00:07.50', text: '一位小数' }])
+  })
+
+  it('[offset:] 全局偏移：正偏移提前、负偏移延后，不小于 0', () => {
+    expect(parseLrcText('[offset:+500]\n[00:10.00]甲')).toEqual([{ t: '00:09.50', text: '甲' }])
+    expect(parseLrcText('[offset:-500]\n[00:10.00]甲')).toEqual([{ t: '00:10.50', text: '甲' }])
+    expect(parseLrcText('[offset:+2000]\n[00:01.00]甲')).toEqual([{ t: '00:00', text: '甲' }])
+  })
+
+  it('剥离行内逐词标签，只保留行文本', () => {
+    const lines = parseLrcText('[00:10.00]<00:10.00>逐<00:10.50>词<00:11.00>歌词')
+    expect(lines).toEqual([{ t: '00:10', text: '逐词歌词' }])
+  })
 })
 
 describe('lyricsFromText 与 plainTextLyrics', () => {
