@@ -5,6 +5,7 @@ import { platform } from '../platform/instance'
 import { clearTracks, deleteTrack as deleteStoredTrack, loadTracks, saveTrack, updateTrackLyrics, type StoredTrack } from '../platform/idb'
 import type { LyricLine } from '../data/types'
 import { naturalQueue } from '../lib/queue'
+import { sanitizeLyricLines } from '../lib/audioTags'
 import { loadPlaylistsRaw, loadPrefsRaw, savePlaylistsRaw, savePrefsRaw } from '../platform/prefs'
 import { parsePlaylists, serializePlaylists } from '../lib/playlists'
 import { useStore } from './index'
@@ -62,7 +63,8 @@ export function restoreLocalTracks(): Promise<void> {
       album: rec.album,
       dur: rec.dur,
       color: rec.color,
-      lyrics: rec.lyrics ?? [],
+      // 已存歌词统一清洗一遍：早期版本存入的逐词时间戳残留在此自愈，老数据无需重新导入
+      lyrics: sanitizeLyricLines(rec.lyrics ?? []),
       audioSrc: URL.createObjectURL(rec.blob),
       coverSrc: rec.cover ? URL.createObjectURL(rec.cover) : null,
       coverBlob: rec.cover ?? null,
@@ -101,10 +103,11 @@ export async function attachLyricsToTrack(index: number, lyrics: LyricLine[]): P
   const state = useStore.getState()
   const track = state.tracks[index]
   if (!track) return
+  const clean = sanitizeLyricLines(lyrics)
   const tracks = state.tracks.slice()
-  tracks[index] = { ...track, lyrics }
+  tracks[index] = { ...track, lyrics: clean }
   useStore.setState({ tracks })
-  if (track.localKey) await updateTrackLyrics(track.localKey, lyrics).catch(() => undefined)
+  if (track.localKey) await updateTrackLyrics(track.localKey, clean).catch(() => undefined)
 }
 
 /**

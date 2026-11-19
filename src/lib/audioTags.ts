@@ -44,10 +44,11 @@ export function formatLyricTime(ms: number): string {
 }
 
 const LRC_STAMP = /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g
-/** 增强 LRC 的行内逐词标签 <mm:ss.xx>，展示层只做行级，解析时剥离 */
-const LRC_WORD_STAMP = /<\d{1,3}:\d{2}(?:[.:]\d{1,3})?>/g
 /** [offset:+123] / [offset:-123] 全局偏移（毫秒） */
 const LRC_OFFSET = /\[offset:\s*([+-]?\d+)\s*\]/i
+/** 宽松版时间戳（容忍括号内空格），只用于剥离文本中的残留，不用于解析时间 */
+const LRC_STAMP_LOOSE = /\[\s*\d{1,3}:\d{2}(?:\s*[.:]\s*\d{1,3})?\s*\]/g
+const LRC_WORD_STAMP_LOOSE = /<\s*\d{1,3}:\d{2}(?:\s*[.:]\s*\d{1,3})?\s*>/g
 
 function stampToMs(min: string, sec: string, frac?: string): number {
   let ms = Number(min) * 60000 + Number(sec) * 1000
@@ -59,9 +60,30 @@ function stampToMs(min: string, sec: string, frac?: string): number {
 }
 
 /**
- * 解析 LRC 文本为逐行歌词。一行多时间戳会展开为多行；
- * [ti:] / [ar:] 等元信息行与无时间戳行忽略；[offset:] 全局偏移按主流约定应用
- * （正偏移使歌词提前显示，即时间戳减去偏移量）；行内逐词标签被剥离。结果按时间升序。
+ * 剥净歌词文本里的一切时间戳残留（方括号 [mm:ss.xx] 与尖括号 <mm:ss.xx> 两种逐词格式）。
+ * 有些工具把逐词歌词写进同步歌词帧/歌词文本，逐词时间戳会夹在字间漏进展示文本，统一在此清理。
+ */
+export function stripLyricStamps(text: string): string {
+  return text
+    .replace(LRC_STAMP_LOOSE, '')
+    .replace(LRC_WORD_STAMP_LOOSE, '')
+    .replace(/ {2,}/g, ' ')
+    .trim()
+}
+
+/** 清洗已成行的歌词：剥净每行文本的时间戳残留，丢弃变空的行（用于已存数据自愈） */
+export function sanitizeLyricLines(lines: LyricLine[]): LyricLine[] {
+  return lines
+    .map((l) => ({ t: l.t, text: stripLyricStamps(l.text) }))
+    .filter((l) => l.text)
+}
+
+/**
+ * 解析 LRC 文本为逐行歌词。
+ * - 行首连续的时间戳是「行时间戳」：一行多戳会展开为多行（重复段落共用一行文本的写法）；
+ * - 夹在文字中间的时间戳是逐词时间戳：只剥离、不展开，行时间取行首戳（行首无戳时取第一个戳）；
+ * - [ti:] / [ar:] 等元信息行与无时间戳行忽略；[offset:] 全局偏移按主流约定应用
+ *   （正偏移使歌词提前显示，即时间戳减去偏移量）。结果按时间升序。
  */
 export function parseLrcText(text: string): LyricLine[] {
   const offsetMs = Number(text.match(LRC_OFFSET)?.[1] ?? 0)
@@ -69,20 +91,29 @@ export function parseLrcText(text: string): LyricLine[] {
   for (const raw of text.split(/\r?\n/)) {
     const stamps = [...raw.matchAll(LRC_STAMP)]
     if (!stamps.length) continue
-    const lyric = raw.replace(LRC_STAMP, '').replace(LRC_WORD_STAMP, '').trim()
+    const lyric = stripLyricStamps(raw)
     if (!lyric) continue
+    // 行首连续戳（其间只有空白）算行时间戳；一旦文字出现，后面的戳都是逐词戳
+    const leading: RegExpMatchArray[] = []
+    let cursor = 0
     for (const m of stamps) {
+      if (raw.slice(cursor, m.index).trim() !== '') break
+      leading.push(m)
+      cursor = (m.index ?? 0) + m[0].length
+    }
+    const lineStamps = leading.length ? leading : [stamps[0]]
+    for (const m of lineStamps) {
       out.push({ ms: Math.max(0, stampToMs(m[1], m[2], m[3]) - offsetMs), text: lyric })
     }
   }
   return out.sort((a, b) => a.ms - b.ms).map((l) => ({ t: formatLyricTime(l.ms), text: l.text }))
 }
 
-/** 无时间戳的纯文本歌词：逐行保留，时间统一记 00:00（lyricIndex 会识别为未同步歌词不高亮） */
+/** 无时间戳的纯文本歌词：逐行保留并剥净时间戳残留，时间统一记 00:00（lyricIndex 会识别为未同步歌词不高亮） */
 export function plainTextLyrics(text: string): LyricLine[] {
   return text
     .split(/\r?\n/)
-    .map((l) => l.trim())
+    .map((l) => stripLyricStamps(l))
     .filter(Boolean)
     .map((lineText) => ({ t: '00:00', text: lineText }))
 }
@@ -94,12 +125,13 @@ export function lyricsFromText(text?: string | null): LyricLine[] {
   return synced.length ? synced : plainTextLyrics(text)
 }
 
-/** 同步歌词条目（毫秒时间戳）→ 逐行歌词；时间戳非法或文本为空的条目丢弃 */
+/** 同步歌词条目（毫秒时间戳）→ 逐行歌词；时间戳非法、文本为空或剥净时间戳后变空的条目丢弃 */
 export function lyricsFromSyncText(items: { text: string; timestamp?: number }[]): LyricLine[] {
   return items
     .filter((i) => i.text?.trim() && typeof i.timestamp === 'number' && Number.isFinite(i.timestamp) && i.timestamp >= 0)
     .sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
-    .map((i) => ({ t: formatLyricTime(i.timestamp ?? 0), text: i.text.trim() }))
+    .map((i) => ({ t: formatLyricTime(i.timestamp ?? 0), text: stripLyricStamps(i.text) }))
+    .filter((l) => l.text)
 }
 
 /**

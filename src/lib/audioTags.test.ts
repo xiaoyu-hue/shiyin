@@ -6,6 +6,7 @@ import {
   mergeTrackMeta,
   parseLrcText,
   plainTextLyrics,
+  sanitizeLyricLines,
 } from './audioTags'
 import { toSeconds } from './format'
 
@@ -95,6 +96,16 @@ describe('parseLrcText LRC 解析', () => {
     const lines = parseLrcText('[00:10.00]<00:10.00>逐<00:10.50>词<00:11.00>歌词')
     expect(lines).toEqual([{ t: '00:10', text: '逐词歌词' }])
   })
+
+  it('逐词方括号时间戳（[mm:ss.xx] 夹在字间）只取行首时间、剥净全部时间戳、不重复展开', () => {
+    const lines = parseLrcText('[00:22.68]会[00:23.03]在[00:23.28]何[00:23.59]处')
+    expect(lines).toEqual([{ t: '00:22.68', text: '会在何处' }])
+  })
+
+  it('行首无时间戳但字间有时间戳时，取第一个时间戳为行时间', () => {
+    const lines = parseLrcText('会[00:23.03]在[00:23.28]何')
+    expect(lines).toEqual([{ t: '00:23.03', text: '会在何' }])
+  })
 })
 
 describe('lyricsFromText 与 plainTextLyrics', () => {
@@ -140,5 +151,33 @@ describe('lyricsFromSyncText 同步歌词条目', () => {
         { text: '有效', timestamp: 1000 },
       ]),
     ).toEqual([{ t: '00:01', text: '有效' }])
+  })
+
+  it('条目文本里夹带的逐词时间戳会被剥净（某些工具把逐词歌词写进同步歌词帧）', () => {
+    expect(
+      lyricsFromSyncText([
+        { text: '会[00:23.03]在[00:23.28]何[00:23.59]处', timestamp: 22680 },
+        { text: '[00:27.94]', timestamp: 27940 },
+      ]),
+    ).toEqual([{ t: '00:22.68', text: '会在何处' }])
+  })
+})
+
+describe('sanitizeLyricLines 已存歌词清洗', () => {
+  it('剥净行文本中的方括号/尖括号时间戳并丢弃变空的行', () => {
+    expect(
+      sanitizeLyricLines([
+        { t: '00:22.68', text: '会[00:23.03]在[00:23.28]何' },
+        { t: '00:25.00', text: '<00:25.00>' },
+        { t: '00:27.94', text: '莫非前尘' },
+      ]),
+    ).toEqual([
+      { t: '00:22.68', text: '会在何' },
+      { t: '00:27.94', text: '莫非前尘' },
+    ])
+  })
+
+  it('纯文本歌词里的时间戳残留同样剥净', () => {
+    expect(plainTextLyrics('[00:23.03 ]带残留的一行')).toEqual([{ t: '00:00', text: '带残留的一行' }])
   })
 })
