@@ -46,34 +46,6 @@ jobs:
           "installer=$($f.FullName)" >> $env:GITHUB_OUTPUT
           "安装包：$($f.FullName)（$($f.Length) 字节）"
 
-      - name: 下载与 WebView2 版本匹配的 msedgedriver
-        shell: pwsh
-        run: |
-          $guid = '{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
-          $pv = $null
-          foreach ($root in @(
-            "HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\$guid",
-            "HKLM:\SOFTWARE\Microsoft\EdgeUpdate\Clients\$guid",
-            "HKCU:\SOFTWARE\Microsoft\EdgeUpdate\Clients\$guid"
-          )) {
-            try { $pv = (Get-ItemProperty $root -ErrorAction Stop).pv } catch { $pv = $null }
-            if ($pv) { break }
-          }
-          if (-not $pv) { throw '注册表里找不到 WebView2 运行时版本' }
-          "WebView2 运行时版本：$pv"
-          $dir = Join-Path $env:RUNNER_TEMP 'driver'
-          New-Item -ItemType Directory -Force $dir | Out-Null
-          $zip = Join-Path $dir 'edgedriver.zip'
-          try {
-            Invoke-WebRequest "https://msedgedriver.microsoft.com/$pv/edgedriver_win64.zip" -OutFile $zip
-          } catch {
-            Invoke-WebRequest "https://msedgedriver.azureedge.net/$pv/edgedriver_win64.zip" -OutFile $zip
-          }
-          Expand-Archive $zip -DestinationPath $dir -Force
-          $drv = Get-ChildItem $dir -Recurse -Filter msedgedriver.exe | Select-Object -First 1
-          if (-not $drv) { throw 'msedgedriver 解压后未找到' }
-          "MSEDGEDRIVER=$($drv.FullName)" >> $env:GITHUB_ENV
-
       - name: 尝试启动音频服务（无声卡 runner 上尽量提供播放设备）
         shell: pwsh
         continue-on-error: true
@@ -173,7 +145,7 @@ jobs:
           $bmp.Save("$pwd\e2e\artifacts\00-standalone.png")
           taskkill /IM $env:SHIYIN_PROC /F 2>$null; Start-Sleep -Seconds 2
 
-      - name: 自动化验收（WebdriverIO + tauri-driver）
+      - name: 自动化验收（WebdriverIO + 应用内嵌 WebDriver）
         working-directory: e2e
         env:
           SHORT_NAME: TestToneShort

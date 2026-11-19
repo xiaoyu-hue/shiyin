@@ -67,6 +67,8 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
+        // 验证包专用：内嵌 WebDriver 服务器（见 Cargo.toml 注释，正式版移除）
+        .plugin(tauri_plugin_wdio_webdriver::init())
         .invoke_handler(tauri::generate_handler![
             read_picked_file,
             read_picked_file_meta

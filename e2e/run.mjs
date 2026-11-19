@@ -1,18 +1,18 @@
 /**
  * 诗音桌面验证包 CI 验收编排（Windows runner 上运行）。
  *
- * 驱动方式：attach（附着）模式——微软 WebView2 WebDriver 官方文档的第二条路线。
- * 编排器自己拉起已安装的应用（带 WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS
- * =--remote-debugging-port 让 WebView2 开调试口），再让 msedgedriver
- * 按 debuggerAddress 附着。不走 tauri-driver 的 launch 模式：
- * 该模式下 msedgedriver 拉起应用后始终等不到 DevToolsActivePort
- *（CI 第 2/4/5/6 轮均复现，应用独立启动正常、版本与 UDF 对齐均无效），
- * 故在验证包阶段改用 attach 模式完成同一组断言。
+ * 驱动方式：应用内嵌 WebDriver 服务器（tauri-plugin-wdio-webdriver，
+ * Tauri 官方文档现行首选路线）。编排器拉起已安装的应用并在其启动环境里
+ * 带 TAURI_WEBDRIVER_PORT 激活内嵌服务器，再用 WebdriverIO remote 直连。
+ * 此前两条路线均已实测走不通：tauri-driver 的 launch 模式下 msedgedriver
+ * 始终等不到 DevToolsActivePort（CI 第 2/4/5/6 轮复现，应用独立启动正常、
+ * 驱动版本与 WebView2 用户数据目录对齐均无效）；attach 模式要求 WebView2
+ * 开远程调试口，但 wry 恒定显式设置 WebView2 浏览器参数、覆盖
+ * WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS 环境变量，调试口不开（第 7 轮实测）。
  *
  * 环境变量：
  * - SHIYIN_EXE     已安装的诗音 exe 绝对路径（必填）
  * - SHIYIN_PROC    进程名（如 shiyin.exe，清理与托盘脚本用）
- * - MSEDGEDRIVER   msedgedriver.exe 路径（必填，与 WebView2 版本匹配）
  * - HOOK_PATH      test-import.json 的绝对路径（验其被应用删除）
  * - SHORT_NAME / LONG_NAME  两首测试音频的曲名（文件名去扩展名）
  *
@@ -30,16 +30,15 @@ const ART = join(HERE, 'artifacts')
 mkdirSync(ART, { recursive: true })
 
 const EXE = process.env.SHIYIN_EXE
-const EDGE = process.env.MSEDGEDRIVER
-if (!EXE || !EDGE) {
-  console.error('SHIYIN_EXE / MSEDGEDRIVER 未设置')
+if (!EXE) {
+  console.error('SHIYIN_EXE 未设置')
   process.exit(2)
 }
 const SHORT = process.env.SHORT_NAME || 'TestToneShort'
 const LONG = process.env.LONG_NAME || 'TestToneLong'
 const HOOK = process.env.HOOK_PATH || ''
-const DEBUG_PORT = 9229
-const DRIVER_PORT = 9515
+/** 内嵌 WebDriver 服务器端口（经 TAURI_WEBDRIVER_PORT 告知应用内插件） */
+const DRIVER_PORT = 4445
 
 const report = { checks: {}, info: {}, samples: [] }
 const gate = (name, ok, extra = {}) => {
@@ -55,61 +54,37 @@ function killApp() {
   })
 }
 
-/** 拉起应用（带 WebView2 远程调试口）并等调试口探活 */
+/** 拉起应用（激活内嵌 WebDriver 服务器）并等其 /status 就绪 */
 async function launchApp() {
   const child = spawn(EXE, [], {
-    env: {
-      ...process.env,
-      WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${DEBUG_PORT}`,
-    },
+    env: { ...process.env, TAURI_WEBDRIVER_PORT: String(DRIVER_PORT) },
     stdio: 'ignore',
   })
   child.on('error', (e) => console.error('应用拉起失败：', e))
   for (let i = 0; i < 60; i += 1) {
     try {
-      const res = await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/version`)
+      const res = await fetch(`http://127.0.0.1:${DRIVER_PORT}/status`)
       if (res.ok) {
-        const info = await res.json().catch(() => ({}))
-        report.info.webviewDebug = { open: true, browser: info.Browser }
+        report.info.embeddedDriver = { ready: true }
         return child
       }
     } catch {
-      /* 端口还没开 */
+      /* 服务器还没起来 */
     }
     await sleep(500)
   }
-  report.info.webviewDebug = { open: false }
-  throw new Error(`WebView2 调试口 ${DEBUG_PORT} 30 秒内未开启（环境变量未被采纳？）`)
+  report.info.embeddedDriver = { ready: false }
+  throw new Error(`内嵌 WebDriver 服务器 ${DRIVER_PORT} 30 秒内未就绪`)
 }
 
-/** 拉起 msedgedriver 并等其 WebDriver 端口就绪 */
-async function startDriver() {
-  const proc = spawn(EDGE, [`--port=${DRIVER_PORT}`], { stdio: 'pipe' })
-  proc.stdout.on('data', (d) => process.stdout.write(`[msedgedriver] ${d}`))
-  proc.stderr.on('data', (d) => process.stderr.write(`[msedgedriver] ${d}`))
-  for (let i = 0; i < 60; i += 1) {
-    try {
-      const res = await fetch(`http://127.0.0.1:${DRIVER_PORT}/status`)
-      if (res.ok) return proc
-    } catch {
-      /* 还没起来 */
-    }
-    await sleep(500)
-  }
-  throw new Error('msedgedriver 30 秒内未就绪')
-}
-
-/** 附着到已运行应用的 WebView2 调试口 */
+/** 连接应用内嵌 WebDriver 服务器建会话 */
 async function attachSession() {
   return remote({
     hostname: '127.0.0.1',
     port: DRIVER_PORT,
     path: '/',
     logLevel: 'warn',
-    capabilities: {
-      browserName: 'webview2',
-      'ms:edgeOptions': { debuggerAddress: `localhost:${DEBUG_PORT}`, useWebView: true },
-    },
+    capabilities: {},
   })
 }
 
@@ -164,7 +139,6 @@ function sendMediaPlayPause() {
 }
 
 async function main() {
-  const driver = await startDriver()
   let browser
   let app
   try {
@@ -341,7 +315,6 @@ async function main() {
   } finally {
     if (browser) await browser.deleteSession().catch(() => undefined)
     await killApp()
-    driver.kill()
   }
 
   writeFileSync(join(ART, 'report.json'), JSON.stringify(report, null, 2))

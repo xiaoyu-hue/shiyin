@@ -20,5 +20,9 @@ tauri = { version = "~2.12", features = ["tray-icon"] }
 tauri-plugin-fs = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-single-instance = "2"
+# 验证包专用：WebdriverIO 内嵌 WebDriver 服务器（CI 自动化验收用）。
+# 仅当应用启动环境带 TAURI_WEBDRIVER_PORT 时才激活监听，普通启动不带此变量、无对外服务。
+# 正式版必须移除本依赖或以 feature 开关隔离，不得随正式安装包发布。
+tauri-plugin-wdio-webdriver = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
