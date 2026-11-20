@@ -110,6 +110,23 @@ async function attachSession() {
   })
 }
 
+/**
+ * 预热启动（首轮回验教训）：验收流水线里被测会话前有独立启动自检先跑过一次应用，
+ * WebView2 首次初始化与应用数据目录创建都在那时完成；本脚本第一版省了预热，
+ * 被测会话成为进程的第一次冷启动，60 秒内等不到外壳渲染（run 44663926536）。
+ * 这里先无驱动环境拉起一次、等窗口进程稳定后杀掉，再进正式被测会话。
+ */
+async function warmUpLaunch() {
+  const child = spawn(EXE, [], { stdio: 'ignore', detached: true })
+  child.on('error', (e) => console.error('预热拉起失败：', e))
+  child.unref()
+  await sleep(20000)
+  const alive = await appAlive()
+  report.info.warmUp = { appAliveAfter20s: alive }
+  await killApp()
+  await sleep(3000)
+}
+
 async function gotoMe(browser) {
   await browser.execute(() => {
     const btn = [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === '我的')
@@ -128,6 +145,7 @@ async function main() {
   let browser
   try {
     // ---------- 阶段 1：旧版启动，读关于版本号 ----------
+    await warmUpLaunch()
     const ready = await launchApp()
     if (!ready) {
       gate('launchOld', false, { reason: '内嵌 WebDriver 60 秒未就绪' })
@@ -136,10 +154,33 @@ async function main() {
     }
     gate('launchOld', true)
     browser = await attachSession()
-    await browser.waitUntil(
-      async () => Boolean(await browser.execute(() => document.querySelector('.app-shell'))),
-      { timeout: 60000, interval: 1000, timeoutMsg: '等待应用外壳超时' },
-    )
+    // 等外壳渲染（放宽到 120 秒）；超时前把页面原始状态记进报告，便于区分
+    // 「没渲染」与「渲染了但选择器对不上」，并留一张失败截图。
+    const shellDeadline = Date.now() + 120000
+    let shellOk = false
+    while (Date.now() < shellDeadline) {
+      const diag = await browser
+        .execute(() => ({
+          url: location.href,
+          readyState: document.readyState,
+          hasShell: Boolean(document.querySelector('.app-shell')),
+          bodyLen: document.body ? document.body.innerText.length : -1,
+        }))
+        .catch((e) => ({ error: String(e && e.message ? e.message : e) }))
+      report.info.shellDiag = diag
+      if (diag && diag.hasShell) {
+        shellOk = true
+        break
+      }
+      await sleep(3000)
+    }
+    if (!shellOk) {
+      await browser.saveScreenshot(join(ART, '00-shell-timeout.png')).catch(() => {})
+      gate('shellRender', false, { diag: report.info.shellDiag })
+      saveReport()
+      process.exit(1)
+    }
+    gate('shellRender', true)
     await gotoMe(browser)
     const v0 = await aboutVersion(browser)
     report.info.aboutVersionBefore = v0

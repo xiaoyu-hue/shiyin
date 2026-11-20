@@ -96,6 +96,13 @@ jobs:
           "SHIYIN_EXE=$exe" >> $env:GITHUB_ENV
           "SHIYIN_PROC=$([IO.Path]::GetFileName($exe))" >> $env:GITHUB_ENV
 
+      - name: 尝试启动音频服务（与验收流水线一致的环境准备）
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          Start-Service AudioEndpointBuilder -ErrorAction SilentlyContinue
+          Start-Service Audiosrv -ErrorAction SilentlyContinue
+
       - name: 自动更新端到端回验（WebdriverIO + 应用内嵌 WebDriver）
         working-directory: e2e
         run: |
