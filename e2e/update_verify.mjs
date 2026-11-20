@@ -127,6 +127,24 @@ async function warmUpLaunch() {
   await sleep(3000)
 }
 
+/**
+ * 关掉首启导入引导（第二轮回验教训）：全新安装曲库为空时，应用先弹全屏
+ * 「欢迎来到诗音」引导层，盖住一切界面——读不到关于页、也点不到检查更新。
+ * 点「稍后再说」落 onboarded 标记后引导不再出现（升级后同一数据目录亦然）。
+ */
+async function dismissOnboarding(browser) {
+  const clicked = await browser.execute(() => {
+    const el = [...document.querySelectorAll('button, a, [role="button"]')].find(
+      (b) => b.textContent.trim() === '稍后再说',
+    )
+    if (!el) return false
+    el.click()
+    return true
+  })
+  if (clicked) await sleep(1200)
+  return clicked
+}
+
 async function gotoMe(browser) {
   await browser.execute(() => {
     const btn = [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === '我的')
@@ -181,6 +199,7 @@ async function main() {
       process.exit(1)
     }
     gate('shellRender', true)
+    report.info.onboardingDismissed = await dismissOnboarding(browser)
     await gotoMe(browser)
     const v0 = await aboutVersion(browser)
     report.info.aboutVersionBefore = v0
@@ -290,6 +309,7 @@ async function main() {
       async () => Boolean(await browser.execute(() => document.querySelector('.app-shell'))),
       { timeout: 60000, interval: 1000, timeoutMsg: '等待升级后应用外壳超时' },
     )
+    await dismissOnboarding(browser)
     await gotoMe(browser)
     const v1 = await aboutVersion(browser)
     report.info.aboutVersionAfter = v1
