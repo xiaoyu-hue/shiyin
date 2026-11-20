@@ -12,8 +12,12 @@
  * 诚实分级：检测到新版 + 点下更新后进入安装/重启，是「下载与签名校验通过」
  * 的可观察证据（updater 验签不过不会进入安装）；若安装/重启在 CI 环境
  * 走不通，脚本会把卡住的阶段与原始现象写进报告并以非零码退出，不假装全通。
- * 重启后内嵌驱动若未随 relaunch 继承环境变量而就绪，脚本会手动拉起
- *（装好的仍是同一路径的新版 exe），并在报告里如实标注 relaunchMode。
+ *
+ * 终局断言不用 WebDriver（第四轮回验教训）：更新装上的新版本是正式发布
+ * 构建，本就不含内嵌驱动，重启后永远等不到驱动端口——此前两轮就卡在这。
+ * 改用驱动无关的硬证据：轮询磁盘上已安装 exe 的 FileVersion（Tauri 构建
+ * 写入的版本资源，等于应用版本），变成新版即证明安装真正落盘；再普通
+ * 拉起新版断言进程存活并整屏截图留档。
  *
  * 环境变量：
  * - SHIYIN_EXE        已安装的旧版诗音 exe 绝对路径（必填）
@@ -71,6 +75,34 @@ function appAlive() {
       ],
       (err, stdout) => resolve(String(stdout).trim().toLowerCase() === 'true'),
     )
+  })
+}
+
+/** 读已安装 exe 的 FileVersion（Tauri 构建写入的版本资源，等于应用版本） */
+function readDiskFileVersion() {
+  return new Promise((resolve) => {
+    execFile(
+      'powershell',
+      [
+        '-NoProfile',
+        '-Command',
+        `[Diagnostics.FileVersionInfo]::GetVersionInfo('${EXE.replace(/'/g, "''")}').FileVersion`,
+      ],
+      (err, stdout) => resolve(err ? null : String(stdout).trim() || null),
+    )
+  })
+}
+
+/** 整屏截图（与验收流水线的独立启动截图同法，正式构建无驱动时留档用） */
+function screenShot(dest) {
+  const ps =
+    'Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; ' +
+    '$b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds; ' +
+    '$bmp = New-Object System.Drawing.Bitmap($b.Width, $b.Height); ' +
+    '$g = [System.Drawing.Graphics]::FromImage($bmp); ' +
+    `$g.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size); $bmp.Save('${dest.replace(/'/g, "''")}')`
+  return new Promise((resolve) => {
+    execFile('powershell', ['-NoProfile', '-Command', ps], () => resolve())
   })
 }
 
@@ -294,47 +326,43 @@ async function main() {
     gate('downloadAndVerifyPassed', enteredInstall && !sawError, { sawError })
     await browser.saveScreenshot(join(ART, '03-downloading.png')).catch(() => {})
 
-    // ---------- 阶段 4：等重启后重新连上，核对关于版本号 ----------
+    // ---------- 阶段 4：终局断言（驱动无关，见文件头说明） ----------
     try {
       await browser.deleteSession()
     } catch {
       /* 已断开 */
     }
     browser = undefined
-    let relaunchMode = 'updater'
-    let readyAfter = await waitDriverReady(120000)
-    if (!readyAfter) {
-      // relaunch 未带起内嵌驱动（环境变量未继承等）：手动拉起同一路径的 exe——
-      // 若更新安装已完成，装好的就是新版；如实标注为 manual。
-      relaunchMode = 'manual'
-      const alive = await appAlive()
-      report.info.appAliveBeforeManualLaunch = alive
-      if (!alive) {
-        await launchApp()
-      }
-      readyAfter = await waitDriverReady(60000)
+
+    // 轮询磁盘上已安装 exe 的 FileVersion：变成新版 = 更新安装真正落盘完成。
+    const diskDeadline = Date.now() + 240000
+    let diskVersion = null
+    while (Date.now() < diskDeadline) {
+      diskVersion = await readDiskFileVersion()
+      report.info.diskFileVersion = diskVersion
+      if (diskVersion === EXPECTED) break
+      await sleep(5000)
     }
-    report.info.relaunchMode = relaunchMode
-    gate('relaunchReady', readyAfter)
-    if (!readyAfter) {
-      report.info.stopAt = 'relaunch'
+    const diskOk = gate('diskVersionUpgraded', diskVersion === EXPECTED, { diskFileVersion: diskVersion })
+    if (!diskOk) {
+      report.info.stopAt = 'diskVersion'
+      report.info.appAliveAtStop = await appAlive()
       saveReport()
       process.exit(1)
     }
-    browser = await attachSession()
-    await browser.waitUntil(
-      async () => Boolean(await browser.execute(() => document.querySelector('.app-shell'))),
-      { timeout: 60000, interval: 1000, timeoutMsg: '等待升级后应用外壳超时' },
-    )
-    await dismissOnboarding(browser)
-    await gotoSettings(browser)
-    const v1 = await aboutVersion(browser)
-    report.info.aboutVersionAfter = v1
-    gate('upgradedVersionShown', v1 === EXPECTED, { aboutVersion: v1 })
-    await browser.saveScreenshot(join(ART, '04-new-about.png'))
 
+    // 普通拉起新版（正式构建，无驱动）：断言进程存活 + 整屏截图留档。
+    await killApp()
+    await sleep(2000)
+    const child = spawn(EXE, [], { stdio: 'ignore', detached: true })
+    child.on('error', (e) => console.error('新版拉起失败：', e))
+    child.unref()
+    await sleep(20000)
+    const aliveNew = await appAlive()
+    gate('newVersionRuns', aliveNew)
+    await screenShot(join(ART, '04-new-version-running.png'))
     saveReport()
-    process.exit(report.checks.upgradedVersionShown.ok ? 0 : 1)
+    process.exit(aliveNew ? 0 : 1)
   } catch (e) {
     report.info.fatal = String(e && e.message ? e.message : e)
     console.error('回验异常：', e)
