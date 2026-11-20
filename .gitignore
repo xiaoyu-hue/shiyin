@@ -21,3 +21,13 @@ e2e/artifacts/
 *.key
 *.key.pub
 tauri-updater*
+
+# 签名与凭证类文件（审计 A-01）：安卓签名库、口令文件、证书与本地环境文件一律不入仓
+keystore.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+.env
+.env.*
+!.env.example

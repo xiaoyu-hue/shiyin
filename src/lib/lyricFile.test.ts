@@ -22,7 +22,7 @@ describe('isLyricFileName / matchKeyOf', () => {
   })
 
   it('配对键去扩展名、去空白、转小写', () => {
-    expect(matchKeyOf('周杰伦 - 晴天.mp3')).toBe('周杰伦 - 晴天')
+    expect(matchKeyOf('测试歌手 - 测试之歌.mp3')).toBe('测试歌手 - 测试之歌')
     expect(matchKeyOf(' Song Name .LRC')).toBe('song name')
     expect(matchKeyOf('noext')).toBe('noext')
   })
@@ -60,8 +60,8 @@ describe('lyricsFromFileText', () => {
 describe('pairLyricFiles 同名配对', () => {
   it('按同名配对，同名多个取第一个，未命中不入表', () => {
     const pairs = pairLyricFiles(
-      ['周杰伦 - 晴天.mp3', '无歌词.mp3', 'Song.flac'],
-      ['周杰伦 - 晴天.lrc', 'song.txt', 'Song.lrc', '孤儿.lrc'],
+      ['测试歌手 - 测试之歌.mp3', '无歌词.mp3', 'Song.flac'],
+      ['测试歌手 - 测试之歌.lrc', 'song.txt', 'Song.lrc', '孤儿.lrc'],
     )
     expect(pairs.get(0)).toBe(0)
     expect(pairs.has(1)).toBe(false)

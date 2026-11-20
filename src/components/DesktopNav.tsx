@@ -3,9 +3,10 @@ import { hapticSelection } from '../platform/haptics'
 import { NAV_ITEMS } from './Tabs'
 
 /**
- * 桌面侧边导航（1.4.0 包 3）：≥lg 时取代底部标签栏。
+ * 桌面侧边导航（1.4.0 包 3）：仅桌面布局（data-layout="desktop"，即 Tauri 桌面端）
+ * 时取代底部标签栏，与窗口宽度无关（布局按平台隔离，见 platform/layout.ts）。
  * 与底栏共用同一份导航项定义（Tabs 的 NAV_ITEMS），标签文字与底栏一致
- * （桌面验收按文字找按钮，口径不变）；窄屏完全隐藏，移动端形态零改动。
+ * （桌面验收按文字找按钮，口径不变）；手机布局下完全隐藏，移动端形态零改动。
  */
 export default function DesktopNav() {
   const tab = useStore((s) => s.tab)

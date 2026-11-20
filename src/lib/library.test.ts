@@ -9,7 +9,7 @@ function mk(id: number, name: string, artist: string, album: string, addedAt = 0
 const tracks: Song[] = [
   mk(1, '晚风', '陈默', '海边', 300),
   mk(2, '星轨', '陈默', '夜空', 100),
-  mk(3, '晴天', '周杰伦', '叶惠美', 200),
+  mk(3, '测试之歌', '测试歌手', '测试专辑', 200),
   mk(4, '海阔天空', 'Beyond', '海边', 400),
 ]
 

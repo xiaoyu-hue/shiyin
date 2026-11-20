@@ -6,7 +6,7 @@ import type { Song } from './types'
 const songs: Song[] = [
   { id: 1, name: '晚风遇见海', artist: '陈默', album: '晚风合集', dur: 213, color: '#365FA3', lyrics: [] },
   { id: 2, name: '星轨', artist: '陈默', album: '夜空观察', dur: 219, color: '#7C4DA1', lyrics: [] },
-  { id: 3, name: '晴天', artist: '周杰伦', album: '叶惠美', dur: 269, color: '#B83D5A', lyrics: [] },
+  { id: 3, name: '测试之歌', artist: '测试歌手', album: '测试专辑', dur: 269, color: '#B83D5A', lyrics: [] },
 ]
 
 describe('search 搜索过滤', () => {

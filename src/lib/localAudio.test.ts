@@ -5,7 +5,7 @@ const makeFile = (name: string, type = '') => new File([new Uint8Array([1, 2, 3]
 
 describe('parseTrackName 文件名解析', () => {
   it('识别「歌手 - 歌名」', () => {
-    expect(parseTrackName('周杰伦 - 晴天.mp3')).toEqual({ artist: '周杰伦', name: '晴天' })
+    expect(parseTrackName('测试歌手 - 测试之歌.mp3')).toEqual({ artist: '测试歌手', name: '测试之歌' })
   })
 
   it('去除开头的曲目序号', () => {
@@ -14,7 +14,7 @@ describe('parseTrackName 文件名解析', () => {
   })
 
   it('无连字符时整段作为歌名', () => {
-    expect(parseTrackName('晴天.mp3')).toEqual({ artist: '本地音乐', name: '晴天' })
+    expect(parseTrackName('测试之歌.mp3')).toEqual({ artist: '本地音乐', name: '测试之歌' })
   })
 
   it('不误拆英文连字符名称', () => {
@@ -58,8 +58,8 @@ describe('fileKey 与 pickCover', () => {
   })
 
   it('同一 seed 取色稳定且落在色池内', () => {
-    expect(pickCover('晴天')).toBe(pickCover('晴天'))
-    expect(pickCover('晴天')).toMatch(/^#[0-9A-F]{6}$/i)
+    expect(pickCover('测试之歌')).toBe(pickCover('测试之歌'))
+    expect(pickCover('测试之歌')).toMatch(/^#[0-9A-F]{6}$/i)
     expect(pickCover('')).toMatch(/^#[0-9A-F]{6}$/i)
   })
 })

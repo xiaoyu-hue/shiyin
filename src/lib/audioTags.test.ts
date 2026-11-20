@@ -14,10 +14,10 @@ describe('mergeTrackMeta 标签优先、文件名兜底', () => {
   const fallback = { name: '文件名歌名', artist: '文件名歌手' }
 
   it('标签齐全时全用标签值', () => {
-    expect(mergeTrackMeta(fallback, { title: '晴天', artist: '周杰伦', album: '叶惠美' })).toEqual({
-      name: '晴天',
-      artist: '周杰伦',
-      album: '叶惠美',
+    expect(mergeTrackMeta(fallback, { title: '测试之歌', artist: '测试歌手', album: '测试专辑' })).toEqual({
+      name: '测试之歌',
+      artist: '测试歌手',
+      album: '测试专辑',
     })
   })
 
@@ -35,7 +35,7 @@ describe('mergeTrackMeta 标签优先、文件名兜底', () => {
   })
 
   it('标签值会去首尾空白', () => {
-    expect(mergeTrackMeta(fallback, { title: ' 晴天 ' }).name).toBe('晴天')
+    expect(mergeTrackMeta(fallback, { title: ' 测试之歌 ' }).name).toBe('测试之歌')
   })
 })
 
