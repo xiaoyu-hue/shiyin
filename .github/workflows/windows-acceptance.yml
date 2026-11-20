@@ -1,19 +1,21 @@
-name: windows-spike
+name: windows-acceptance
 
-# Windows 阶段验证包（Spike）专用工作流。
-# 在真实 Windows runner 上完成「打包 NSIS → 静默安装 → 自动化验收 → 卸载」全链，
-# 产物（安装包 + 验收截图/报告）走 artifact 下载，不发 Release、不进主线。
-# 触发方式：workflow_dispatch 要求工作流文件已在默认分支上（GitHub 限制），
-# 验证包阶段文件只在 spike 分支，故同时挂 push 触发（仅限本分支）方便迭代；
-# 正式版转正时删掉 push 触发、只留 dispatch/tag。
+# Windows 桌面版自动化验收门禁（1.3.0 起转正，沿用验证包的 e2e 套件）。
+# 在真实 Windows runner 上完成「打包 NSIS（验收构建）→ 静默安装 → 自动化验收 → 卸载」全链，
+# 产物（安装包 + 验收截图/报告 + Cargo.lock）走 artifact 下载，不发 Release。
+# 验收构建与正式包的差异只有一处：Cargo feature `ci-webdriver`
+#（内嵌 WebDriver 服务器）+ tauri.ci.conf.json 追加的 webdriver capability；
+# 正式发布构建（windows-release.yml）两者都不启用，插件不进发布包。
+# 触发：手动 dispatch；feat/windows-1.3 合入 main 前另挂该分支 push 触发做门禁，
+# 分支删除后 push 触发自然失效，main 上只用 dispatch。
 on:
   workflow_dispatch:
   push:
     branches:
-      - spike/tauri-windows
+      - feat/windows-1.3
 
 jobs:
-  spike:
+  acceptance:
     runs-on: windows-latest
     timeout-minutes: 120
     steps:
@@ -34,8 +36,11 @@ jobs:
         with:
           workspaces: 'src-tauri -> target'
 
-      - name: 打包 NSIS 安装包（Tauri build 会先跑 beforeBuildCommand 构建前端）
-        run: npx tauri build --bundles nsis
+      - name: 打包 NSIS 安装包（验收构建：带 ci-webdriver feature 与 CI 能力集）
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npx tauri build --bundles nsis --features ci-webdriver --config src-tauri/tauri.ci.conf.json
 
       - name: 定位安装包
         id: inst
@@ -54,10 +59,9 @@ jobs:
           Start-Service Audiosrv -ErrorAction SilentlyContinue
           Get-Service Audiosrv, AudioEndpointBuilder | Format-Table Name, Status
 
-      - name: 生成测试音频与 test-import.json 钩子
+      - name: 生成测试音频（钩子改由 e2e 编排器在被测会话启动前写入，见 e2e/run.mjs 文件头）
         shell: python
         run: |
-          import json
           import math
           import os
           import struct
@@ -77,19 +81,11 @@ jobs:
 
           test_dir = os.path.join(os.environ['RUNNER_TEMP'], 'shiyin-test')
           os.makedirs(test_dir, exist_ok=True)
-          short = os.path.join(test_dir, 'TestToneShort.wav')
-          long = os.path.join(test_dir, 'TestToneLong.wav')
-          make_wav(short, 4, 440.0)
-          make_wav(long, 30, 660.0)
-
-          app_data = os.path.join(os.environ['APPDATA'], 'com.shiyin.player')
-          os.makedirs(app_data, exist_ok=True)
-          hook = os.path.join(app_data, 'test-import.json')
-          with open(hook, 'w', encoding='utf-8') as f:
-              json.dump([short, long], f)
+          make_wav(os.path.join(test_dir, 'TestToneShort.wav'), 4, 440.0)
+          make_wav(os.path.join(test_dir, 'TestToneLong.wav'), 30, 660.0)
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as f:
-              f.write(f'HOOK_PATH={hook}\n')
-          print('hook:', hook, [short, long])
+              f.write(f'TEST_AUDIO_DIR={test_dir}\n')
+          print('test audio dir:', test_dir)
 
       - name: 静默安装
         shell: pwsh
@@ -130,7 +126,7 @@ jobs:
       - name: 安装 pywinauto（托盘断言）
         run: pip install pywinauto psutil
 
-      - name: 应用独立启动自检（诊断：不经 WebDriver 直接拉起）
+      - name: 应用独立启动自检（诊断：不经 WebDriver 直接拉起；此时钩子尚未写入，不会被提前消费）
         shell: pwsh
         continue-on-error: true
         run: |
@@ -187,8 +183,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: windows-spike-artifacts
+          name: windows-acceptance-artifacts
           path: |
             src-tauri/target/release/bundle/nsis/*.exe
             e2e/artifacts/**
+          if-no-files-found: warn
+
+      - name: 上传 Cargo.lock（回收提交入仓，保证可复现构建）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-lock
+          path: src-tauri/Cargo.lock
           if-no-files-found: warn

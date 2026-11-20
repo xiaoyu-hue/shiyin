@@ -13,8 +13,15 @@
  * 环境变量：
  * - SHIYIN_EXE     已安装的诗音 exe 绝对路径（必填）
  * - SHIYIN_PROC    进程名（如 shiyin.exe，清理与托盘脚本用）
- * - HOOK_PATH      test-import.json 的绝对路径（验其被应用删除）
+ * - TEST_AUDIO_DIR 测试音频所在目录（必填，内含 SHORT/LONG 两首 WAV）
+ * - HOOK_PATH      test-import.json 的绝对路径（可选，默认按 %APPDATA% 推导）
  * - SHORT_NAME / LONG_NAME  两首测试音频的曲名（文件名去扩展名）
+ *
+ * 测试钩子的时序（1.3.0 修正）：钩子文件由本编排器在拉起被测会话 A
+ * 之前才写入应用数据目录——此前工作流提前预置钩子、又在验收前跑了一次
+ * 独立启动自检，自检进程把钩子消费掉，导致正式会话测到的其实是
+ * 「重启恢复后的未播放状态」，误判出「导入后不自动开播」。
+ * 现在钩子只被被测会话消费，导入与自动开播在同一会话内被采样断言。
  *
  * 产物：e2e/artifacts/ 下的 report.json 与分步截图。
  * 退出码：门槛断言全过为 0，否则 1。媒体键模拟只记录不设门槛。
@@ -36,7 +43,19 @@ if (!EXE) {
 }
 const SHORT = process.env.SHORT_NAME || 'TestToneShort'
 const LONG = process.env.LONG_NAME || 'TestToneLong'
-const HOOK = process.env.HOOK_PATH || ''
+const AUDIO_DIR = process.env.TEST_AUDIO_DIR || ''
+const HOOK =
+  process.env.HOOK_PATH ||
+  (process.env.APPDATA ? join(process.env.APPDATA, 'com.shiyin.player', 'test-import.json') : '')
+
+/** 把测试钩子写入应用数据目录（被测会话启动前调用，见文件头时序说明） */
+function writeTestHook() {
+  if (!HOOK || !AUDIO_DIR) throw new Error('HOOK 路径或 TEST_AUDIO_DIR 未设置，无法写测试钩子')
+  mkdirSync(dirname(HOOK), { recursive: true })
+  const files = [join(AUDIO_DIR, `${SHORT}.wav`), join(AUDIO_DIR, `${LONG}.wav`)]
+  writeFileSync(HOOK, JSON.stringify(files))
+  console.log('测试钩子已写入：', HOOK, files)
+}
 /** 内嵌 WebDriver 服务器端口（经 TAURI_WEBDRIVER_PORT 告知应用内插件） */
 const DRIVER_PORT = 4445
 
@@ -142,7 +161,8 @@ async function main() {
   let browser
   let app
   try {
-    // ---------- 会话 A：渲染 / 导入 / 播放 ----------
+    // ---------- 会话 A：渲染 / 导入 / 自动开播 / 播放 ----------
+    writeTestHook()
     app = await launchApp()
     browser = await attachSession()
     const waitOpts = { timeoutMsg: '等待超时' }
@@ -155,9 +175,7 @@ async function main() {
     gate('render', true)
     await browser.saveScreenshot(join(ART, '01-home-initial.png'))
 
-    // 等测试钩子导入完成：判定以音乐库 DOM 为准（两首都在列表里）。
-    // 不拿 audio.src 当导入信号——导入后的自动播放可能被 WebView2 的
-    // 自动播放策略拦下（引擎有专门提示文案），那是播放环节的事，不属导入成败。
+    // 等测试钩子导入完成：判定以音乐库 DOM 为准（两首都在列表里）
     await clickTabByText(browser, '音乐库')
     let imported = false
     try {
@@ -175,24 +193,38 @@ async function main() {
     gate('import', imported)
     await browser.saveScreenshot(join(ART, '02-library-after-import.png'))
 
-    // 导入后自动播放是否生效（只记录）：采样引擎状态与页面上的拦截提示文案
-    const s0 = await browser.execute(sampleFn)
-    report.info.autoplayAfterImport = {
-      worked: Boolean(s0.audio && !s0.audio.paused),
-      paused: s0.audio?.paused,
-      src: s0.audio?.src,
-      msState: s0.msState,
-      blockedHintShown: s0.text.includes('自动播放'),
+    // 【门槛】导入后自动开播（1.3.0 必修项）：不点任何按钮，
+    // 限定时间内引擎必须进入播放状态（src 非空、未暂停），且进度递增。
+    // 桌面 WebView 已在配置里放行自动播放策略，导入管线的 play() 应直接生效。
+    let autoplay = false
+    let ap1 = null
+    let ap2 = null
+    try {
+      await browser.waitUntil(
+        async () => {
+          const cur = await browser.execute(sampleFn)
+          return Boolean(cur.audio && !cur.audio.paused && cur.audio.src)
+        },
+        { ...waitOpts, timeout: 20000, interval: 500 },
+      )
+      ap1 = await browser.execute(sampleFn)
+      await sleep(1500)
+      ap2 = await browser.execute(sampleFn)
+      // 进度递增，或采样间短曲已播完自动切歌（标题变化）——都算真实开播证据
+      autoplay = Boolean(
+        ap1.audio &&
+          ap2.audio &&
+          !ap2.audio.paused &&
+          (ap2.audio.t > ap1.audio.t || ap2.msTitle !== ap1.msTitle),
+      )
+    } catch {
+      autoplay = false
     }
-    report.samples.push({ at: 'after-import', ...s0, text: undefined })
-
-    // 若自动播放被宿主策略拦下，点一次播放按钮（真实用户手势）再继续采样
-    let s = await browser.execute(sampleFn)
-    if (s.audio && s.audio.paused) {
-      await clickButtonByLabel(browser, '播放')
-      await sleep(1000)
-      s = await browser.execute(sampleFn)
-    }
+    report.samples.push(
+      { at: 'autoplay-1', ...(ap1 ?? {}), text: undefined },
+      { at: 'autoplay-2', ...(ap2 ?? {}), text: undefined },
+    )
+    gate('autoplay', autoplay, { t1: ap1?.audio?.t, t2: ap2?.audio?.t, src: ap2?.audio?.src })
 
     // 播放进度递增（或采样间已自动切歌，也算推进证据）
     const a1 = await browser.execute(sampleFn)
