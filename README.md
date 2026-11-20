@@ -69,7 +69,7 @@
 
 ### Windows 桌面版
 
-安装包在 [GitHub Releases](https://github.com/xiaoyu-hue/shiyin/releases) 下载（1.3.0 起，文件名形如 `Shiyin_1.3.0_x64-setup.exe`），系统要求 Windows 10 / 11。
+安装包在 [GitHub Releases](https://github.com/xiaoyu-hue/shiyin/releases) 下载（1.3.0 起，文件名形如 `Shiyin_1.3.1_x64-setup.exe`），系统要求 Windows 10 / 11。
 
 - **首次运行会弹蓝色提示窗**：安装包未做商业代码签名，Windows SmartScreen 会提示「Windows 已保护你的电脑」。点「**更多信息**」→「**仍要运行**」即可，只需这一次，之后打开不再提示。
 - 装好后从开始菜单或桌面图标打开；导入音乐用左上角导入按钮，或把音频文件直接拖进窗口。
