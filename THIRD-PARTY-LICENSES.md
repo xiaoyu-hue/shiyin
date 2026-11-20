@@ -46,6 +46,15 @@
 | @tailwindcss/oxide-linux-x64-musl | 4.3.5 | MIT |
 | @tailwindcss/oxide-wasm32-wasi | 4.3.5 | MIT |
 | @tailwindcss/vite | 4.3.5 | MIT |
+| @tauri-apps/api | 2.12.5 | Apache-2.0 OR MIT |
+| @tauri-apps/cli | 2.12.6 | Apache-2.0 OR MIT |
+| @tauri-apps/cli-linux-x64-gnu | 2.12.6 | Apache-2.0 OR MIT |
+| @tauri-apps/cli-linux-x64-musl | 2.12.6 | Apache-2.0 OR MIT |
+| @tauri-apps/plugin-autostart | 2.7.0 | MIT OR Apache-2.0 |
+| @tauri-apps/plugin-dialog | 2.8.4 | MIT OR Apache-2.0 |
+| @tauri-apps/plugin-fs | 2.7.1 | MIT OR Apache-2.0 |
+| @tauri-apps/plugin-process | 2.4.0 | MIT OR Apache-2.0 |
+| @tauri-apps/plugin-updater | 2.14.1 | MIT OR Apache-2.0 |
 | @tokenizer/inflate | 0.6.1 | MIT |
 | @tokenizer/token | 0.3.0 | MIT |
 | @tybys/wasm-util | 0.10.3 | MIT |
@@ -196,4 +205,7 @@
 | yauzl | 2.10.0 | MIT |
 | zustand | 5.1.0 | MIT |
 
-共 189 个组件条目（同名多版本分别列示）。各组件的完整许可证文本见其各自的发布包。
+## Rust 侧组件（Windows 桌面版）
+
+桌面版的 Rust 壳（src-tauri）使用 Tauri 框架及其官方插件：tauri、tauri-plugin-fs、tauri-plugin-dialog、tauri-plugin-single-instance、tauri-plugin-updater、tauri-plugin-process、tauri-plugin-autostart，均为 **MIT OR Apache-2.0**（tauri-apps 组织统一双许可）。其余传递依赖（serde、serde_json 等）以 MIT / Apache-2.0 系宽松许可证为主，完整 crate 清单与版本锁定见仓库 `src-tauri/Cargo.lock`，各 crate 的许可证原文随其源码包分发。
+共 198 个组件条目（同名多版本分别列示）。各组件的完整许可证文本见其各自的发布包。

@@ -40,6 +40,7 @@ export const OPEN_SOURCE_ENTRIES: OpenSourceEntry[] = [
   { name: 'Lucide（lucide-react）', license: 'ISC', purpose: '界面图标' },
   { name: 'music-metadata', license: 'MIT', purpose: '音频内嵌标签、封面与歌词解析' },
   { name: 'Capacitor 及官方插件', license: 'MIT', purpose: '安卓打包与原生能力（文件、触觉、启动屏等）' },
+  { name: 'Tauri 及官方插件', license: 'MIT OR Apache-2.0', purpose: 'Windows 桌面打包与原生能力（托盘、文件、自动更新、开机自启等）' },
   { name: '@capawesome/capacitor-file-picker', license: 'MIT', purpose: '安卓系统文件选择器' },
   {
     name: '@capgo/capacitor-media-session',
