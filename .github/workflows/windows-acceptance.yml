@@ -6,13 +6,14 @@ name: windows-acceptance
 # 验收构建与正式包的差异只有一处：Cargo feature `ci-webdriver`
 #（内嵌 WebDriver 服务器）+ tauri.ci.conf.json 追加的 webdriver capability；
 # 正式发布构建（windows-release.yml）两者都不启用，插件不进发布包。
-# 触发：手动 dispatch；feat/windows-1.3 合入 main 前另挂该分支 push 触发做门禁，
+# 触发：手动 dispatch；feat/windows-1.3、feat/ui-polish-1.4 合入 main 前另挂该分支 push 触发做门禁，
 # 分支删除后 push 触发自然失效，main 上只用 dispatch。
 on:
   workflow_dispatch:
   push:
     branches:
       - feat/windows-1.3
+      - feat/ui-polish-1.4
 
 jobs:
   acceptance:

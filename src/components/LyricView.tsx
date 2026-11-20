@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ChevronDown, ImagePlus, ScrollText } from 'lucide-react'
 import { useStore } from '../store'
 import { lyricIndex, toSeconds } from '../lib/lyric'
-import { sheetTransition } from '../lib/motion'
+import { springSheet } from '../lib/motion'
 import { getBlurredBackdrop } from '../lib/blurBackdrop'
 import LyricPoster from './LyricPoster'
 import { useLyricAttach } from './useLyricAttach'
@@ -67,7 +67,7 @@ export default function LyricView() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
-          transition={sheetTransition}
+          transition={springSheet}
           role="dialog"
           aria-label="歌词"
         >
@@ -87,8 +87,8 @@ export default function LyricView() {
               <ChevronDown size={24} />
             </button>
             <div className="text-center">
-              <p className="text-[11px] text-ink/45">歌词</p>
-              <p className="max-w-[16rem] truncate text-sm font-semibold text-ink/85">{song.name}</p>
+              <p className="text-caption text-ink2">歌词</p>
+              <p className="max-w-[16rem] truncate text-body font-semibold text-ink/85">{song.name}</p>
             </div>
             {song.lyrics.length > 0 ? (
               <button onClick={() => setPosterOpen(true)} aria-label="生成歌词海报" className="glass grid h-11 w-11 place-items-center rounded-full">
@@ -101,19 +101,19 @@ export default function LyricView() {
 
           {song.lyrics.length === 0 ? (
             <div className="relative flex flex-1 flex-col items-center justify-center px-6 text-center">
-              <p className="text-sm text-ink/40">
+              <p className="text-body text-ink2">
                 该曲目暂无歌词
                 <br />
-                <span className="text-xs text-ink/30">这首歌的文件里没有内嵌歌词</span>
+                <span className="text-sub text-ink3">这首歌的文件里没有内嵌歌词</span>
               </p>
               <button
                 onClick={() => lyricAttach.openPicker(cur)}
-                className="glass mt-5 flex min-h-11 items-center gap-2 rounded-full px-5 text-sm font-medium"
+                className="glass mt-5 flex min-h-11 items-center gap-2 rounded-full px-5 text-body font-medium"
               >
                 <ScrollText size={17} style={{ color: 'var(--accent)' }} />
                 导入歌词文件（.lrc）
               </button>
-              {lyricAttach.error && <p className="mt-3 text-xs text-red-500">{lyricAttach.error}</p>}
+              {lyricAttach.error && <p className="mt-3 text-sub text-danger">{lyricAttach.error}</p>}
               <input
                 ref={lyricAttach.inputRef}
                 type="file"
@@ -156,7 +156,7 @@ export default function LyricView() {
             </div>
           )}
 
-          <p className="relative text-center text-[11px] text-ink/40">
+          <p className="relative text-center text-caption text-ink2">
             {song.lyrics.length ? '点击任意歌词行可跳转播放进度' : ''}
           </p>
         </motion.div>

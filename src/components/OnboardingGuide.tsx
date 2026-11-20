@@ -48,11 +48,11 @@ export default function OnboardingGuide() {
       >
         <div className="h-10 w-10 rounded-full bg-black/25 ring-8 ring-white/20" />
       </div>
-      <p className="text-xs tracking-widest" style={{ color: 'var(--accent)' }}>
+      <p className="text-sub tracking-widest" style={{ color: 'var(--accent)' }}>
         SHIYIN · 诗音
       </p>
-      <h2 className="mt-2 text-2xl font-bold">欢迎来到诗音</h2>
-      <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink/55">
+      <h2 className="mt-2 text-title font-bold">欢迎来到诗音</h2>
+      <p className="mt-3 max-w-xs text-body leading-relaxed text-ink2">
         诗音只播放你设备里的音乐文件：不联网、不上传、没有账号。
         先选几首你喜欢的歌导进来，就能开始听了。
       </p>
@@ -65,7 +65,7 @@ export default function OnboardingGuide() {
       <button
         type="button"
         onClick={() => setOnboarded(true)}
-        className="mt-3 min-h-11 rounded-full px-5 text-sm text-ink/50 transition-transform active:scale-[0.97]"
+        className="mt-3 min-h-11 rounded-full px-5 text-body text-ink2 transition-transform active:scale-[0.97]"
       >
         稍后再说
       </button>

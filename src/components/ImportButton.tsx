@@ -72,8 +72,8 @@ export default function ImportButton({ className = '', label, primary = false, o
         disabled={busy}
         className={
           primary
-            ? 'accent-bg flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-[15px] font-semibold text-white shadow-md transition-transform active:scale-[0.98] disabled:opacity-60'
-            : 'flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-2.5 text-sm font-medium transition-colors disabled:opacity-60'
+            ? 'accent-bg flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-body font-semibold text-white shadow-md transition-transform active:scale-[0.98] disabled:opacity-60'
+            : 'flex w-full items-center justify-center gap-2 rounded-[var(--r-cover)] border border-dashed py-2.5 text-body font-medium transition-colors disabled:opacity-60'
         }
         style={
           primary
@@ -98,14 +98,14 @@ export default function ImportButton({ className = '', label, primary = false, o
       />
 
       {status.kind === 'done' && (
-        <p className="mt-2 text-center text-xs" style={{ color: 'var(--accent)' }}>
+        <p className="mt-2 text-center text-sub" style={{ color: 'var(--accent)' }}>
           已导入 {status.added} 首
           {status.skipped > 0 ? `，跳过 ${status.skipped} 首（重复或无法读取）` : ''}
           {status.lrc > 0 ? `，配上歌词 ${status.lrc} 首` : ''}
         </p>
       )}
       {status.kind === 'error' && (
-        <p className="mt-2 text-center text-xs text-red-600">{status.message}</p>
+        <p className="mt-2 text-center text-sub text-danger">{status.message}</p>
       )}
     </div>
   )

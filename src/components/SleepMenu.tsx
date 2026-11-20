@@ -4,6 +4,7 @@ import { Check, MoonStar, X } from 'lucide-react'
 import { useStore } from '../store'
 import { formatRemaining, remainingMs, SLEEP_PRESETS_MIN } from '../lib/sleepTimer'
 import { registerBackHandler } from '../platform/backButton'
+import { springDrawer, scrimTransition } from '../lib/motion'
 import { hapticSelection } from '../platform/haptics'
 
 /** 睡眠定时按钮 + 玻璃菜单（放在播放页顶栏）：分钟预设 / 播完这首停 / 关闭 */
@@ -36,7 +37,7 @@ export default function SleepMenu() {
   }, [open])
 
   const itemCls =
-    'flex min-h-12 w-full items-center gap-3 rounded-2xl px-3 text-left text-[15px] transition-colors active:bg-ink/5'
+    'flex min-h-12 w-full items-center gap-3 rounded-[var(--r-card)] px-3 text-left text-body transition-colors active:bg-ink/5'
 
   return (
     <>
@@ -47,8 +48,8 @@ export default function SleepMenu() {
         style={active ? { color: 'var(--accent)' } : undefined}
       >
         <MoonStar size={19} />
-        {remaining !== null && <span className="text-[9px] font-semibold leading-tight">{formatRemaining(remaining)}</span>}
-        {sleepAfterTrack && <span className="text-[9px] font-semibold leading-tight">本首</span>}
+        {remaining !== null && <span className="text-caption font-semibold tabular-nums leading-tight">{formatRemaining(remaining)}</span>}
+        {sleepAfterTrack && <span className="text-caption font-semibold leading-tight">本首</span>}
       </button>
 
       <AnimatePresence>
@@ -58,7 +59,7 @@ export default function SleepMenu() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
+              transition={scrimTransition}
               className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
               onClick={() => setOpen(false)}
             />
@@ -66,18 +67,18 @@ export default function SleepMenu() {
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              transition={springDrawer}
               className="glass-strong absolute inset-x-0 bottom-0 mx-auto w-full max-w-[430px] rounded-t-[var(--r-sheet)] p-4"
               style={{ paddingBottom: 'calc(2rem + var(--sab))' }}
             >
               <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-ink/15" />
               <div className="mb-2 flex items-center px-1 pb-1">
-                <p className="flex-1 text-[15px] font-semibold">睡眠定时</p>
+                <p className="flex-1 text-body font-semibold">睡眠定时</p>
                 {remaining !== null && (
-                  <span className="text-xs text-ink/45">还剩 {formatRemaining(remaining)} 停播</span>
+                  <span className="text-sub text-ink2">还剩 {formatRemaining(remaining)} 停播</span>
                 )}
-                {sleepAfterTrack && <span className="text-xs text-ink/45">这首播完就停</span>}
-                <button onClick={() => setOpen(false)} aria-label="关闭定时设置" className="grid h-11 w-11 place-items-center rounded-full text-ink/45">
+                {sleepAfterTrack && <span className="text-sub text-ink2">这首播完就停</span>}
+                <button onClick={() => setOpen(false)} aria-label="关闭定时设置" className="grid h-11 w-11 place-items-center rounded-full text-ink2">
                   <X size={20} />
                 </button>
               </div>
@@ -104,7 +105,7 @@ export default function SleepMenu() {
 
               {active && (
                 <button
-                  className={`${itemCls} text-red-500`}
+                  className={`${itemCls} text-danger`}
                   onClick={() => { clearSleep(); setOpen(false) }}
                 >
                   <X size={19} />

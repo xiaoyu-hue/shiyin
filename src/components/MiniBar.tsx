@@ -63,8 +63,8 @@ export default function MiniBar() {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold">{song.name}</p>
-          <p className="flex items-center gap-1 truncate text-xs text-ink/45">
+          <p className="truncate text-body font-semibold">{song.name}</p>
+          <p className="flex items-center gap-1 truncate text-sub text-ink2">
             {sleepActive && <MoonStar size={11} style={{ color: 'var(--accent)' }} aria-label="睡眠定时已开启" />}
             {song.artist}
           </p>
@@ -72,7 +72,7 @@ export default function MiniBar() {
         <button
           onClick={(e) => { e.stopPropagation(); toggle() }}
           aria-label={playing ? '暂停' : '播放'}
-          className="grid h-11 w-11 place-items-center rounded-full bg-surface/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_8px_rgba(31,27,22,0.10)]"
+          className="pill-active grid h-11 w-11 place-items-center rounded-full"
         >
           {playing ? <Pause size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} /> : <Play size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} />}
         </button>

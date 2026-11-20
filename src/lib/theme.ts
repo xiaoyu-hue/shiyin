@@ -14,5 +14,8 @@ export function themeVariables(t: Theme, dark = false): Record<string, string> {
     '--bg-end': dark ? t.bgEndDark : t.bgEnd,
     '--ink': dark ? INK_DARK : INK_LIGHT,
     '--surface': dark ? SURFACE_DARK : SURFACE_LIGHT,
+    // 玻璃染色（1.4.0 落地）：玻璃填充在 CSS 里以 color-mix 把主题强调色
+    // 低比例混入，七套主题的玻璃从此各有气质，不再共用同一套白色玻璃
+    '--glass-tint': dark ? t.accentDark : t.accent,
   }
 }

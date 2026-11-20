@@ -19,16 +19,16 @@ export default function HomeView() {
   return (
     <div className="px-4 pt-6">
       <div className="mb-6">
-        <p className="text-xs tracking-widest" style={{ color: 'var(--accent)' }}>SHIYIN · 诗音</p>
-        <h1 className="mt-1 text-2xl font-bold">{greetingLine(now)}</h1>
+        <p className="text-sub tracking-widest" style={{ color: 'var(--accent)' }}>SHIYIN · 诗音</p>
+        <h1 className="mt-1 text-title font-bold">{greetingLine(now)}</h1>
       </div>
 
       <BatteryGuideCard />
 
       <section>
         <div className="mb-2 flex items-baseline justify-between">
-          <h2 className="text-base font-semibold">全部曲目</h2>
-          <span className="text-xs text-ink/40">{tracks.length > 0 ? `共 ${tracks.length} 首` : ''}</span>
+          <h2 className="text-heading font-semibold">全部曲目</h2>
+          <span className="text-sub text-ink2">{tracks.length > 0 ? `共 ${tracks.length} 首` : ''}</span>
         </div>
 
         <ImportButton className="mb-3 w-full" />
@@ -45,7 +45,7 @@ export default function HomeView() {
             >
               {tracks.map((s, i) => <SongRow key={s.id} index={i} context={tracks.map((_, j) => j)} />)}
             </div>
-            <p className="mt-2 text-center text-[11px] text-ink/35">点击任意曲目展开播放器</p>
+            <p className="mt-2 text-center text-caption text-ink3">点击任意曲目展开播放器</p>
           </>
         )}
       </section>

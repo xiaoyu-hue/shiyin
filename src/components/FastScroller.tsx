@@ -139,7 +139,7 @@ export default function FastScroller({ count, bubbleFor, minCount = 30 }: Props)
           </div>
           {dragging && targetIndex >= 0 && (
             <div
-              className="pointer-events-none absolute right-8 grid h-11 min-w-11 place-items-center rounded-full px-2 text-base font-bold text-white shadow-lg"
+              className="pointer-events-none absolute right-8 grid h-11 min-w-11 place-items-center rounded-full px-2 text-heading font-bold text-white shadow-lg"
               style={{
                 top: `${fraction * 100}%`,
                 transform: 'translateY(-50%)',

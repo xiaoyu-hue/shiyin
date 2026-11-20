@@ -42,8 +42,8 @@ export default function LibraryView() {
   return (
     <div className="px-4 pt-6">
       <div className="mb-5">
-        <p className="text-xs tracking-widest" style={{ color: 'var(--accent)' }}>LIBRARY</p>
-        <h1 className="mt-1 text-2xl font-bold">音乐库</h1>
+        <p className="text-sub tracking-widest" style={{ color: 'var(--accent)' }}>LIBRARY</p>
+        <h1 className="mt-1 text-title font-bold">音乐库</h1>
       </div>
 
       {detail ? (
@@ -59,8 +59,8 @@ export default function LibraryView() {
                   role="tab"
                   aria-selected={active}
                   onClick={() => setView(key)}
-                  className={`min-h-10 flex-1 rounded-full text-[13px] transition-all duration-300 ${
-                    active ? 'bg-surface/70 font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_8px_rgba(31,27,22,0.10)]' : 'text-ink/50'
+                  className={`min-h-10 flex-1 rounded-full text-sub transition-all duration-300 ${
+                    active ? 'pill-active font-semibold' : 'text-ink2'
                   }`}
                   style={active ? { color: 'var(--accent)' } : undefined}
                 >
@@ -104,7 +104,7 @@ function SongsSection({ indexed }: { indexed: IndexedSong[] }) {
               <button
                 key={key}
                 onClick={() => setSort(key, sortDir)}
-                className={`rounded-full px-3 py-1.5 text-xs transition-colors ${active ? 'text-white' : 'bg-surface/50 text-ink/55'}`}
+                className={`rounded-full px-3 py-1.5 text-sub transition-colors ${active ? 'text-white' : 'bg-surface/50 text-ink2'}`}
                 style={active ? { background: 'var(--accent)' } : undefined}
                 aria-pressed={active}
               >
@@ -115,13 +115,13 @@ function SongsSection({ indexed }: { indexed: IndexedSong[] }) {
         </div>
         <button
           onClick={() => setSort(sortKey, sortDir === 'asc' ? 'desc' : 'asc')}
-          className="grid h-9 w-9 place-items-center rounded-full bg-surface/50 text-ink/55"
+          className="grid h-9 w-9 place-items-center rounded-full bg-surface/50 text-ink2"
           aria-label={sortDir === 'asc' ? '当前升序，切换为降序' : '当前降序，切换为升序'}
         >
           {sortDir === 'asc' ? <ArrowUpNarrowWide size={16} /> : <ArrowDownWideNarrow size={16} />}
         </button>
       </div>
-      <p className="mb-1 text-xs text-ink/40">共 {sorted.length} 首</p>
+      <p className="mb-1 text-sub text-ink2">共 {sorted.length} 首</p>
       <div
         className="pr-3"
         onClick={() => {
@@ -147,7 +147,7 @@ function AlbumsSection({ indexed }: { indexed: IndexedSong[] }) {
 
   return (
     <section>
-      <p className="mb-3 text-xs text-ink/40">共 {albums.length} 张专辑</p>
+      <p className="mb-3 text-sub text-ink2">共 {albums.length} 张专辑</p>
       <div className="grid grid-cols-2 gap-4">
         {albums.map((a) => (
           <button key={a.name} onClick={() => setDetail({ kind: 'album', key: a.name })} className="text-left">
@@ -161,8 +161,8 @@ function AlbumsSection({ indexed }: { indexed: IndexedSong[] }) {
                 <span className="px-3 text-center text-lg font-bold drop-shadow">{a.name}</span>
               )}
             </div>
-            <p className="mt-2 truncate text-sm font-semibold">{a.name}</p>
-            <p className="truncate text-xs text-ink/45">{a.artist} · {a.items.length} 首</p>
+            <p className="mt-2 truncate text-body font-semibold">{a.name}</p>
+            <p className="truncate text-sub text-ink2">{a.artist} · {a.items.length} 首</p>
           </button>
         ))}
       </div>
@@ -176,24 +176,24 @@ function ArtistsSection({ indexed }: { indexed: IndexedSong[] }) {
 
   return (
     <section>
-      <p className="mb-2 text-xs text-ink/40">共 {artists.length} 位歌手</p>
+      <p className="mb-2 text-sub text-ink2">共 {artists.length} 位歌手</p>
       {artists.map((a) => (
         <button
           key={a.name}
           onClick={() => setDetail({ kind: 'artist', key: a.name })}
-          className="flex w-full items-center gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors [contain-intrinsic-size:auto_68px] [content-visibility:auto] active:bg-ink/5"
+          className="flex w-full items-center gap-3 rounded-[var(--r-card)] px-2 py-2.5 text-left transition-colors [contain-intrinsic-size:auto_68px] [content-visibility:auto] active:bg-ink/5"
         >
           <span
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-base font-bold text-white shadow-sm"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-heading font-bold text-white shadow-sm"
             style={{ background: 'linear-gradient(135deg, var(--accent), rgba(0,0,0,0.25))' }}
           >
             {a.name.slice(0, 1)}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium">{a.name}</span>
-            <span className="mt-0.5 block text-xs text-ink/45">{a.items.length} 首 · {a.albumCount} 张专辑</span>
+            <span className="block truncate text-body font-medium">{a.name}</span>
+            <span className="mt-0.5 block text-sub text-ink2">{a.items.length} 首 · {a.albumCount} 张专辑</span>
           </span>
-          <ChevronRight size={18} className="shrink-0 text-ink/30" />
+          <ChevronRight size={18} className="shrink-0 text-ink3" />
         </button>
       ))}
     </section>
@@ -219,10 +219,10 @@ function PlaylistsSection({ indexed }: { indexed: IndexedSong[] }) {
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-xs text-ink/40">共 {playlists.length} 个歌单</p>
+        <p className="text-sub text-ink2">共 {playlists.length} 个歌单</p>
         <button
           onClick={() => setCreating((v) => !v)}
-          className="flex min-h-9 items-center gap-1 rounded-full bg-surface/50 px-3 text-xs font-medium text-ink/60"
+          className="flex min-h-9 items-center gap-1 rounded-full bg-surface/50 px-3 text-sub font-medium text-ink2"
         >
           <Plus size={14} />
           新建歌单
@@ -237,9 +237,9 @@ function PlaylistsSection({ indexed }: { indexed: IndexedSong[] }) {
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="给歌单起个名字"
             autoFocus
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/30"
+            className="min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-ink3"
           />
-          <button onClick={submit} className="accent-bg min-h-9 shrink-0 rounded-full px-4 text-xs font-semibold text-white">
+          <button onClick={submit} className="accent-bg min-h-9 shrink-0 rounded-full px-4 text-sub font-semibold text-white">
             建好
           </button>
         </div>
@@ -255,10 +255,10 @@ function PlaylistsSection({ indexed }: { indexed: IndexedSong[] }) {
               <button
                 key={p.id}
                 onClick={() => setDetail({ kind: 'playlist', key: p.id })}
-                className="flex w-full items-center gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors [contain-intrinsic-size:auto_68px] [content-visibility:auto] active:bg-ink/5"
+                className="flex w-full items-center gap-3 rounded-[var(--r-card)] px-2 py-2.5 text-left transition-colors [contain-intrinsic-size:auto_68px] [content-visibility:auto] active:bg-ink/5"
               >
                 <span
-                  className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl text-white shadow-sm"
+                  className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
                   style={{ ['--cover' as string]: first?.color ?? '#9a8f80' }}
                 >
                   {first?.coverSrc ? (
@@ -268,10 +268,10 @@ function PlaylistsSection({ indexed }: { indexed: IndexedSong[] }) {
                   )}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{p.name}</span>
-                  <span className="mt-0.5 block text-xs text-ink/45">{p.trackIds.length} 首</span>
+                  <span className="block truncate text-body font-medium">{p.name}</span>
+                  <span className="mt-0.5 block text-sub text-ink2">{p.trackIds.length} 首</span>
                 </span>
-                <ChevronRight size={18} className="shrink-0 text-ink/30" />
+                <ChevronRight size={18} className="shrink-0 text-ink3" />
               </button>
             )
           })}
@@ -318,7 +318,7 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
 
   return (
     <section>
-      <button onClick={() => setDetail(null)} className="mb-4 flex min-h-11 items-center gap-1 text-sm text-ink/55" aria-label="返回音乐库">
+      <button onClick={() => setDetail(null)} className="mb-4 flex min-h-11 items-center gap-1 text-body text-ink2" aria-label="返回音乐库">
         <ChevronLeft size={20} />
         音乐库
       </button>
@@ -344,10 +344,10 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
           </span>
         )}
         <h2 className="mt-3 max-w-full truncate text-xl font-bold">{title}</h2>
-        <p className="mt-1 text-[13px] text-ink/45">{subtitle}</p>
+        <p className="mt-1 text-sub text-ink2">{subtitle}</p>
         <button
           onClick={() => { if (items[0]) { play(items[0].index, items.map((x) => x.index)); setPlayerOpen(true) } }}
-          className="accent-bg mt-4 flex min-h-11 items-center gap-2 rounded-full px-6 text-sm font-semibold text-white shadow-md"
+          className="accent-bg mt-4 flex min-h-11 items-center gap-2 rounded-full px-6 text-body font-semibold text-white shadow-md"
         >
           <Play size={16} fill="white" />
           播放全部
@@ -387,7 +387,7 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
 
   return (
     <section>
-      <button onClick={() => setDetail(null)} className="mb-4 flex min-h-11 items-center gap-1 text-sm text-ink/55" aria-label="返回音乐库">
+      <button onClick={() => setDetail(null)} className="mb-4 flex min-h-11 items-center gap-1 text-body text-ink2" aria-label="返回音乐库">
         <ChevronLeft size={20} />
         音乐库
       </button>
@@ -416,7 +416,7 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
                 }
               }}
               autoFocus
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+              className="min-w-0 flex-1 bg-transparent text-body outline-none"
               aria-label="歌单名称"
             />
             <button
@@ -424,7 +424,7 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
                 if (draft.trim()) renamePlaylist(id, draft)
                 setEditing(false)
               }}
-              className="accent-bg min-h-9 shrink-0 rounded-full px-4 text-xs font-semibold text-white"
+              className="accent-bg min-h-9 shrink-0 rounded-full px-4 text-sub font-semibold text-white"
             >
               保存
             </button>
@@ -432,37 +432,37 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
         ) : (
           <h2 className="mt-3 max-w-full truncate text-xl font-bold">{playlist.name}</h2>
         )}
-        <p className="mt-1 text-[13px] text-ink/45">{items.length} 首</p>
+        <p className="mt-1 text-sub text-ink2">{items.length} 首</p>
 
         <div className="mt-4 flex items-center gap-2">
           <button
             onClick={() => { if (items[0]) { play(items[0].index, items.map((x) => x.index)); setPlayerOpen(true) } }}
             disabled={items.length === 0}
-            className="accent-bg flex min-h-11 items-center gap-2 rounded-full px-6 text-sm font-semibold text-white shadow-md disabled:opacity-40"
+            className="accent-bg flex min-h-11 items-center gap-2 rounded-full px-6 text-body font-semibold text-white shadow-md disabled:opacity-40"
           >
             <Play size={16} fill="white" />
             播放全部
           </button>
           <button
             onClick={() => { setDraft(playlist.name); setEditing(true) }}
-            className="min-h-11 rounded-full bg-surface/50 px-5 text-sm text-ink/60"
+            className="min-h-11 rounded-full bg-surface/50 px-5 text-body text-ink2"
           >
             改名
           </button>
           {confirmingDelete ? (
             <button
               onClick={() => { deletePlaylist(id); setDetail(null) }}
-              className="min-h-11 rounded-full bg-red-500 px-5 text-sm font-semibold text-white"
+              className="min-h-11 rounded-full bg-danger px-5 text-body font-semibold text-white"
             >
               确认删除
             </button>
           ) : (
-            <button onClick={() => setConfirmingDelete(true)} className="min-h-11 rounded-full bg-surface/50 px-5 text-sm text-red-500">
+            <button onClick={() => setConfirmingDelete(true)} className="min-h-11 rounded-full bg-surface/50 px-5 text-body text-danger">
               删除歌单
             </button>
           )}
         </div>
-        <p className="mt-2 text-[11px] text-ink/35">加歌：点任意歌曲行尾的「…」，选「加入歌单」</p>
+        <p className="mt-2 text-caption text-ink3">加歌：点任意歌曲行尾的「…」，选「加入歌单」</p>
       </div>
 
       {items.length === 0 ? (
@@ -482,7 +482,7 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
               <button
                 onClick={() => removeFromPlaylist(id, song.id)}
                 aria-label={`从歌单移除 ${song.name}`}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/35"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink3"
               >
                 <X size={18} />
               </button>
@@ -500,7 +500,7 @@ function DetailMissing() {
   const setDetail = useStore((s) => s.setLibraryDetail)
   return (
     <div>
-      <button onClick={() => setDetail(null)} className="mb-4 flex min-h-11 items-center gap-1 text-sm text-ink/55" aria-label="返回音乐库">
+      <button onClick={() => setDetail(null)} className="mb-4 flex min-h-11 items-center gap-1 text-body text-ink2" aria-label="返回音乐库">
         <ChevronLeft size={20} />
         音乐库
       </button>

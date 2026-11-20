@@ -17,7 +17,7 @@ export default function Button({ variant = 'ghost', className, children, ...rest
   const base = 'inline-flex items-center justify-center transition-colors disabled:opacity-40'
   const variants: Record<Variant, string> = {
     primary: 'accent-bg rounded-full text-white shadow-lg',
-    ghost: 'rounded-xl',
+    ghost: 'rounded-[var(--r-cover)]',
     icon: 'rounded-full',
   }
   return (

@@ -104,7 +104,7 @@ function SongRow({ index, rank, context }: Props) {
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl [contain-intrinsic-size:auto_68px] [content-visibility:auto]"
+      className="relative overflow-hidden rounded-[var(--r-card)] [contain-intrinsic-size:auto_68px] [content-visibility:auto]"
       onPointerDown={(e) => {
         if (e.button === 0) startPress(e.clientX, e.clientY)
       }}
@@ -130,7 +130,7 @@ function SongRow({ index, rank, context }: Props) {
           aria-hidden
         >
           <ListPlus size={18} />
-          <span className="text-xs font-semibold">下一首播放</span>
+          <span className="text-sub font-semibold">下一首播放</span>
         </motion.div>
       )}
       <motion.div
@@ -168,12 +168,12 @@ function SongRow({ index, rank, context }: Props) {
             <Check size={14} />
           </span>
         ) : rank !== undefined ? (
-          <span className="w-5 shrink-0 text-center text-sm font-semibold" style={{ color: 'var(--accent)' }}>
+          <span className="w-5 shrink-0 text-center text-body font-semibold" style={{ color: 'var(--accent)' }}>
             {rank}
           </span>
         ) : null}
         <div
-          className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl text-white shadow-sm"
+          className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
           style={{ ['--cover' as string]: song.color }}
         >
           {song.coverSrc && (
@@ -194,13 +194,13 @@ function SongRow({ index, rank, context }: Props) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className={`truncate text-sm ${isCurrent ? 'font-semibold' : 'font-medium'}`} style={isCurrent ? { color: 'var(--accent)' } : undefined}>
+          <div className={`truncate text-body ${isCurrent ? 'font-semibold' : 'font-medium'}`} style={isCurrent ? { color: 'var(--accent)' } : undefined}>
             {song.name}
           </div>
-          <div className="mt-0.5 truncate text-xs text-ink/45">{song.artist} · {song.album}</div>
+          <div className="mt-0.5 truncate text-sub text-ink2">{song.artist} · {song.album}</div>
         </div>
-        {selected && <span className="shrink-0 text-xs font-medium" style={{ color: 'var(--accent)' }}>已选</span>}
-        <span className="flex shrink-0 items-center gap-1.5 text-xs text-ink/35">
+        {selected && <span className="shrink-0 text-sub font-medium" style={{ color: 'var(--accent)' }}>已选</span>}
+        <span className="flex shrink-0 items-center gap-1.5 text-sub tabular-nums text-ink3">
           {isLocal && (
             <span
               className="h-1.5 w-1.5 rounded-full"
@@ -222,7 +222,7 @@ function SongRow({ index, rank, context }: Props) {
             <button
               onClick={(e) => { e.stopPropagation(); setMenuTrack(index) }}
               aria-label={`《${song.name}》的更多操作`}
-              className="-ml-1 grid h-10 w-9 shrink-0 place-items-center rounded-full text-ink/35"
+              className="-ml-1 grid h-10 w-9 shrink-0 place-items-center rounded-full text-ink3"
             >
               <MoreHorizontal size={19} />
             </button>
@@ -232,7 +232,7 @@ function SongRow({ index, rank, context }: Props) {
       {/* 右滑触发后的行内短暂反馈 */}
       {flash && (
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 flex items-center gap-1 pr-4 text-xs font-semibold"
+          className="pointer-events-none absolute inset-y-0 right-0 flex items-center gap-1 pr-4 text-sub font-semibold"
           style={{ color: 'var(--accent)' }}
           aria-hidden
         >

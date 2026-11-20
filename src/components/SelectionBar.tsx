@@ -6,6 +6,7 @@ import { orderByScope } from '../lib/selection'
 import { deleteTracksEverywhere } from '../store/bootstrap'
 import { registerBackHandler } from '../platform/backButton'
 import { hapticImpact } from '../platform/haptics'
+import { springBar } from '../lib/motion'
 
 type BarView = 'bar' | 'playlists' | 'confirmDelete'
 
@@ -59,7 +60,7 @@ export default function SelectionBar() {
   const ordered = orderByScope(scope, selection)
   const allSelected = scope.length > 0 && count >= scope.length
   const actionCls =
-    'flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 text-xs font-medium transition-colors active:bg-ink/5 disabled:opacity-35'
+    'flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-[var(--r-card)] px-2 text-sub font-medium transition-colors active:bg-ink/5 disabled:opacity-35'
 
   const doPlayNext = () => {
     if (!ordered.length) return
@@ -94,17 +95,17 @@ export default function SelectionBar() {
         <button
           onClick={exitSelection}
           aria-label="退出多选"
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/60"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink2"
         >
           <X size={20} />
         </button>
-        <p className="flex-1 text-[15px] font-semibold">已选 {count} 首</p>
+        <p className="flex-1 text-body font-semibold">已选 {count} 首</p>
         <button
           onClick={() => {
             if (allSelected) clearSelection()
             else selectAllSelection()
           }}
-          className="min-h-11 shrink-0 rounded-full px-4 text-sm font-medium"
+          className="min-h-11 shrink-0 rounded-full px-4 text-body font-medium"
           style={{ color: 'var(--accent)' }}
         >
           {allSelected ? '取消全选' : '全选'}
@@ -115,7 +116,7 @@ export default function SelectionBar() {
       <motion.div
         initial={{ y: '110%' }}
         animate={{ y: 0 }}
-        transition={{ type: 'spring', damping: 30, stiffness: 320 }}
+        transition={springBar}
           className="glass-strong absolute inset-x-3 bottom-0 z-40 rounded-t-[var(--r-sheet)] p-4"
           style={{ paddingBottom: 'calc(1.25rem + var(--sab))' }}
           role="toolbar"
@@ -131,7 +132,7 @@ export default function SelectionBar() {
                 <ListMusic size={21} style={{ color: 'var(--accent)' }} />
                 加入歌单
               </button>
-              <button className={`${actionCls} text-red-500`} onClick={() => setView('confirmDelete')} disabled={count === 0}>
+              <button className={`${actionCls} text-danger`} onClick={() => setView('confirmDelete')} disabled={count === 0}>
                 <Trash2 size={21} />
                 删除
               </button>
@@ -140,9 +141,9 @@ export default function SelectionBar() {
 
           {view === 'playlists' && (
             <>
-              <p className="px-1 pb-2 text-[15px] font-semibold">把 {count} 首加入哪个歌单？</p>
+              <p className="px-1 pb-2 text-body font-semibold">把 {count} 首加入哪个歌单？</p>
               {addedTo ? (
-                <p className="flex items-center gap-1.5 px-1 py-3 text-sm text-ink/55">
+                <p className="flex items-center gap-1.5 px-1 py-3 text-body text-ink2">
                   <Check size={16} style={{ color: 'var(--accent)' }} />
                   已加入「{addedTo}」
                 </p>
@@ -150,17 +151,17 @@ export default function SelectionBar() {
                 <>
                   <div className="max-h-56 overflow-y-auto overscroll-contain">
                     {playlists.length === 0 && (
-                      <p className="px-1 py-2 text-sm text-ink/45">还没有歌单，先新建一个：</p>
+                      <p className="px-1 py-2 text-body text-ink2">还没有歌单，先新建一个：</p>
                     )}
                     {playlists.map((p) => (
                       <button
                         key={p.id}
-                        className="flex min-h-12 w-full items-center gap-3 rounded-2xl px-3 text-left text-[15px] transition-colors active:bg-ink/5"
+                        className="flex min-h-12 w-full items-center gap-3 rounded-[var(--r-card)] px-3 text-left text-body transition-colors active:bg-ink/5"
                         onClick={() => doAddToPlaylist(p.id, p.name)}
                       >
                         <ListMusic size={20} style={{ color: 'var(--accent)' }} />
                         <span className="min-w-0 flex-1 truncate">{p.name}</span>
-                        <span className="text-xs text-ink/40">{p.trackIds.length} 首</span>
+                        <span className="text-sub text-ink2">{p.trackIds.length} 首</span>
                       </button>
                     ))}
                   </div>
@@ -169,7 +170,7 @@ export default function SelectionBar() {
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
                       placeholder="新建歌单的名字"
-                      className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/30"
+                      className="min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-ink3"
                       aria-label="新建歌单的名字"
                     />
                     <button
@@ -177,7 +178,7 @@ export default function SelectionBar() {
                         const p = createPlaylist(newName)
                         if (p) doAddToPlaylist(p.id, p.name)
                       }}
-                      className="accent-bg flex min-h-9 shrink-0 items-center gap-1 rounded-full px-4 text-xs font-semibold text-white"
+                      className="accent-bg flex min-h-9 shrink-0 items-center gap-1 rounded-full px-4 text-sub font-semibold text-white"
                     >
                       <Plus size={14} />
                       新建并加入
@@ -185,7 +186,7 @@ export default function SelectionBar() {
                   </div>
                 </>
               )}
-              <button className="mt-2 min-h-11 w-full text-sm text-ink/50" onClick={() => setView('bar')}>
+              <button className="mt-2 min-h-11 w-full text-body text-ink2" onClick={() => setView('bar')}>
                 返回
               </button>
             </>
@@ -193,17 +194,17 @@ export default function SelectionBar() {
 
           {view === 'confirmDelete' && (
             <>
-              <p className="px-1 pb-1 text-[15px] font-semibold">删除选中的 {count} 首？</p>
-              <p className="px-1 pb-3 text-sm leading-relaxed text-ink/55">
+              <p className="px-1 pb-1 text-body font-semibold">删除选中的 {count} 首？</p>
+              <p className="px-1 pb-3 text-body leading-relaxed text-ink2">
                 会从曲库、收藏、所有歌单和播放队列中一并移除，本地保存的文件记录也会删掉。此操作不能撤销（你手机/电脑里的原文件不受影响）。
               </p>
               <button
-                className="mb-2 min-h-12 w-full rounded-full bg-red-500 text-[15px] font-semibold text-white"
+                className="mb-2 min-h-12 w-full rounded-full bg-danger text-body font-semibold text-white"
                 onClick={doDelete}
               >
                 确认删除 {count} 首
               </button>
-              <button className="min-h-11 w-full text-sm text-ink/50" onClick={() => setView('bar')}>
+              <button className="min-h-11 w-full text-body text-ink2" onClick={() => setView('bar')}>
                 先不删
               </button>
             </>

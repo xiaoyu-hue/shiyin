@@ -4,6 +4,7 @@ import { ChevronRight, Heart, ListEnd, ListMusic, ListPlus, Play, Plus, ScrollTe
 import { useStore } from '../store'
 import { deleteTrackEverywhere } from '../store/bootstrap'
 import { registerBackHandler } from '../platform/backButton'
+import { springDrawer, scrimTransition } from '../lib/motion'
 import { useLyricAttach } from './useLyricAttach'
 
 /** 单曲操作菜单：玻璃底部抽屉（下一首播放 / 加入队列 / 加入歌单 / 收藏 / 删除） */
@@ -49,7 +50,7 @@ export default function SongMenu() {
   }, [open, view])
 
   const itemCls =
-    'flex min-h-12 w-full items-center gap-3 rounded-2xl px-3 text-left text-[15px] transition-colors active:bg-ink/5'
+    'flex min-h-12 w-full items-center gap-3 rounded-[var(--r-card)] px-3 text-left text-body transition-colors active:bg-ink/5'
 
   return (
     <AnimatePresence>
@@ -59,7 +60,7 @@ export default function SongMenu() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={scrimTransition}
             className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
             onClick={close}
           />
@@ -67,7 +68,7 @@ export default function SongMenu() {
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            transition={springDrawer}
             className="glass-strong absolute inset-x-0 bottom-0 mx-auto w-full max-w-[430px] rounded-t-[var(--r-sheet)] p-4"
             style={{ paddingBottom: 'calc(2rem + var(--sab))' }}
           >
@@ -77,7 +78,7 @@ export default function SongMenu() {
               <>
                 <div className="mb-2 flex items-center gap-3 px-1 pb-2">
                   <div
-                    className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl text-white shadow-sm"
+                    className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
                     style={{ ['--cover' as string]: song.color }}
                   >
                     {song.coverSrc ? (
@@ -87,10 +88,10 @@ export default function SongMenu() {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[15px] font-semibold">{song.name}</p>
-                    <p className="truncate text-xs text-ink/45">{song.artist} · {song.album}</p>
+                    <p className="truncate text-body font-semibold">{song.name}</p>
+                    <p className="truncate text-sub text-ink2">{song.artist} · {song.album}</p>
                   </div>
-                  <button onClick={close} aria-label="关闭菜单" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/45">
+                  <button onClick={close} aria-label="关闭菜单" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink2">
                     <X size={20} />
                   </button>
                 </div>
@@ -106,7 +107,7 @@ export default function SongMenu() {
                 <button className={itemCls} onClick={() => setView('playlists')}>
                   <ListMusic size={20} style={{ color: 'var(--accent)' }} />
                   加入歌单
-                  <ChevronRight size={18} className="ml-auto text-ink/30" />
+                  <ChevronRight size={18} className="ml-auto text-ink3" />
                 </button>
                 <button
                   className={itemCls}
@@ -123,10 +124,10 @@ export default function SongMenu() {
                   <ScrollText size={20} style={{ color: 'var(--accent)' }} />
                   <span className="flex-1">
                     导入歌词文件
-                    {song.lyrics.length > 0 && <span className="block text-xs font-normal text-ink/40">已有歌词，导入将覆盖</span>}
+                    {song.lyrics.length > 0 && <span className="block text-sub font-normal text-ink2">已有歌词，导入将覆盖</span>}
                   </span>
                 </button>
-                {lyricAttach.error && <p className="px-3 pb-1 text-xs text-red-500">{lyricAttach.error}</p>}
+                {lyricAttach.error && <p className="px-3 pb-1 text-sub text-danger">{lyricAttach.error}</p>}
                 <input
                   ref={lyricAttach.inputRef}
                   type="file"
@@ -134,7 +135,7 @@ export default function SongMenu() {
                   className="hidden"
                   onChange={(e) => { void lyricAttach.onChange(e) }}
                 />
-                <button className={`${itemCls} text-red-500`} onClick={() => setView('confirmDelete')}>
+                <button className={`${itemCls} text-danger`} onClick={() => setView('confirmDelete')}>
                   <Trash2 size={20} />
                   删除这首歌
                 </button>
@@ -143,14 +144,14 @@ export default function SongMenu() {
 
             {view === 'playlists' && (
               <>
-                <p className="px-1 pb-2 text-[15px] font-semibold">加入哪个歌单？</p>
+                <p className="px-1 pb-2 text-body font-semibold">加入哪个歌单？</p>
                 {addedTo ? (
-                  <p className="px-1 py-3 text-sm text-ink/55">已加入「{addedTo}」 ✓</p>
+                  <p className="px-1 py-3 text-body text-ink2">已加入「{addedTo}」 ✓</p>
                 ) : (
                   <>
                     <div className="max-h-56 overflow-y-auto overscroll-contain">
                       {playlists.length === 0 && (
-                        <p className="px-1 py-2 text-sm text-ink/45">还没有歌单，先新建一个：</p>
+                        <p className="px-1 py-2 text-body text-ink2">还没有歌单，先新建一个：</p>
                       )}
                       {playlists.map((p) => (
                         <button
@@ -164,7 +165,7 @@ export default function SongMenu() {
                         >
                           <ListMusic size={20} style={{ color: 'var(--accent)' }} />
                           <span className="min-w-0 flex-1 truncate">{p.name}</span>
-                          <span className="text-xs text-ink/40">{p.trackIds.length} 首</span>
+                          <span className="text-sub text-ink2">{p.trackIds.length} 首</span>
                         </button>
                       ))}
                     </div>
@@ -173,7 +174,7 @@ export default function SongMenu() {
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         placeholder="新建歌单的名字"
-                        className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/30"
+                        className="min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-ink3"
                         aria-label="新建歌单的名字"
                       />
                       <button
@@ -185,7 +186,7 @@ export default function SongMenu() {
                             setTimeout(close, 650)
                           }
                         }}
-                        className="accent-bg flex min-h-9 shrink-0 items-center gap-1 rounded-full px-4 text-xs font-semibold text-white"
+                        className="accent-bg flex min-h-9 shrink-0 items-center gap-1 rounded-full px-4 text-sub font-semibold text-white"
                       >
                         <Plus size={14} />
                         新建并加入
@@ -193,7 +194,7 @@ export default function SongMenu() {
                     </div>
                   </>
                 )}
-                <button className="mt-2 min-h-11 w-full text-sm text-ink/50" onClick={() => setView('main')}>
+                <button className="mt-2 min-h-11 w-full text-body text-ink2" onClick={() => setView('main')}>
                   返回
                 </button>
               </>
@@ -201,12 +202,12 @@ export default function SongMenu() {
 
             {view === 'confirmDelete' && (
               <>
-                <p className="px-1 pb-1 text-[15px] font-semibold">删除《{song.name}》？</p>
-                <p className="px-1 pb-3 text-sm leading-relaxed text-ink/55">
+                <p className="px-1 pb-1 text-body font-semibold">删除《{song.name}》？</p>
+                <p className="px-1 pb-3 text-body leading-relaxed text-ink2">
                   会从曲库、收藏、所有歌单和播放队列中一并移除，本地保存的文件记录也会删掉。此操作不能撤销（你手机/电脑里的原文件不受影响）。
                 </p>
                 <button
-                  className="mb-2 min-h-12 w-full rounded-full bg-red-500 text-[15px] font-semibold text-white"
+                  className="mb-2 min-h-12 w-full rounded-full bg-danger text-body font-semibold text-white"
                   onClick={() => {
                     void deleteTrackEverywhere(menuTrack)
                     close()
@@ -214,7 +215,7 @@ export default function SongMenu() {
                 >
                   确认删除
                 </button>
-                <button className="min-h-11 w-full text-sm text-ink/50" onClick={() => setView('main')}>
+                <button className="min-h-11 w-full text-body text-ink2" onClick={() => setView('main')}>
                   先不删
                 </button>
               </>

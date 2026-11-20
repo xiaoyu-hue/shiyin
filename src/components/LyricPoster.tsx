@@ -4,7 +4,7 @@ import { Check, Download, Share2, X } from 'lucide-react'
 import type { Song } from '../data/types'
 import { computePosterLayout, POSTER_H, POSTER_MAX_LINES, POSTER_W, toggleLineSelection, truncateToWidth } from '../lib/poster'
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
-import { sheetTransition } from '../lib/motion'
+import { springDrawer, scrimTransition } from '../lib/motion'
 import { registerBackHandler } from '../platform/backButton'
 
 const FONT_STACK = '-apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif'
@@ -210,7 +210,7 @@ export default function LyricPoster({ song, open, onClose }: Props) {
   }
 
   const rowCls = (isSel: boolean) =>
-    `flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-[15px] transition-colors ${
+    `flex w-full items-center gap-3 rounded-[var(--r-card)] px-3 py-3 text-left text-body transition-colors ${
       isSel ? 'bg-ink/5 font-semibold' : 'active:bg-ink/5'
     }`
 
@@ -222,7 +222,7 @@ export default function LyricPoster({ song, open, onClose }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={scrimTransition}
             className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
             onClick={onClose}
           />
@@ -230,16 +230,16 @@ export default function LyricPoster({ song, open, onClose }: Props) {
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={sheetTransition}
+            transition={springDrawer}
             className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[88dvh] w-full max-w-[430px] flex-col rounded-t-[var(--r-sheet)] p-4"
             style={{ paddingBottom: 'calc(1.5rem + var(--sab))' }}
           >
             <div className="mx-auto mb-3 h-1.5 w-10 shrink-0 rounded-full bg-ink/15" />
             <div className="mb-2 flex items-center px-1">
-              <p className="flex-1 text-[15px] font-semibold">
+              <p className="flex-1 text-body font-semibold">
                 {phase === 'select' ? `选择歌词行（已选 ${selected.length}/${POSTER_MAX_LINES}）` : '歌词海报'}
               </p>
-              <button onClick={onClose} aria-label="关闭海报" className="grid h-11 w-11 place-items-center rounded-full text-ink/45">
+              <button onClick={onClose} aria-label="关闭海报" className="grid h-11 w-11 place-items-center rounded-full text-ink2">
                 <X size={20} />
               </button>
             </div>
@@ -275,7 +275,7 @@ export default function LyricPoster({ song, open, onClose }: Props) {
                 <button
                   disabled={selected.length === 0}
                   onClick={() => setPhase('preview')}
-                  className="mt-3 min-h-12 w-full shrink-0 rounded-full text-[15px] font-semibold text-white transition-opacity disabled:opacity-40"
+                  className="mt-3 min-h-12 w-full shrink-0 rounded-full text-body font-semibold text-white transition-opacity disabled:opacity-40"
                   style={{ background: 'var(--accent)' }}
                 >
                   生成海报
@@ -287,30 +287,30 @@ export default function LyricPoster({ song, open, onClose }: Props) {
                   {/* 隐藏画布负责绘制，预览图展示同一结果 */}
                   <canvas ref={canvasRef} width={POSTER_W} height={POSTER_H} className="hidden" aria-hidden />
                   {dataUrl ? (
-                    <img src={dataUrl} alt={`${song.name} 歌词海报预览`} className="mx-auto max-h-full w-auto rounded-2xl shadow-lg" />
+                    <img src={dataUrl} alt={`${song.name} 歌词海报预览`} className="mx-auto max-h-full w-auto rounded-[var(--r-card)] shadow-lg" />
                   ) : (
-                    <p className="py-16 text-center text-sm text-ink/45">正在生成海报…</p>
+                    <p className="py-16 text-center text-body text-ink2">正在生成海报…</p>
                   )}
                 </div>
-                {hint && <p className="mt-2 text-center text-xs text-ink/50">{hint}</p>}
+                {hint && <p className="mt-2 text-center text-sub text-ink2">{hint}</p>}
                 <div className="mt-3 flex shrink-0 gap-2">
                   <button
                     onClick={() => setPhase('select')}
-                    className="min-h-12 flex-1 rounded-full bg-ink/5 text-[15px] font-medium"
+                    className="min-h-12 flex-1 rounded-full bg-ink/5 text-body font-medium"
                   >
                     重新选择
                   </button>
                   <button
                     onClick={saveImage}
                     disabled={!dataUrl}
-                    className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink/5 text-[15px] font-medium disabled:opacity-40"
+                    className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink/5 text-body font-medium disabled:opacity-40"
                   >
                     <Download size={17} /> 保存图片
                   </button>
                   <button
                     onClick={shareImage}
                     disabled={!dataUrl}
-                    className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-full text-[15px] font-semibold text-white disabled:opacity-40"
+                    className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-full text-body font-semibold text-white disabled:opacity-40"
                     style={{ background: 'var(--accent)' }}
                   >
                     <Share2 size={17} /> 分享

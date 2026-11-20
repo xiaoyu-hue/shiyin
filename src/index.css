@@ -1,10 +1,27 @@
 @import "tailwindcss";
 
 /* 语义色令牌：ink（文字/中性）与 surface（卡片填充）的实际值在 --ink/--surface 变量里，
-   由 JS 按外观（浅/深）切换；组件统一用 text-ink/x、bg-surface/x 书写，一次切换全站生效 */
+   由 JS 按外观（浅/深）切换；组件统一用 text-ink/x、bg-surface/x 书写，一次切换全站生效。
+   1.4.0 增补：ink2/ink3 是「达标对比度」的次级文字层级（浅色下原 /45≈2.8:1 不达 AA，
+   次级信息文字一律走 text-ink2、提示性文字走 text-ink3，不再随手取透明度）；
+   danger 为危险色令牌（删除/报错统一，不再 red-500/600 混用） */
 @theme inline {
   --color-ink: var(--ink);
   --color-surface: var(--surface);
+  --color-ink2: var(--ink-2);
+  --color-ink3: var(--ink-3);
+  --color-danger: var(--danger);
+}
+
+/* 字阶令牌（1.4.0 落实）：组件用 text-display/title/heading/body/sub/caption 书写，
+   不再出现 text-[15px] 之类任意值，也不再让 12/14px 游离于令牌之外当主力 */
+@theme {
+  --text-display: 1.75rem;
+  --text-title: 1.5rem;
+  --text-heading: 1rem;
+  --text-body: 0.9375rem;
+  --text-sub: 0.8125rem;
+  --text-caption: 0.6875rem;
 }
 
 /* 主题令牌：默认值对应默认主题「纯净白」浅色外观，JS 会按当前主题与外观覆盖这些变量 */
@@ -14,6 +31,14 @@
   --bg-end: #F6F3EF;
   --ink: #1F1B16;
   --surface: #FFFFFF;
+
+  /* 次级文字层级（1.4.0）：以 color-mix 给出达标对比度的实际色值。
+     浅色：ink2 68%≈5.3:1、ink3 60%≈4.5:1（对白底，AA 小字线 4.5:1）；
+     深色在下方 [data-appearance='dark'] 里另给比例（深底上同样比例对比更高） */
+  --ink-2: color-mix(in srgb, var(--ink) 68%, transparent);
+  --ink-3: color-mix(in srgb, var(--ink) 60%, transparent);
+  /* 危险色：浅色取深红保证文字对比，深色取亮红保证深底可见 */
+  --danger: #C81E1E;
 
   /* ===== 设计令牌（0.5.0 起全站唯一标准，数值依据调研报告） =====
      间距：4 的倍数，常用档 4/8/12/16/20/24（页面左右边距统一 16）
@@ -30,22 +55,30 @@
   --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
   --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
 
-  /* 液态玻璃参数：填充/描边走白色系（浅色主题），JS 不覆盖；
-     --glass-tint 由封面取色或主题强调色以低透明度混入。
+  /* 液态玻璃参数：--glass-tint 由 JS 按主题强调色注入（lib/theme.ts），
+     填充以 color-mix 把染色低比例混入基底——七套主题的玻璃从此各有气质
+     （1.4.0 落地，此前该变量只有注释、从未实现）。
      模糊半径 1.1.0 起收敛到 14px（12–16 档）：半径是毛玻璃每帧成本的主变量 */
+  --glass-tint: #4E463C;
   --glass-blur: 14px;
   --glass-saturate: 180%;
-  --glass-fill: rgba(255, 255, 255, 0.52);
-  --glass-fill-strong: rgba(255, 255, 255, 0.68);
+  --glass-fill: color-mix(in srgb, var(--glass-tint) 6%, rgba(255, 255, 255, 0.5));
+  --glass-fill-strong: color-mix(in srgb, var(--glass-tint) 9%, rgba(255, 255, 255, 0.65));
+  --glass-fill-fake: color-mix(in srgb, var(--glass-tint) 5%, rgba(255, 255, 255, 0.78));
   --glass-stroke: rgba(255, 255, 255, 0.65);
   --glass-shadow: 0 8px 32px rgba(31, 27, 22, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 -0.5px 0 rgba(255, 255, 255, 0.3);
 }
 
-/* 深色外观的玻璃参数：填充转深色半透明，描边与高光改走低透明度白，阴影加深 */
+/* 深色外观的玻璃参数：填充转深色半透明，描边与高光改走低透明度白，阴影加深；
+   描边 1.4.0 由 0.14 提到 0.22，深色氛围背景上玻璃分界不再发糊 */
 [data-appearance='dark'] {
-  --glass-fill: rgba(40, 34, 26, 0.55);
-  --glass-fill-strong: rgba(40, 34, 26, 0.74);
-  --glass-stroke: rgba(255, 255, 255, 0.14);
+  --ink-2: color-mix(in srgb, var(--ink) 64%, transparent);
+  --ink-3: color-mix(in srgb, var(--ink) 56%, transparent);
+  --danger: #F87171;
+  --glass-fill: color-mix(in srgb, var(--glass-tint) 12%, rgba(40, 34, 26, 0.52));
+  --glass-fill-strong: color-mix(in srgb, var(--glass-tint) 15%, rgba(40, 34, 26, 0.7));
+  --glass-fill-fake: color-mix(in srgb, var(--glass-tint) 8%, rgba(40, 34, 26, 0.85));
+  --glass-stroke: rgba(255, 255, 255, 0.22);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -0.5px 0 rgba(255, 255, 255, 0.05);
 }
 
@@ -70,13 +103,22 @@
 }
 
 /* 假玻璃：滚动内容内禁用实时模糊（每帧重模糊太贵），用更实的半透明
-   填充 + 高光描边 + 阴影模拟玻璃感（1.1.0 毛玻璃分级） */
+   填充 + 高光描边 + 阴影模拟玻璃感（1.1.0 毛玻璃分级）；填充同样吃主题染色 */
 .glass-fake {
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--glass-fill-fake);
   border: 1px solid var(--glass-stroke);
   box-shadow: var(--glass-shadow);
 }
-[data-appearance='dark'] .glass-fake { background: rgba(40, 34, 26, 0.85); }
+
+/* 选中药丸（底栏/分段控件/迷你条播放钮共用一套高光语言，1.4.0 令牌化，
+   此前同一串 inset 阴影在三处各写一遍） */
+.pill-active {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 8px rgba(31, 27, 22, 0.1);
+}
+[data-appearance='dark'] .pill-active {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 2px 8px rgba(0, 0, 0, 0.35);
+}
 
 /* 不支持背景模糊时退化为更实的填充，保证可读性（老设备降级） */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -138,6 +180,21 @@ button, [role='button'] {
 }
 
 button:active, [data-pressable]:active { filter: brightness(0.96); }
+
+/* 键盘焦点可见（1.4.0）：此前全站无 focus 样式，桌面 Tab 键无从定位；
+   :focus-visible 只在键盘导航时出现，不打扰鼠标/触摸 */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 减少动态偏好（1.4.0 补齐，此前全站 0 处）：系统要求减少动态时，
+   持续型 CSS 动画（转盘/脉冲）直接停，JS 侧由 MotionConfig reducedMotion="user"
+   把弹簧/布局动画降为瞬时，滚动行为不再平滑 */
+@media (prefers-reduced-motion: reduce) {
+  .spinning, .pulsing, .eq-bar { animation: none !important; }
+  html { scroll-behavior: auto !important; }
+}
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;

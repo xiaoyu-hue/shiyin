@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { MotionConfig } from 'motion/react'
 import { useStore } from './store'
 import { bindAudioEngine, bindSleepTimer, restoreLocalTracks } from './store/bootstrap'
 import { bindNativeMediaSession } from './platform/mediaSessionNative'
@@ -48,6 +49,8 @@ export default function App() {
 
   return (
     <ErrorBoundary>
+      {/* reducedMotion="user"：系统要求减少动态时，Motion 的位移/布局动画自动降为瞬时（1.4.0） */}
+      <MotionConfig reducedMotion="user">
       <div className="app-shell">
         <main className="scroll-area">{views[tab]}</main>
         <MiniBar />
@@ -60,6 +63,7 @@ export default function App() {
         <OnboardingGuide />
         <span className="sr-only" aria-live="polite">当前页面：{tab}</span>
       </div>
+      </MotionConfig>
     </ErrorBoundary>
   )
 }

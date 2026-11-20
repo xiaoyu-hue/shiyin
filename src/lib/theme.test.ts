@@ -3,11 +3,18 @@ import { themeVariables, INK_DARK, INK_LIGHT, SURFACE_DARK, SURFACE_LIGHT } from
 import { themes } from '../data/themes'
 
 describe('themeVariables 主题映射', () => {
-  it('每套主题产出五个变量且值非空（浅色）', () => {
+  it('每套主题产出六个变量且值非空（浅色）', () => {
     for (const t of themes) {
       const vars = themeVariables(t)
-      expect(Object.keys(vars).sort()).toEqual(['--accent', '--bg', '--bg-end', '--ink', '--surface'])
+      expect(Object.keys(vars).sort()).toEqual(['--accent', '--bg', '--bg-end', '--glass-tint', '--ink', '--surface'])
       for (const v of Object.values(vars)) expect(v).toBeTruthy()
+    }
+  })
+
+  it('玻璃染色跟随主题强调色（深色用提亮变体）', () => {
+    for (const t of themes) {
+      expect(themeVariables(t)['--glass-tint']).toBe(t.accent)
+      expect(themeVariables(t, true)['--glass-tint']).toBe(t.accentDark)
     }
   })
 

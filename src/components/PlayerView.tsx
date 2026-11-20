@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useDragControls, type PanInfo } from 'motion/r
 import { ChevronDown, Heart, Play, Pause, SkipBack, SkipForward, Repeat, RotateCcw, RotateCw, Shuffle, ListMusic, ListVideo, Mic2 } from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
-import { sheetTransition } from '../lib/motion'
+import { springSheet } from '../lib/motion'
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
 import { getBlurredBackdrop } from '../lib/blurBackdrop'
 import { hapticImpact } from '../platform/haptics'
@@ -135,7 +135,7 @@ export default function PlayerView() {
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
-          transition={sheetTransition}
+          transition={springSheet}
           drag="y"
           dragListener={false}
           dragControls={dragControls}
@@ -178,8 +178,8 @@ export default function PlayerView() {
               <ChevronDown size={24} />
             </button>
             <div className="text-center">
-              <p className="text-[11px] text-ink/45">正在播放</p>
-              <p className="max-w-[13rem] truncate text-sm font-semibold text-ink/85">{song.album}</p>
+              <p className="text-caption text-ink2">正在播放</p>
+              <p className="max-w-[13rem] truncate text-body font-semibold text-ink/85">{song.album}</p>
             </div>
             <div className="flex items-center gap-2">
               <SleepMenu />
@@ -235,7 +235,7 @@ export default function PlayerView() {
                   className={`pointer-events-none absolute inset-y-0 flex items-center ${seekHint === 'back' ? '-left-2' : '-right-2'}`}
                   aria-hidden
                 >
-                  <span className="glass flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-ink/80">
+                  <span className="glass flex items-center gap-1 rounded-full px-3 py-1.5 text-sub font-semibold text-ink/80">
                     {seekHint === 'back' ? <RotateCcw size={14} /> : <RotateCw size={14} />}
                     {seekHint === 'back' ? '快退 10 秒' : '快进 10 秒'}
                   </span>
@@ -243,9 +243,9 @@ export default function PlayerView() {
               )}
             </motion.div>
             <div className="w-full text-center">
-              <h2 className="text-2xl font-bold text-ink/85">{song.name}</h2>
-              <p className="mt-1 text-sm text-ink/50">{song.artist}</p>
-              {audioError && <p className="mt-2 text-[11px] text-red-600">{audioError}</p>}
+              <h2 className="text-title font-bold text-ink/85">{song.name}</h2>
+              <p className="mt-1 text-body text-ink2">{song.artist}</p>
+              {audioError && <p className="mt-2 text-caption text-danger">{audioError}</p>}
             </div>
           </motion.div>
 
@@ -259,7 +259,7 @@ export default function PlayerView() {
               className="w-full accent-[var(--accent)]"
               aria-label="播放进度"
             />
-            <div className="mt-1 flex justify-between text-xs text-ink/45">
+            <div className="mt-1 flex justify-between text-sub tabular-nums text-ink2">
               <span>{fmtTime(pos)}</span>
               <span>{song.dur > 0 ? fmtTime(song.dur) : '--:--'}</span>
             </div>

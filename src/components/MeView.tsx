@@ -46,38 +46,38 @@ export default function MeView() {
 
   return (
     <div className="px-4 pt-6">
-      <h1 className="mb-6 text-2xl font-bold">我的</h1>
+      <h1 className="mb-6 text-title font-bold">我的</h1>
 
       <div className="mb-7 grid grid-cols-3 gap-3">
         <button
           onClick={() => setMePage('favorites')}
-          className="rounded-2xl bg-surface/60 p-4 text-center shadow-sm transition-transform active:scale-[0.97]"
+          className="rounded-[var(--r-card)] bg-surface/60 p-4 text-center shadow-sm transition-transform active:scale-[0.97]"
         >
           <Heart size={20} className="mx-auto" style={{ color: 'var(--accent)' }} />
           <p className="mt-2 text-xl font-bold">{liked.size}</p>
-          <p className="text-xs text-ink/45">收藏</p>
+          <p className="text-sub text-ink2">收藏</p>
         </button>
         <button
           onClick={() => setTab('explore')}
-          className="rounded-2xl bg-surface/60 p-4 text-center shadow-sm transition-transform active:scale-[0.97]"
+          className="rounded-[var(--r-card)] bg-surface/60 p-4 text-center shadow-sm transition-transform active:scale-[0.97]"
         >
           <ListMusic size={20} className="mx-auto" style={{ color: 'var(--accent)' }} />
           <p className="mt-2 text-xl font-bold">{localCount}</p>
-          <p className="text-xs text-ink/45">本地音乐</p>
+          <p className="text-sub text-ink2">本地音乐</p>
         </button>
         <button
           onClick={() => setMePage('history')}
-          className="rounded-2xl bg-surface/60 p-4 text-center shadow-sm transition-transform active:scale-[0.97]"
+          className="rounded-[var(--r-card)] bg-surface/60 p-4 text-center shadow-sm transition-transform active:scale-[0.97]"
         >
           <History size={20} className="mx-auto" style={{ color: 'var(--accent)' }} />
           <p className="mt-2 text-xl font-bold">{history.length}</p>
-          <p className="text-xs text-ink/45">最近播放</p>
+          <p className="text-sub text-ink2">最近播放</p>
         </button>
       </div>
 
       <section className="mb-7">
-        <h2 className="mb-3 text-base font-semibold">本地音乐</h2>
-        <p className="mb-3 text-xs text-ink/45">
+        <h2 className="mb-3 text-heading font-semibold">本地音乐</h2>
+        <p className="mb-3 text-sub text-ink2">
           音频保存在本机浏览器中，不会上传到任何服务器。共 {localCount} 首
         </p>
         <ImportButton />
@@ -85,17 +85,17 @@ export default function MeView() {
 
       <button
         onClick={() => setMePage('settings')}
-        className="flex w-full items-center gap-3 rounded-2xl bg-surface/60 px-4 py-4 text-left shadow-sm transition-transform active:scale-[0.99]"
+        className="flex w-full items-center gap-3 rounded-[var(--r-card)] bg-surface/60 px-4 py-4 text-left shadow-sm transition-transform active:scale-[0.99]"
       >
         <Settings size={20} style={{ color: 'var(--accent)' }} />
         <span className="flex-1">
-          <span className="block text-[15px] font-medium">设置</span>
-          <span className="mt-0.5 block text-xs text-ink/45">主题配色 · 数据管理 · 关于诗音</span>
+          <span className="block text-body font-medium">设置</span>
+          <span className="mt-0.5 block text-sub text-ink2">主题配色 · 数据管理 · 关于诗音</span>
         </span>
-        <ChevronRight size={18} className="text-ink/30" />
+        <ChevronRight size={18} className="text-ink3" />
       </button>
 
-      <p className="mt-8 text-center text-[11px] text-ink/30">
+      <p className="mt-8 text-center text-caption text-ink3">
         诗音 · 共 {localCount} 首本地音乐
       </p>
     </div>
@@ -106,7 +106,7 @@ function BackHeader({ title }: { title: string }) {
   const setMePage = useStore((s) => s.setMePage)
   return (
     <div className="mb-4 flex items-center gap-1">
-      <button onClick={() => setMePage(null)} className="flex min-h-11 items-center gap-1 text-sm text-ink/55" aria-label="返回我的">
+      <button onClick={() => setMePage(null)} className="flex min-h-11 items-center gap-1 text-body text-ink2" aria-label="返回我的">
         <ChevronLeft size={20} />
         我的
       </button>
@@ -128,7 +128,7 @@ function FavoritesPage() {
         <EmptyState icon="💛" title="还没有收藏" description="在歌曲行点爱心，或在播放页收藏喜欢的歌" />
       ) : (
         <>
-          <p className="mb-1 text-xs text-ink/40">共 {indices.length} 首</p>
+          <p className="mb-1 text-sub text-ink2">共 {indices.length} 首</p>
           <div
             onClick={() => {
               if (useStore.getState().selection === null) setPlayerOpen(true)
@@ -155,7 +155,7 @@ function HistoryPage() {
         <EmptyState icon="🕘" title="还没有播放记录" description="听过的歌会按时间排在这里" />
       ) : (
         <>
-          <p className="mb-1 text-xs text-ink/40">最近 {indices.length} 首</p>
+          <p className="mb-1 text-sub text-ink2">最近 {indices.length} 首</p>
           <div
             onClick={() => {
               if (useStore.getState().selection === null) setPlayerOpen(true)
@@ -203,7 +203,7 @@ function SettingsPage() {
       <BackHeader title="设置" />
 
       <section className="mb-7">
-        <h2 className="mb-3 text-base font-semibold">外观</h2>
+        <h2 className="mb-3 text-heading font-semibold">外观</h2>
         <div className="grid grid-cols-3 gap-2">
           {APPEARANCE_OPTIONS.map(({ value, label, Icon }) => {
             const active = appearance === value
@@ -212,7 +212,7 @@ function SettingsPage() {
                 key={value}
                 onClick={() => setAppearance(value)}
                 aria-pressed={active}
-                className={`flex min-h-11 items-center justify-center gap-1.5 rounded-full px-3 text-sm transition-transform active:scale-[0.97] ${
+                className={`flex min-h-11 items-center justify-center gap-1.5 rounded-full px-3 text-body transition-transform active:scale-[0.97] ${
                   active ? 'font-semibold text-white' : 'bg-surface/60 text-ink/70 shadow-sm'
                 }`}
                 style={active ? { background: 'var(--accent)' } : undefined}
@@ -223,12 +223,12 @@ function SettingsPage() {
             )
           })}
         </div>
-        <p className="mt-2 text-xs text-ink/45">深色外观下，每套主题配色都有对应的深色底色。</p>
+        <p className="mt-2 text-sub text-ink2">深色外观下，每套主题配色都有对应的深色底色。</p>
       </section>
 
       <section className="mb-7">
-        <h2 className="mb-3 text-base font-semibold">主题配色</h2>
-        <p className="mb-3 text-xs text-ink/45">当前：{themes[themeIdx].name}（共 {themes.length} 套）</p>
+        <h2 className="mb-3 text-heading font-semibold">主题配色</h2>
+        <p className="mb-3 text-sub text-ink2">当前：{themes[themeIdx].name}（共 {themes.length} 套）</p>
         <div className="grid grid-cols-6 gap-2">
           {themes.map((t, i) => {
             const active = i === themeIdx
@@ -247,7 +247,7 @@ function SettingsPage() {
                 >
                   {active && <Check size={18} style={{ color: swAccent }} />}
                 </span>
-                <span className={`mt-1.5 w-full truncate text-center text-[11px] ${active ? 'font-semibold text-ink/75' : 'text-ink/50'}`}>
+                <span className={`mt-1.5 w-full truncate text-center text-caption ${active ? 'font-semibold text-ink/75' : 'text-ink2'}`}>
                   {t.name}
                 </span>
               </button>
@@ -257,11 +257,11 @@ function SettingsPage() {
       </section>
 
       <section className="mb-7">
-        <h2 className="mb-3 text-base font-semibold">流畅度</h2>
-        <div className="flex items-center gap-3 rounded-2xl bg-surface/60 p-4 shadow-sm">
+        <h2 className="mb-3 text-heading font-semibold">流畅度</h2>
+        <div className="flex items-center gap-3 rounded-[var(--r-card)] bg-surface/60 p-4 shadow-sm">
           <div className="min-w-0 flex-1">
-            <p className="text-[15px] font-medium">流畅模式</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+            <p className="text-body font-medium">流畅模式</p>
+            <p className="mt-0.5 text-sub leading-relaxed text-ink2">
               关掉毛玻璃的实时模糊效果，换成不透明的质感填充。手机滚动或切页发卡时可以打开它。
             </p>
           </div>
@@ -280,11 +280,11 @@ function SettingsPage() {
       </section>
 
       <section className="mb-7">
-        <h2 className="mb-3 text-base font-semibold">播放手势</h2>
-        <div className="flex items-center gap-3 rounded-2xl bg-surface/60 p-4 shadow-sm">
+        <h2 className="mb-3 text-heading font-semibold">播放手势</h2>
+        <div className="flex items-center gap-3 rounded-[var(--r-card)] bg-surface/60 p-4 shadow-sm">
           <div className="min-w-0 flex-1">
-            <p className="text-[15px] font-medium">播放页全屏滑动切歌</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+            <p className="text-body font-medium">播放页全屏滑动切歌</p>
+            <p className="mt-0.5 text-sub leading-relaxed text-ink2">
               默认只有封面区域左右滑能切歌。打开后，播放页任意处左右滑都可以切歌；点封面左右两侧快退 / 快进 10 秒不受影响。
             </p>
           </div>
@@ -303,17 +303,17 @@ function SettingsPage() {
       </section>
 
       <section className="mb-7">
-        <h2 className="mb-3 text-base font-semibold">数据管理</h2>
-        <div className="rounded-2xl bg-surface/60 p-4 shadow-sm">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-ink/60">本地音乐占用</span>
+        <h2 className="mb-3 text-heading font-semibold">数据管理</h2>
+        <div className="rounded-[var(--r-card)] bg-surface/60 p-4 shadow-sm">
+          <div className="flex items-center justify-between text-body">
+            <span className="text-ink2">本地音乐占用</span>
             <span className="font-medium">{tracks.length} 首 · {usageText}</span>
           </div>
-          <p className="mt-2 text-xs leading-relaxed text-ink/45">
+          <p className="mt-2 text-sub leading-relaxed text-ink2">
             所有音频与封面只存在这台设备的浏览器里。清除后需要重新导入（你设备里的原文件不受影响）。
           </p>
           {cleared ? (
-            <p className="mt-3 text-sm text-ink/55">已清除全部本地音乐 ✓</p>
+            <p className="mt-3 text-body text-ink2">已清除全部本地音乐 ✓</p>
           ) : confirmingClear ? (
             <div className="mt-3 flex gap-2">
               <button
@@ -323,11 +323,11 @@ function SettingsPage() {
                     setCleared(true)
                   })
                 }}
-                className="min-h-11 flex-1 rounded-full bg-red-500 text-sm font-semibold text-white"
+                className="min-h-11 flex-1 rounded-full bg-danger text-body font-semibold text-white"
               >
                 确认清除 {tracks.length} 首
               </button>
-              <button onClick={() => setConfirmingClear(false)} className="min-h-11 flex-1 rounded-full bg-surface/60 text-sm text-ink/55">
+              <button onClick={() => setConfirmingClear(false)} className="min-h-11 flex-1 rounded-full bg-surface/60 text-body text-ink2">
                 取消
               </button>
             </div>
@@ -335,7 +335,7 @@ function SettingsPage() {
             <button
               onClick={() => setConfirmingClear(true)}
               disabled={tracks.length === 0}
-              className="mt-3 min-h-11 w-full rounded-full bg-surface/60 text-sm font-medium text-red-500 disabled:opacity-40"
+              className="mt-3 min-h-11 w-full rounded-full bg-surface/60 text-body font-medium text-danger disabled:opacity-40"
             >
               清除全部本地音乐
             </button>
@@ -346,8 +346,8 @@ function SettingsPage() {
       {isTauriPlatform() && <DesktopSection />}
 
       <section>
-        <h2 className="mb-3 text-base font-semibold">关于</h2>
-        <div className="rounded-2xl bg-surface/60 p-4 text-sm leading-relaxed text-ink/60 shadow-sm">
+        <h2 className="mb-3 text-heading font-semibold">关于</h2>
+        <div className="rounded-[var(--r-card)] bg-surface/60 p-4 text-body leading-relaxed text-ink2 shadow-sm">
           <p className="font-semibold text-ink/80">诗音 Shiyin · v{APP_VERSION}</p>
           <p className="mt-1.5">
             一款只播放你自己音乐的本地播放器：没有账号、没有上传、没有推荐流。你的音乐、收藏与歌单都只保存在这台设备上。
@@ -360,14 +360,14 @@ function SettingsPage() {
         </div>
         <button
           onClick={() => setMePage('licenses')}
-          className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-surface/60 px-4 py-4 text-left shadow-sm transition-transform active:scale-[0.99]"
+          className="mt-3 flex w-full items-center gap-3 rounded-[var(--r-card)] bg-surface/60 px-4 py-4 text-left shadow-sm transition-transform active:scale-[0.99]"
         >
           <FileText size={20} style={{ color: 'var(--accent)' }} />
           <span className="flex-1">
-            <span className="block text-[15px] font-medium">开源许可与致谢</span>
-            <span className="mt-0.5 block text-xs text-ink/45">本项目许可证与第三方开源组件清单</span>
+            <span className="block text-body font-medium">开源许可与致谢</span>
+            <span className="mt-0.5 block text-sub text-ink2">本项目许可证与第三方开源组件清单</span>
           </span>
-          <ChevronRight size={18} className="text-ink/30" />
+          <ChevronRight size={18} className="text-ink3" />
         </button>
       </section>
     </div>
@@ -402,12 +402,12 @@ function DesktopSection() {
 
   return (
     <section className="mb-7">
-      <h2 className="mb-3 text-base font-semibold">桌面版</h2>
-      <div className="rounded-2xl bg-surface/60 p-4 shadow-sm">
+      <h2 className="mb-3 text-heading font-semibold">桌面版</h2>
+      <div className="rounded-[var(--r-card)] bg-surface/60 p-4 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-[15px] font-medium">开机时自动启动</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">打开后，电脑开机登录时诗音会自动在托盘里待命。</p>
+            <p className="text-body font-medium">开机时自动启动</p>
+            <p className="mt-0.5 text-sub leading-relaxed text-ink2">打开后，电脑开机登录时诗音会自动在托盘里待命。</p>
           </div>
           <button
             onClick={toggleAutostart}
@@ -419,29 +419,29 @@ function DesktopSection() {
             <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${autostart ? 'left-[24px]' : 'left-1'}`} />
           </button>
         </div>
-        {autostartFailed && <p className="mt-2 text-xs text-red-500">设置没成功，请再试一次。</p>}
+        {autostartFailed && <p className="mt-2 text-sub text-danger">设置没成功，请再试一次。</p>}
       </div>
 
-      <div className="mt-3 rounded-2xl bg-surface/60 p-4 shadow-sm">
-        <p className="text-[15px] font-medium">应用更新</p>
+      <div className="mt-3 rounded-[var(--r-card)] bg-surface/60 p-4 shadow-sm">
+        <p className="text-body font-medium">应用更新</p>
         {update.kind === 'available' ? (
           <>
-            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">发现新版 v{update.version}，下载安装后会自动重启诗音。</p>
+            <p className="mt-0.5 text-sub leading-relaxed text-ink2">发现新版 v{update.version}，下载安装后会自动重启诗音。</p>
             <button
               onClick={() => void installPendingUpdate()}
-              className="mt-3 min-h-11 w-full rounded-full text-sm font-semibold text-white"
+              className="mt-3 min-h-11 w-full rounded-full text-body font-semibold text-white"
               style={{ background: 'var(--accent)' }}
             >
               更新到 v{update.version}
             </button>
           </>
         ) : update.kind === 'updating' ? (
-          <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+          <p className="mt-0.5 text-sub leading-relaxed text-ink2">
             正在下载更新{update.percent !== null ? `（${update.percent}%）` : ''}，装好后会自动重启…
           </p>
         ) : (
           <>
-            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+            <p className="mt-0.5 text-sub leading-relaxed text-ink2">
               {update.kind === 'checking'
                 ? '正在检查有没有新版…'
                 : update.kind === 'latest'
@@ -453,7 +453,7 @@ function DesktopSection() {
             <button
               onClick={() => void checkForUpdate()}
               disabled={update.kind === 'checking'}
-              className="mt-3 min-h-11 w-full rounded-full bg-surface/60 text-sm font-medium disabled:opacity-40"
+              className="mt-3 min-h-11 w-full rounded-full bg-surface/60 text-body font-medium disabled:opacity-40"
             >
               检查更新
             </button>
@@ -470,48 +470,48 @@ function LicensesPage() {
       <BackHeader title="开源许可与致谢" />
 
       <section className="mb-7">
-        <h2 className="mb-3 text-base font-semibold">本项目许可证</h2>
-        <div className="rounded-2xl bg-surface/60 p-4 text-sm leading-relaxed text-ink/60 shadow-sm">
+        <h2 className="mb-3 text-heading font-semibold">本项目许可证</h2>
+        <div className="rounded-[var(--r-card)] bg-surface/60 p-4 text-body leading-relaxed text-ink2 shadow-sm">
           <p>
             <span className="font-medium text-ink/80">源代码</span> · {PROJECT_CODE_LICENSE.name}（
             {PROJECT_CODE_LICENSE.short}）
           </p>
-          <p className="mt-1 text-xs leading-relaxed text-ink/45">{PROJECT_CODE_LICENSE.summary}</p>
+          <p className="mt-1 text-sub leading-relaxed text-ink2">{PROJECT_CODE_LICENSE.summary}</p>
           <p className="mt-3">
             <span className="font-medium text-ink/80">项目文档</span> · {PROJECT_DOCS_LICENSE.name}（
             {PROJECT_DOCS_LICENSE.short}）
           </p>
-          <p className="mt-1 text-xs leading-relaxed text-ink/45">{PROJECT_DOCS_LICENSE.summary}</p>
-          <p className="mt-3 text-xs text-ink/40">{PROJECT_COPYRIGHT}</p>
+          <p className="mt-1 text-sub leading-relaxed text-ink2">{PROJECT_DOCS_LICENSE.summary}</p>
+          <p className="mt-3 text-sub text-ink2">{PROJECT_COPYRIGHT}</p>
         </div>
       </section>
 
       <section className="mb-7">
-        <h2 className="mb-3 text-base font-semibold">第三方开源组件</h2>
-        <p className="mb-3 text-xs leading-relaxed text-ink/45">
+        <h2 className="mb-3 text-heading font-semibold">第三方开源组件</h2>
+        <p className="mb-3 text-sub leading-relaxed text-ink2">
           诗音基于以下开源组件构建，各组件保持其各自的原始许可证：
         </p>
-        <div className="overflow-hidden rounded-2xl bg-surface/60 shadow-sm">
+        <div className="overflow-hidden rounded-[var(--r-card)] bg-surface/60 shadow-sm">
           {OPEN_SOURCE_ENTRIES.map((e, i) => (
             <div key={e.name} className={`px-4 py-3 ${i > 0 ? 'border-t border-ink/5' : ''}`}>
               <div className="flex items-baseline justify-between gap-3">
-                <p className="min-w-0 break-all text-sm font-medium text-ink/80">{e.name}</p>
+                <p className="min-w-0 break-all text-body font-medium text-ink/80">{e.name}</p>
                 <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                    e.keepOriginal ? 'bg-amber-500/15 text-amber-600' : 'bg-ink/5 text-ink/55'
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-caption font-semibold ${
+                    e.keepOriginal ? 'bg-amber-500/15 text-amber-600' : 'bg-ink/5 text-ink2'
                   }`}
                 >
                   {e.license}
                 </span>
               </div>
-              <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+              <p className="mt-0.5 text-sub leading-relaxed text-ink2">
                 {e.purpose}
                 {e.keepOriginal && ' · 该组件保持其原始许可证 MPL-2.0，不随本项目许可证变更'}
               </p>
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs leading-relaxed text-ink/40">
+        <p className="mt-3 text-sub leading-relaxed text-ink2">
           这里只列主要组件。完整清单（含全部传递依赖与版本）见项目仓库根目录的 THIRD-PARTY-LICENSES.md。
         </p>
       </section>
