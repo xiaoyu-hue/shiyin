@@ -4,7 +4,7 @@ name: windows-release
 # 与验收构建（windows-acceptance.yml）的唯一差异：不带 ci-webdriver feature、
 # 不加 tauri.ci.conf.json——内嵌 WebDriver 验收插件绝不进入发布包，
 # 构建后有专门的二进制扫描步骤把关（检出 wdio 特征字符串即红灯）。
-# 产物：NSIS 安装包 + updater 产物（.nsis.zip 与 .sig）+ latest.json，
+# 产物：NSIS 安装包 + updater 签名（.exe.sig，Tauri 2 的 v2 更新格式直接签安装包）+ latest.json，
 # 全部走 artifact 上传；GitHub Release 由发版流程在校验后统一创建。
 # 触发：版本 tag（v*）或手动 dispatch。
 on:
@@ -45,13 +45,12 @@ jobs:
         shell: pwsh
         run: |
           $dir = 'src-tauri/target/release/bundle/nsis'
-          $exe = Get-ChildItem "$dir/*.exe" | Where-Object { $_.Name -notlike '*.nsis.*' } | Select-Object -First 1
-          $zip = Get-ChildItem "$dir/*.nsis.zip" | Select-Object -First 1
-          $sig = Get-ChildItem "$dir/*.nsis.zip.sig" | Select-Object -First 1
+          $exe = Get-ChildItem "$dir/*.exe" | Select-Object -First 1
+          $sig = Get-ChildItem "$dir/*.exe.sig" | Select-Object -First 1
           if (-not $exe) { throw 'NSIS 安装包未生成' }
-          if (-not $zip -or -not $sig) { throw 'updater 产物（.nsis.zip / .sig）未生成' }
+          if (-not $sig) { throw 'updater 签名（.exe.sig）未生成' }
           "安装包：$($exe.Name)（$($exe.Length) 字节）"
-          "更新包：$($zip.Name)（$($zip.Length) 字节）"
+          "签名文件：$($sig.Name)"
 
           # 红线校验：正式 exe 里不得含验收插件特征字符串
           $appExe = 'src-tauri/target/release/shiyin.exe'
@@ -62,7 +61,8 @@ jobs:
           }
           '验收插件特征扫描：干净'
 
-          # latest.json：应用内 updater 的检查清单，url 指向本次 Release 的更新包资产
+          # latest.json：应用内 updater 的检查清单，url 指向本次 Release 的安装包资产
+          #（Tauri 2 的 v2 更新格式：更新包就是安装包本体，签名在 .exe.sig）
           $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
           $tag = "v$version"
           $latest = [ordered]@{
@@ -72,7 +72,7 @@ jobs:
             platforms = [ordered]@{
               'windows-x86_64' = [ordered]@{
                 signature = (Get-Content $sig.FullName -Raw).Trim()
-                url = "https://github.com/xiaoyu-hue/shiyin/releases/download/$tag/$($zip.Name)"
+                url = "https://github.com/xiaoyu-hue/shiyin/releases/download/$tag/$($exe.Name)"
               }
             }
           }
@@ -86,7 +86,6 @@ jobs:
           name: windows-release-artifacts
           path: |
             src-tauri/target/release/bundle/nsis/*.exe
-            src-tauri/target/release/bundle/nsis/*.nsis.zip
-            src-tauri/target/release/bundle/nsis/*.nsis.zip.sig
+            src-tauri/target/release/bundle/nsis/*.exe.sig
             src-tauri/target/release/bundle/nsis/latest.json
           if-no-files-found: error
