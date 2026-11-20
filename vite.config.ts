@@ -15,5 +15,18 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.{ts,tsx}'],
+    // 覆盖率（审计 A-05）：报告制 + 基线阈值（2026-11 首测基线见审计修复记录，
+    // 只对纯逻辑重心 lib/store 设行覆盖下限，低于基线留出余量防误红）
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/main.tsx', 'src/vite-env.d.ts'],
+      reporter: ['text-summary', 'html'],
+      thresholds: {
+        // 2026-11 首测基线：lib 77.47% / store 42.35%（新测试落地后按新基线复定）
+        'src/lib/**': { lines: 75 },
+        'src/store/**': { lines: 40 },
+      },
+    },
   },
 })

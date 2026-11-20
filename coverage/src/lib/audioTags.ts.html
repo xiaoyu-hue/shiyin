@@ -1,0 +1,687 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/lib/audioTags.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../theme.js"></script>
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        
+        <label class="theme-select quiet">
+            Theme
+            <select id="themeSelect" autocomplete="off">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="legacy">Legacy</option>
+            </select>
+        </label>
+
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/lib</a> audioTags.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">88.76% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>79/89</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">81.81% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>72/88</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>22/22</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">87.34% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>69/79</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import type { LyricLine } from '../data/types'
+import { fmtTime } from './format'
+&nbsp;
+/**
+ * 音频内嵌标签（ID3 / Vorbis Comment / MP4 等）→ 诗音曲目字段的转换层。
+ * 纯函数在前（可单测），真正读文件的 extractAudioTags 在文件末尾，
+ * 通过动态 import 加载 music-metadata，避免首屏背上解析库的体积。
+ */
+&nbsp;
+export interface ExtractedTags {
+  title?: string
+  artist?: string
+  album?: string
+  /** 时长（秒），来自文件头信息；不可靠时为 undefined，调用方回退实测 */
+  duration?: number
+  lyrics: LyricLine[]
+  coverBlob: Blob | null
+}
+&nbsp;
+const clean = (v?: string | null): string | undefined =&gt; {
+  const s = v?.trim()
+  return s ? s : undefined
+}
+&nbsp;
+/** 标签字段优先、文件名推断兜底，合并出最终展示信息 */
+export function mergeTrackMeta(
+  fallback: { name: string; artist: string },
+  tags: Pick&lt;ExtractedTags, 'title' | 'artist' | 'album'&gt; | null,
+): { name: string; artist: string; album: string } {
+  return {
+    name: clean(tags?.title) ?? fallback.name,
+    artist: clean(tags?.artist) ?? fallback.artist,
+    album: clean(tags?.album) ?? '本地音乐',
+  }
+}
+&nbsp;
+/** 毫秒 → 歌词时间字符串（mm:ss，带厘秒时保留两位小数，与 toSeconds 兼容） */
+export function formatLyricTime(ms: number): string {
+  if (!Number.isFinite(ms) || ms &lt; 0) return '00:00'
+  const total = Math.floor(ms)
+  const cs = Math.floor((total % 1000) / 10)
+  const base = fmtTime(Math.floor(total / 1000))
+  return cs &gt; 0 ? `${base}.${String(cs).padStart(2, '0')}` : base
+}
+&nbsp;
+const LRC_STAMP = /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g
+/** [offset:+123] / [offset:-123] 全局偏移（毫秒） */
+const LRC_OFFSET = /\[offset:\s*([+-]?\d+)\s*\]/i
+/** 宽松版时间戳（容忍括号内空格），只用于剥离文本中的残留，不用于解析时间 */
+const LRC_STAMP_LOOSE = /\[\s*\d{1,3}:\d{2}(?:\s*[.:]\s*\d{1,3})?\s*\]/g
+const LRC_WORD_STAMP_LOOSE = /&lt;\s*\d{1,3}:\d{2}(?:\s*[.:]\s*\d{1,3})?\s*&gt;/g
+&nbsp;
+function stampToMs(min: string, sec: string, frac?: string): number {
+  let ms = Number(min) * 60000 + Number(sec) * 1000
+  if (frac) {
+    const n = Number(frac)
+    ms += frac.length === 1 ? n * 100 : frac.length === 2 ? n * 10 : n
+  }
+  return ms
+}
+&nbsp;
+/**
+ * 剥净歌词文本里的一切时间戳残留（方括号 [mm:ss.xx] 与尖括号 &lt;mm:ss.xx&gt; 两种逐词格式）。
+ * 有些工具把逐词歌词写进同步歌词帧/歌词文本，逐词时间戳会夹在字间漏进展示文本，统一在此清理。
+ */
+export function stripLyricStamps(text: string): string {
+  return text
+    .replace(LRC_STAMP_LOOSE, '')
+    .replace(LRC_WORD_STAMP_LOOSE, '')
+    .replace(/ {2,}/g, ' ')
+    .trim()
+}
+&nbsp;
+/** 清洗已成行的歌词：剥净每行文本的时间戳残留，丢弃变空的行（用于已存数据自愈） */
+export function sanitizeLyricLines(lines: LyricLine[]): LyricLine[] {
+  return lines
+    .map((l) =&gt; ({ t: l.t, text: stripLyricStamps(l.text) }))
+    .filter((l) =&gt; l.text)
+}
+&nbsp;
+/**
+ * 解析 LRC 文本为逐行歌词。
+ * - 行首连续的时间戳是「行时间戳」：一行多戳会展开为多行（重复段落共用一行文本的写法）；
+ * - 夹在文字中间的时间戳是逐词时间戳：只剥离、不展开，行时间取行首戳（行首无戳时取第一个戳）；
+ * - [ti:] / [ar:] 等元信息行与无时间戳行忽略；[offset:] 全局偏移按主流约定应用
+ *   （正偏移使歌词提前显示，即时间戳减去偏移量）。结果按时间升序。
+ */
+export function parseLrcText(text: string): LyricLine[] {
+  const offsetMs = Number(text.match(LRC_OFFSET)?.[1] ?? 0)
+  const out: { ms: number; text: string }[] = []
+  for (const raw of text.split(/\r?\n/)) {
+    const stamps = [...raw.matchAll(LRC_STAMP)]
+    if (!stamps.length) continue
+    const lyric = stripLyricStamps(raw)
+    if (!lyric) continue
+    // 行首连续戳（其间只有空白）算行时间戳；一旦文字出现，后面的戳都是逐词戳
+    const leading: RegExpMatchArray[] = []
+    let cursor = 0
+    for (const m of stamps) {
+      if (raw.slice(cursor, m.index).trim() !== '') break
+      leading.push(m)
+      cursor = (m.index ?? <span class="branch-1 cbranch-no" title="branch not covered" >0) + m</span>[0].length
+    }
+    const lineStamps = leading.length ? leading : [stamps[0]]
+    for (const m of lineStamps) {
+      out.push({ ms: Math.max(0, stampToMs(m[1], m[2], m[3]) - offsetMs), text: lyric })
+    }
+  }
+  return out.sort((a, b) =&gt; a.ms - b.ms).map((l) =&gt; ({ t: formatLyricTime(l.ms), text: l.text }))
+}
+&nbsp;
+/** 无时间戳的纯文本歌词：逐行保留并剥净时间戳残留，时间统一记 00:00（lyricIndex 会识别为未同步歌词不高亮） */
+export function plainTextLyrics(text: string): LyricLine[] {
+  return text
+    .split(/\r?\n/)
+    .map((l) =&gt; stripLyricStamps(l))
+    .filter(Boolean)
+    .map((lineText) =&gt; ({ t: '00:00', text: lineText }))
+}
+&nbsp;
+/** 内嵌歌词原文 → 逐行歌词：含 LRC 时间戳按同步歌词解析，否则按纯文本处理 */
+export function lyricsFromText(text?: string | null): LyricLine[] {
+  if (!text?.trim()) return []
+  const synced = parseLrcText(text)
+  return synced.length ? synced : plainTextLyrics(text)
+}
+&nbsp;
+/** 同步歌词条目（毫秒时间戳）→ 逐行歌词；时间戳非法、文本为空或剥净时间戳后变空的条目丢弃 */
+export function lyricsFromSyncText(items: { text: string; timestamp?: number }[]): LyricLine[] {
+  return items
+    .filter((i) =&gt; i.text?.trim() &amp;&amp; typeof i.timestamp === 'number' &amp;&amp; Number.isFinite(i.timestamp) &amp;&amp; i.timestamp &gt;= 0)
+    .sort((a, b) =&gt; (a.timestamp ?? <span class="branch-1 cbranch-no" title="branch not covered" >0) - (b</span>.timestamp ?? <span class="branch-1 cbranch-no" title="branch not covered" >0))</span>
+    .map((i) =&gt; ({ t: formatLyricTime(i.timestamp ?? <span class="branch-1 cbranch-no" title="branch not covered" >0)</span>, text: stripLyricStamps(i.text) }))
+    .filter((l) =&gt; l.text)
+}
+&nbsp;
+/**
+ * 读取音频文件的内嵌标签。解析失败、格式不支持或无标签时返回 null，
+ * 调用方据此回退到文件名推断，绝不因标签问题阻断导入。
+ * music-metadata 在此处动态加载，Vite 会将其拆为独立分块，仅导入时才下载。
+ */
+export async function extractAudioTags(file: File): Promise&lt;ExtractedTags | null&gt; {
+  try {
+    const { parseBlob, selectCover } = await import('music-metadata')
+    const md = await parseBlob(file)
+    const common = md.common
+&nbsp;
+    let lyrics: LyricLine[] = []
+    const lyricTag = common.lyrics?.find((l) =&gt; l.syncText?.length || l.text?.trim())
+    if (lyricTag) {
+      // 时间戳格式 2 = 毫秒（ID3 SYLT / LRC 转换结果）；1 = MPEG 帧号，无真实时间意义，不采用
+      if (lyricTag.syncText?.length &amp;&amp; lyricTag.timeStampFormat === 2) {
+        lyrics = lyricsFromSyncText(lyricTag.syncText)
+      }
+      if (!lyrics.length) lyrics = lyricsFromText(lyricTag.text)
+    }
+&nbsp;
+    // 兜底：个别工具（如 ffmpeg）把歌词写进非标准帧（TXXX:USLT 等），
+    // 不会进入 common.lyrics，此时从原生标签里再找一遍歌词文本
+    if (!lyrics.length) {
+      outer: for (const list of Object.values(md.native)) {
+<span class="cstat-no" title="statement not covered" >        for (const tag of list) {</span>
+          const id = <span class="cstat-no" title="statement not covered" >tag.id.toUpperCase()</span>
+<span class="cstat-no" title="statement not covered" >          if (id === 'USLT' || id === 'ULT' || id === '©LYR' || id === 'LYRICS' || /^TXXX:(USLT|LYRICS)$/.test(id)) {</span>
+            const v: unknown = <span class="cstat-no" title="statement not covered" >tag.value</span>
+            const text = <span class="cstat-no" title="statement not covered" >typeof v === 'string' ? v : (v as { text?: string } | null)?.text</span>
+            const found = <span class="cstat-no" title="statement not covered" >lyricsFromText(text)</span>
+<span class="cstat-no" title="statement not covered" >            if (found.length) {</span>
+<span class="cstat-no" title="statement not covered" >              lyrics = found</span>
+<span class="cstat-no" title="statement not covered" >              break outer</span>
+            }
+          }
+        }
+      }
+    }
+&nbsp;
+    const pic = selectCover(common.picture)
+    const coverBlob = pic ? new Blob([new Uint8Array(pic.data)], { type: pic.format || <span class="branch-1 cbranch-no" title="branch not covered" >'image/jpeg' }</span>) : null
+&nbsp;
+    const duration = md.format.duration
+    const result: ExtractedTags = {
+      title: clean(common.title),
+      artist: clean(common.artist) ?? clean(common.artists?.join('、')),
+      album: clean(common.album),
+      duration: typeof duration === 'number' &amp;&amp; Number.isFinite(duration) &amp;&amp; duration &gt; 0 ? duration : undefined,
+      lyrics,
+      coverBlob,
+    }
+    // 什么都没读到（无标签或文件损坏但未抛错）与解析失败同等对待，调用方整体回退
+    if (!result.title &amp;&amp; !result.artist &amp;&amp; !result.album &amp;&amp; !result.duration &amp;&amp; !result.lyrics.length &amp;&amp; !result.coverBlob) {
+      return null
+    }
+    return result
+  } catch {
+<span class="cstat-no" title="statement not covered" >    return null</span>
+  }
+}
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://vitest.dev/" target="_blank" rel="noopener noreferrer">Vitest</a>
+                at 2026-11-20T05:47:10.060Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

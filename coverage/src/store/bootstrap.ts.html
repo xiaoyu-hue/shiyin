@@ -1,0 +1,978 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/store/bootstrap.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../theme.js"></script>
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        
+        <label class="theme-select quiet">
+            Theme
+            <select id="themeSelect" autocomplete="off">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="legacy">Legacy</option>
+            </select>
+        </label>
+
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/store</a> bootstrap.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">12.03% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>16/133</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">20% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>14/70</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">8.82% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>3/34</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">15.68% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>16/102</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a>
+<a name='L231'></a><a href='#L231'>231</a>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a>
+<a name='L237'></a><a href='#L237'>237</a>
+<a name='L238'></a><a href='#L238'>238</a>
+<a name='L239'></a><a href='#L239'>239</a>
+<a name='L240'></a><a href='#L240'>240</a>
+<a name='L241'></a><a href='#L241'>241</a>
+<a name='L242'></a><a href='#L242'>242</a>
+<a name='L243'></a><a href='#L243'>243</a>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a>
+<a name='L249'></a><a href='#L249'>249</a>
+<a name='L250'></a><a href='#L250'>250</a>
+<a name='L251'></a><a href='#L251'>251</a>
+<a name='L252'></a><a href='#L252'>252</a>
+<a name='L253'></a><a href='#L253'>253</a>
+<a name='L254'></a><a href='#L254'>254</a>
+<a name='L255'></a><a href='#L255'>255</a>
+<a name='L256'></a><a href='#L256'>256</a>
+<a name='L257'></a><a href='#L257'>257</a>
+<a name='L258'></a><a href='#L258'>258</a>
+<a name='L259'></a><a href='#L259'>259</a>
+<a name='L260'></a><a href='#L260'>260</a>
+<a name='L261'></a><a href='#L261'>261</a>
+<a name='L262'></a><a href='#L262'>262</a>
+<a name='L263'></a><a href='#L263'>263</a>
+<a name='L264'></a><a href='#L264'>264</a>
+<a name='L265'></a><a href='#L265'>265</a>
+<a name='L266'></a><a href='#L266'>266</a>
+<a name='L267'></a><a href='#L267'>267</a>
+<a name='L268'></a><a href='#L268'>268</a>
+<a name='L269'></a><a href='#L269'>269</a>
+<a name='L270'></a><a href='#L270'>270</a>
+<a name='L271'></a><a href='#L271'>271</a>
+<a name='L272'></a><a href='#L272'>272</a>
+<a name='L273'></a><a href='#L273'>273</a>
+<a name='L274'></a><a href='#L274'>274</a>
+<a name='L275'></a><a href='#L275'>275</a>
+<a name='L276'></a><a href='#L276'>276</a>
+<a name='L277'></a><a href='#L277'>277</a>
+<a name='L278'></a><a href='#L278'>278</a>
+<a name='L279'></a><a href='#L279'>279</a>
+<a name='L280'></a><a href='#L280'>280</a>
+<a name='L281'></a><a href='#L281'>281</a>
+<a name='L282'></a><a href='#L282'>282</a>
+<a name='L283'></a><a href='#L283'>283</a>
+<a name='L284'></a><a href='#L284'>284</a>
+<a name='L285'></a><a href='#L285'>285</a>
+<a name='L286'></a><a href='#L286'>286</a>
+<a name='L287'></a><a href='#L287'>287</a>
+<a name='L288'></a><a href='#L288'>288</a>
+<a name='L289'></a><a href='#L289'>289</a>
+<a name='L290'></a><a href='#L290'>290</a>
+<a name='L291'></a><a href='#L291'>291</a>
+<a name='L292'></a><a href='#L292'>292</a>
+<a name='L293'></a><a href='#L293'>293</a>
+<a name='L294'></a><a href='#L294'>294</a>
+<a name='L295'></a><a href='#L295'>295</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import type { Song } from '../data/types'
+import { DEFAULT_THEME_INDEX, themes } from '../data/themes'
+import { parsePrefs, serializePrefs } from '../lib/prefs'
+import { platform } from '../platform/instance'
+import type { StoredTrack } from '../platform/idb'
+import { trackStore } from '../platform/trackStore'
+import type { LyricLine } from '../data/types'
+import { naturalQueue } from '../lib/queue'
+import { sanitizeLyricLines } from '../lib/audioTags'
+import { generateCoverThumbs } from '../lib/coverThumbs'
+import { loadPlaylistsRaw, loadPrefsRaw, savePlaylistsRaw, savePrefsRaw } from '../platform/prefs'
+import { parsePlaylists, serializePlaylists } from '../lib/playlists'
+import { useStore } from './index'
+&nbsp;
+let bound = false
+&nbsp;
+/** 把音频引擎事件接入 store，应用生命周期内只绑定一次 */
+export function <span class="fstat-no" title="function not covered" >bindAudioEngine(): void {</span>
+<span class="cstat-no" title="statement not covered" >  if (bound) <span class="cstat-no" title="statement not covered" >return</span></span>
+<span class="cstat-no" title="statement not covered" >  bound = true</span>
+  const { audio } = <span class="cstat-no" title="statement not covered" >platform</span>
+<span class="cstat-no" title="statement not covered" >  audio.<span class="fstat-no" title="function not covered" >onProgress((s</span>ec) =&gt; <span class="cstat-no" title="statement not covered" >useStore.getState().applyAudioPos(sec))</span></span>
+<span class="cstat-no" title="statement not covered" >  audio.<span class="fstat-no" title="function not covered" >onEnded(() =&gt; <span class="cstat-no" title="statement not covered" >u</span>seStore.getState().handleTrackEnd())</span></span>
+<span class="cstat-no" title="statement not covered" >  audio.<span class="fstat-no" title="function not covered" >onError((m</span>essage) =&gt; {</span>
+    const state = <span class="cstat-no" title="statement not covered" >useStore.getState()</span>
+<span class="cstat-no" title="statement not covered" >    state.setAudioError(message)</span>
+    // 引擎已无法出声时同步界面状态，避免显示"播放中"却无声
+<span class="cstat-no" title="statement not covered" >    if (state.playing) <span class="cstat-no" title="statement not covered" >useStore.setState({ playing: false })</span></span>
+  })
+}
+&nbsp;
+let sleepBound = false
+&nbsp;
+function <span class="fstat-no" title="function not covered" >checkSleepDue(): void {</span>
+  const s = <span class="cstat-no" title="statement not covered" >useStore.getState()</span>
+<span class="cstat-no" title="statement not covered" >  if (s.sleepEndsAt !== null &amp;&amp; Date.now() &gt;= s.sleepEndsAt) {</span>
+<span class="cstat-no" title="statement not covered" >    useStore.setState({ playing: false, sleepEndsAt: null, sleepAfterTrack: false })</span>
+<span class="cstat-no" title="statement not covered" >    platform.audio.pause()</span>
+  }
+}
+&nbsp;
+/**
+ * 睡眠定时看守：每秒检查分钟定时是否到期，到期停播并清除（应用生命周期内只绑定一次）。
+ * 后台时定时器可能被系统节流，回前台（visibilitychange）时立即补判一次，
+ * 避免息屏期间已到期却迟迟不停；「播完这首停」走引擎 ended 事件链，不受此影响。
+ */
+export function <span class="fstat-no" title="function not covered" >bindSleepTimer(): void {</span>
+<span class="cstat-no" title="statement not covered" >  if (sleepBound) <span class="cstat-no" title="statement not covered" >return</span></span>
+<span class="cstat-no" title="statement not covered" >  sleepBound = true</span>
+<span class="cstat-no" title="statement not covered" >  setInterval(checkSleepDue, 1000)</span>
+<span class="cstat-no" title="statement not covered" >  if (typeof document !== 'undefined') {</span>
+<span class="cstat-no" title="statement not covered" >    document.addEventListener(<span class="fstat-no" title="function not covered" >'visibilitychange', () =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >      if (document.visibilityState === 'visible') <span class="cstat-no" title="statement not covered" >checkSleepDue()</span></span>
+    })
+  }
+}
+&nbsp;
+/** 分配本地曲目 id，从 1000 起与历史数据保持距离 */
+export function <span class="fstat-no" title="function not covered" >nextLocalId(): number {</span>
+  const max = <span class="cstat-no" title="statement not covered" >useStore.getState().tracks.<span class="fstat-no" title="function not covered" >reduce((m</span>, t) =&gt; <span class="cstat-no" title="statement not covered" >Math.max(m, t.id), 1</span>000)</span>
+<span class="cstat-no" title="statement not covered" >  return max + 1</span>
+}
+&nbsp;
+let restoring: Promise&lt;void&gt; | null = null
+&nbsp;
+/** 从本地存储恢复曲目（网页为 IndexedDB、原生为文件+索引，地址由 trackStore 按环境生成） */
+export function <span class="fstat-no" title="function not covered" >restoreLocalTracks(): Promise&lt;void&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  if (restoring) <span class="cstat-no" title="statement not covered" >return restoring</span></span>
+<span class="cstat-no" title="statement not covered" >  restoring = (<span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
+    const records = <span class="cstat-no" title="statement not covered" >await trackStore.loadTracks().<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >[</span>])</span></span>
+    // 无论有无记录、是否失败，走到这里都算恢复完成：首启引导据此判断空库（1.2.0）
+<span class="cstat-no" title="statement not covered" >    useStore.getState().setRestored(true)</span>
+<span class="cstat-no" title="statement not covered" >    if (!records.length) <span class="cstat-no" title="statement not covered" >return</span></span>
+    const restored: Song[] = <span class="cstat-no" title="statement not covered" >records.<span class="fstat-no" title="function not covered" >map((r</span>ec) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+      id: rec.id,
+      name: rec.name,
+      artist: rec.artist,
+      album: rec.album,
+      dur: rec.dur,
+      color: rec.color,
+      // 已存歌词统一清洗一遍：早期版本存入的逐词时间戳残留在此自愈，老数据无需重新导入
+      lyrics: sanitizeLyricLines(rec.lyrics ?? []),
+      audioSrc: rec.audioSrc,
+      coverSrc: rec.coverSrc,
+      coverBlob: rec.coverBlob,
+      thumbSrc: rec.thumbSrc,
+      midCoverSrc: rec.midCoverSrc,
+      thumbDone: rec.thumbDone,
+      localKey: rec.key,
+      addedAt: rec.addedAt,
+    }))
+<span class="cstat-no" title="statement not covered" >    useStore.getState().addTracks(restored)</span>
+    // 恢复后队列初始化为自然顺序（与曲目列表一致）
+    const len = <span class="cstat-no" title="statement not covered" >useStore.getState().tracks.length</span>
+<span class="cstat-no" title="statement not covered" >    useStore.setState({ queue: naturalQueue(len), queuePos: 0 })</span>
+    // 1.1.0 前导入的老曲目没有缩略图：异步补生成并回存，失败不阻塞、不用重导入
+<span class="cstat-no" title="statement not covered" >    void backfillCoverThumbs(restored)</span>
+  })()
+<span class="cstat-no" title="statement not covered" >  return restoring</span>
+}
+&nbsp;
+/**
+ * 给恢复出的老曲目补生成封面缩略图/中图（1.1.0）：逐首异步进行，
+ * 生成后先回存持久化、再把运行时地址补进 store；单首失败跳过下次再试。
+ */
+async function <span class="fstat-no" title="function not covered" >backfillCoverThumbs(s</span>ongs: Song[]): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >  for (const song of songs) {</span>
+<span class="cstat-no" title="statement not covered" >    if (!song.localKey || !song.coverBlob || song.thumbDone) <span class="cstat-no" title="statement not covered" >continue</span></span>
+    const gen = <span class="cstat-no" title="statement not covered" >await generateCoverThumbs(song.coverBlob).<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >n</span>ull)</span></span>
+<span class="cstat-no" title="statement not covered" >    if (!gen) <span class="cstat-no" title="statement not covered" >continue</span></span>
+<span class="cstat-no" title="statement not covered" >    await trackStore</span>
+      .updateTrackCovers(song.localKey, { thumb: gen.thumb, coverMid: gen.player })
+      .<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >u</span>ndefined)</span>
+    const state = <span class="cstat-no" title="statement not covered" >useStore.getState()</span>
+    const at = <span class="cstat-no" title="statement not covered" >state.tracks.<span class="fstat-no" title="function not covered" >findIndex((t</span>) =&gt; <span class="cstat-no" title="statement not covered" >t.localKey === song.localKey)</span></span>
+<span class="cstat-no" title="statement not covered" >    if (at &lt; 0) <span class="cstat-no" title="statement not covered" >continue</span></span>
+    const cur = <span class="cstat-no" title="statement not covered" >state.tracks[at]</span>
+    const tracks = <span class="cstat-no" title="statement not covered" >state.tracks.slice()</span>
+<span class="cstat-no" title="statement not covered" >    tracks[at] = {</span>
+      ...cur,
+      thumbDone: true,
+      thumbSrc: gen.thumb ? URL.createObjectURL(gen.thumb) : cur.thumbSrc,
+      midCoverSrc: gen.player ? URL.createObjectURL(gen.player) : cur.midCoverSrc,
+    }
+<span class="cstat-no" title="statement not covered" >    useStore.setState({ tracks })</span>
+  }
+}
+&nbsp;
+/** 释放一首曲目的全部 blob 运行时地址（原生文件服务地址不以 blob: 开头，不受影响） */
+function <span class="fstat-no" title="function not covered" >revokeTrackUrls(t</span>rack: Song): void {
+<span class="cstat-no" title="statement not covered" >  for (const src of [track.audioSrc, track.coverSrc, track.thumbSrc, track.midCoverSrc]) {</span>
+<span class="cstat-no" title="statement not covered" >    if (src?.startsWith('blob:')) <span class="cstat-no" title="statement not covered" >URL.revokeObjectURL(src)</span></span>
+  }
+}
+&nbsp;
+/**
+ * 彻底删除一首曲目：store 连带清理 + 释放运行时地址 + 删除持久化记录。
+ * 删的正是正在播放的曲目时停播。
+ */
+export async function <span class="fstat-no" title="function not covered" >deleteTrackEverywhere(i</span>ndex: number): Promise&lt;void&gt; {
+  const state = <span class="cstat-no" title="statement not covered" >useStore.getState()</span>
+  const track = <span class="cstat-no" title="statement not covered" >state.tracks[index]</span>
+<span class="cstat-no" title="statement not covered" >  if (!track) <span class="cstat-no" title="statement not covered" >return</span></span>
+  const wasCurrent = <span class="cstat-no" title="statement not covered" >state.cur === index</span>
+<span class="cstat-no" title="statement not covered" >  state.removeTrack(index)</span>
+<span class="cstat-no" title="statement not covered" >  revokeTrackUrls(track)</span>
+<span class="cstat-no" title="statement not covered" >  if (wasCurrent) <span class="cstat-no" title="statement not covered" >platform.audio.pause()</span></span>
+<span class="cstat-no" title="statement not covered" >  if (track.localKey) <span class="cstat-no" title="statement not covered" >await trackStore.deleteTrack(track.localKey).<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >u</span>ndefined)</span></span></span>
+}
+&nbsp;
+/**
+ * 批量彻底删除（1.2.0 多选删除）：从大到小逐个走单删全链路
+ *（store 连带清理 + 运行时地址释放 + 持久化删除），下标互不影响。
+ */
+export async function <span class="fstat-no" title="function not covered" >deleteTracksEverywhere(i</span>ndices: number[]): Promise&lt;void&gt; {
+  const sorted = <span class="cstat-no" title="statement not covered" >[...new Set(indices)].<span class="fstat-no" title="function not covered" >sort((a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >b - a)</span></span>
+<span class="cstat-no" title="statement not covered" >  for (const i of sorted) {</span>
+<span class="cstat-no" title="statement not covered" >    await deleteTrackEverywhere(i)</span>
+  }
+}
+&nbsp;
+/**
+ * 给一首曲目挂上（或更换）歌词：更新 store 并写回持久化存储，
+ * 刷新后仍在。外挂歌词文件导入与批量同名配对共用此入口。
+ */
+export async function <span class="fstat-no" title="function not covered" >attachLyricsToTrack(i</span>ndex: number, lyrics: LyricLine[]): Promise&lt;void&gt; {
+  const state = <span class="cstat-no" title="statement not covered" >useStore.getState()</span>
+  const track = <span class="cstat-no" title="statement not covered" >state.tracks[index]</span>
+<span class="cstat-no" title="statement not covered" >  if (!track) <span class="cstat-no" title="statement not covered" >return</span></span>
+  const clean = <span class="cstat-no" title="statement not covered" >sanitizeLyricLines(lyrics)</span>
+  const tracks = <span class="cstat-no" title="statement not covered" >state.tracks.slice()</span>
+<span class="cstat-no" title="statement not covered" >  tracks[index] = { ...track, lyrics: clean }</span>
+<span class="cstat-no" title="statement not covered" >  useStore.setState({ tracks })</span>
+<span class="cstat-no" title="statement not covered" >  if (track.localKey) <span class="cstat-no" title="statement not covered" >await trackStore.updateTrackLyrics(track.localKey, clean).<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >u</span>ndefined)</span></span></span>
+}
+&nbsp;
+/**
+ * 清除全部本地音乐（设置页数据管理）：删全部持久化记录并重置相关状态。
+ * 歌单保留名字但清空曲目；主题等偏好不动。
+ */
+export async function <span class="fstat-no" title="function not covered" >clearAllMusic(): Promise&lt;void&gt; {</span>
+  const s = <span class="cstat-no" title="statement not covered" >useStore.getState()</span>
+<span class="cstat-no" title="statement not covered" >  for (const t of s.tracks) {</span>
+<span class="cstat-no" title="statement not covered" >    revokeTrackUrls(t)</span>
+  }
+<span class="cstat-no" title="statement not covered" >  platform.audio.pause()</span>
+<span class="cstat-no" title="statement not covered" >  await trackStore.clearTracks().<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >u</span>ndefined)</span></span>
+<span class="cstat-no" title="statement not covered" >  useStore.setState({</span>
+    tracks: [],
+    queue: [],
+    queuePos: 0,
+    cur: 0,
+    playing: false,
+    pos: 0,
+    history: [],
+    liked: new Set&lt;number&gt;(),
+    playlists: s.playlists.<span class="fstat-no" title="function not covered" >map((p</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{ ...p, trackIds: [] }))</span>,
+  })
+}
+&nbsp;
+/** 本地音乐的存储占用（字节）；网页为浏览器配额估算、原生为文件字节数累加；无法统计时返回 null */
+export async function <span class="fstat-no" title="function not covered" >storageUsage(): Promise&lt;number | null&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  return trackStore.storageUsage().<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >n</span>ull)</span></span>
+}
+&nbsp;
+/** 从本地存储恢复收藏、历史与主题（同步读取，应在首帧渲染前调用） */
+export function restorePrefs(): void {
+  const prefs = parsePrefs(loadPrefsRaw(), themes.length, DEFAULT_THEME_INDEX)
+  if (prefs) {
+    useStore.setState({
+      liked: new Set(prefs.liked),
+      history: prefs.history,
+      themeIdx: prefs.themeIdx,
+      appearance: prefs.appearance,
+      smoothMode: prefs.smoothMode,
+      swipeAnywhere: prefs.swipeAnywhere,
+      onboarded: prefs.onboarded,
+    })
+  }
+  useStore.setState({ playlists: parsePlaylists(loadPlaylistsRaw()) })
+}
+&nbsp;
+let prefsBound = false
+&nbsp;
+/** 订阅收藏 / 历史 / 主题 / 外观变化并写回本地存储，应用生命周期内只绑定一次 */
+export function bindPrefsPersistence(): void {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (prefsBound) <span class="cstat-no" title="statement not covered" >return</span>
+  prefsBound = true
+  useStore.subscribe((state, prev) =&gt; {
+    if (state.playlists !== prev.playlists) {
+      savePlaylistsRaw(serializePlaylists(state.playlists))
+    }
+    if (
+      state.liked === prev.liked &amp;&amp;
+      state.history === prev.history &amp;&amp;
+      state.themeIdx === prev.themeIdx &amp;&amp;
+      state.appearance === prev.appearance &amp;&amp;
+      state.smoothMode === prev.smoothMode &amp;&amp;
+      state.swipeAnywhere === prev.swipeAnywhere &amp;&amp;
+      state.onboarded === prev.onboarded
+    ) {
+      return
+    }
+    savePrefsRaw(
+      serializePrefs({
+        liked: [...state.liked],
+        history: state.history,
+        themeIdx: state.themeIdx,
+        appearance: state.appearance,
+        smoothMode: state.smoothMode,
+        swipeAnywhere: state.swipeAnywhere,
+        onboarded: state.onboarded,
+      }),
+    )
+  })
+}
+&nbsp;
+/**
+ * 持久化一首已导入曲目。
+ * 有封面时顺带生成缩略图/中图（1.1.0）：生成结果随记录落盘，
+ * 本次会话的运行时地址直接挂回 track（后续恢复由 trackStore 生成地址）。
+ * 生成失败不阻断落盘，thumbDone 保持未确认，恢复时再补。
+ */
+export async function <span class="fstat-no" title="function not covered" >persistTrack(f</span>ile: File, track: Song, key: string): Promise&lt;void&gt; {
+  let thumb: Blob | null = <span class="cstat-no" title="statement not covered" >null</span>
+  let coverMid: Blob | null = <span class="cstat-no" title="statement not covered" >null</span>
+<span class="cstat-no" title="statement not covered" >  if (track.coverBlob) {</span>
+    const gen = <span class="cstat-no" title="statement not covered" >await generateCoverThumbs(track.coverBlob).<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >n</span>ull)</span></span>
+<span class="cstat-no" title="statement not covered" >    if (gen) {</span>
+<span class="cstat-no" title="statement not covered" >      thumb = gen.thumb</span>
+<span class="cstat-no" title="statement not covered" >      coverMid = gen.player</span>
+<span class="cstat-no" title="statement not covered" >      track.thumbDone = true</span>
+<span class="cstat-no" title="statement not covered" >      if (thumb) <span class="cstat-no" title="statement not covered" >track.thumbSrc = URL.createObjectURL(thumb)</span></span>
+<span class="cstat-no" title="statement not covered" >      if (coverMid) <span class="cstat-no" title="statement not covered" >track.midCoverSrc = URL.createObjectURL(coverMid)</span></span>
+    }
+  }
+  const record: StoredTrack = <span class="cstat-no" title="statement not covered" >{</span>
+    key,
+    id: track.id,
+    name: track.name,
+    artist: track.artist,
+    album: track.album,
+    color: track.color,
+    dur: track.dur,
+    blob: file,
+    addedAt: Date.now(),
+    lyrics: track.lyrics,
+    cover: track.coverBlob ?? null,
+    thumb,
+    coverMid,
+    thumbDone: track.thumbDone === true,
+  }
+<span class="cstat-no" title="statement not covered" >  await trackStore.saveTrack(record)</span>
+}
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://vitest.dev/" target="_blank" rel="noopener noreferrer">Vitest</a>
+                at 2026-11-20T05:47:10.060Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

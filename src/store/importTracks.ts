@@ -21,9 +21,29 @@ export type ImportResult =
   | { kind: 'no-audio'; lyricOnly: boolean }
   | { kind: 'done'; added: number; skipped: number; lrc: number }
 
+/** 导入管线的外部依赖（审计 A-04 可测性）：默认即生产实现，测试可注入桩 */
+export interface ImportDeps {
+  buildLocalTrack: typeof buildLocalTrack
+  pairLyricFiles: typeof pairLyricFiles
+  readLyricFile: typeof readLyricFile
+  attachLyricsToTrack: typeof attachLyricsToTrack
+  nextLocalId: typeof nextLocalId
+  persistTrack: typeof persistTrack
+}
+
+const defaultDeps: ImportDeps = {
+  buildLocalTrack,
+  pairLyricFiles,
+  readLyricFile,
+  attachLyricsToTrack,
+  nextLocalId,
+  persistTrack,
+}
+
 export async function importTracks(
   all: File[],
   onProgress?: (done: number, total: number) => void,
+  deps: ImportDeps = defaultDeps,
 ): Promise<ImportResult> {
   const audioFiles = all.filter(isAudioFile)
   const lyricFiles = all.filter((f) => isLyricFileName(f.name))
@@ -33,7 +53,7 @@ export async function importTracks(
   }
 
   // 外挂歌词按「与音频同名」配对（行业惯例），解析结果缓存避免重复读
-  const pairs = pairLyricFiles(
+  const pairs = deps.pairLyricFiles(
     audioFiles.map((f) => f.name),
     lyricFiles.map((f) => f.name),
   )
@@ -41,7 +61,7 @@ export async function importTracks(
   const getLyrics = async (li: number): Promise<LyricLine[]> => {
     const hit = lyricCache.get(li)
     if (hit) return hit
-    const lines = await readLyricFile(lyricFiles[li])
+    const lines = await deps.readLyricFile(lyricFiles[li])
     lyricCache.set(li, lines)
     return lines
   }
@@ -56,7 +76,7 @@ export async function importTracks(
 
   const added = []
   let skipped = 0
-  let id = nextLocalId()
+  let id = deps.nextLocalId()
 
   for (let i = 0; i < audioFiles.length; i += 1) {
     const file = audioFiles[i]
@@ -68,7 +88,7 @@ export async function importTracks(
         const lines = await getLyrics(lyricIdx)
         const at = useStore.getState().tracks.findIndex((t) => t.localKey === key)
         if (lines.length && at >= 0) {
-          await attachLyricsToTrack(at, lines)
+          await deps.attachLyricsToTrack(at, lines)
           lrcAttached += 1
         }
       }
@@ -77,7 +97,7 @@ export async function importTracks(
       continue
     }
     try {
-      const track = await buildLocalTrack(file, id)
+      const track = await deps.buildLocalTrack(file, id)
       id += 1
       track.localKey = key
       // 同名外挂歌词优先于内嵌歌词（用户显式带来的文件说了算）
@@ -89,7 +109,7 @@ export async function importTracks(
         }
       }
       try {
-        await persistTrack(file, track, key)
+        await deps.persistTrack(file, track, key)
       } catch {
         // 持久化失败不阻断本次导入，仅影响刷新后是否保留
       }
