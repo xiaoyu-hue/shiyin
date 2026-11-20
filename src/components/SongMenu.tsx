@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { coverVar } from '../lib/theme'
 import { AnimatePresence, motion } from 'motion/react'
 import { ChevronRight, Heart, ListEnd, ListMusic, ListPlus, Play, Plus, ScrollText, Trash2, X } from 'lucide-react'
 import { useStore } from '../store'
@@ -95,7 +96,7 @@ export default function SongMenu() {
                 <div className="mb-2 flex items-center gap-3 px-1 pb-2">
                   <div
                     className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
-                    style={{ ['--cover' as string]: song.color }}
+                    style={coverVar(song.color)}
                   >
                     {song.coverSrc ? (
                       <img

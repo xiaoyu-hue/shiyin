@@ -9,6 +9,3 @@ export function search(songs: Song[], keyword: string): Array<{ index: number; s
 }
 
 /** 按索引取曲目；越界返回 undefined */
-export function byIndex(songs: Song[], index: number): Song | undefined {
-  return songs[index]
-}

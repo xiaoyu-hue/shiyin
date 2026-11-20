@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { coverVar } from '../lib/theme'
 import {
   AnimatePresence,
   motion,
@@ -26,7 +27,14 @@ import {
 } from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
-import { crossfadeTransition, springGentle, springSheet } from '../lib/motion'
+import {
+  PAGE_CLOSE_VELOCITY,
+  SHEET_CLOSE_OFFSET_PX,
+  SWIPE_TRACK_PX,
+  crossfadeTransition,
+  springGentle,
+  springSheet,
+} from '../lib/motion'
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
 import { getCoverMesh } from '../lib/coverMesh'
 import SeekBar from './SeekBar'
@@ -69,9 +77,11 @@ export default function PlayerView() {
     // 取色只采样 24px，中图已足够且解码更便宜（1.1.0）
     const src = song ? (song.midCoverSrc ?? song.coverSrc) : null
     if (src) {
-      void extractCoverGlow(src).then((c) => {
-        if (alive) setGlow(c)
-      })
+      void extractCoverGlow(src)
+        .then((c) => {
+          if (alive) setGlow(c)
+        })
+        .catch(() => undefined)
     } else {
       setGlow(null)
     }
@@ -89,9 +99,11 @@ export default function PlayerView() {
     const src = song ? (song.midCoverSrc ?? song.coverSrc) : null
     if (song && src && !smoothMode) {
       const id = song.id
-      void getCoverMesh(id, src).then((url) => {
-        if (alive) setMesh(url ? { id, url } : null)
-      })
+      void getCoverMesh(id, src)
+        .then((url) => {
+          if (alive) setMesh(url ? { id, url } : null)
+        })
+        .catch(() => undefined)
     } else {
       setMesh(null)
     }
@@ -134,10 +146,10 @@ export default function PlayerView() {
 
   const handleSwipeEnd = (_: unknown, info: PanInfo) => {
     dragDist.current = Math.abs(info.offset.x)
-    if (info.offset.x <= -60) {
+    if (info.offset.x <= -SWIPE_TRACK_PX) {
       hapticImpact()
       next()
-    } else if (info.offset.x >= 60) {
+    } else if (info.offset.x >= SWIPE_TRACK_PX) {
       hapticImpact()
       prev()
     }
@@ -188,7 +200,7 @@ export default function PlayerView() {
           dragConstraints={{ top: 0, bottom: 0 }}
           dragElastic={{ top: 0, bottom: 0.7 }}
           onDragEnd={(_, info) => {
-            if (info.offset.y > 110 || info.velocity.y > 600) setOpen(false)
+            if (info.offset.y > SHEET_CLOSE_OFFSET_PX || info.velocity.y > PAGE_CLOSE_VELOCITY) setOpen(false)
           }}
         >
           {/* mesh 氛围层：预生成弥散位图铺满作色彩场（静态位图零每帧成本）；切歌交叉淡化 */}
@@ -294,7 +306,7 @@ export default function PlayerView() {
                 >
                   <motion.div
                     className="cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50 desk:h-80 desk:w-80 desk:xl:h-96 desk:xl:w-96"
-                    style={{ rotate, ['--cover' as string]: song.color }}
+                    style={{ rotate, ...coverVar(song.color) }}
                   >
                     {song.coverSrc ? (
                       <>

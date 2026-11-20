@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { coverVar } from '../lib/theme'
 import { AnimatePresence, motion, Reorder, useDragControls } from 'motion/react'
 import { GripVertical, X } from 'lucide-react'
 import { useStore } from '../store'
@@ -126,7 +127,7 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
     >
       <div
         className="cover relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
-        style={{ ['--cover' as string]: song.color }}
+        style={coverVar(song.color)}
         onClick={() => {
           playQueueAt(pos)
           setQueueOpen(false)

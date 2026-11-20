@@ -1,7 +1,9 @@
 import { motion, useReducedMotion } from 'motion/react'
+import { coverVar } from '../lib/theme'
 import { Play, Pause, SkipForward, MoonStar } from 'lucide-react'
 import { useStore } from '../store'
 import { pct } from '../lib/format'
+import { SWIPE_TRACK_PX } from '../lib/motion'
 import { hapticImpact } from '../platform/haptics'
 import PlayingIndicator from './common/PlayingIndicator'
 
@@ -52,10 +54,10 @@ export default function MiniBar() {
         // 方向锁保证一次手势只有一个方向有显著位移：先判上滑展开，再判横滑切歌
         if (info.offset.y <= -50) {
           setPlayerOpen(true)
-        } else if (info.offset.x <= -60) {
+        } else if (info.offset.x <= -SWIPE_TRACK_PX) {
           hapticImpact()
           next()
-        } else if (info.offset.x >= 60) {
+        } else if (info.offset.x >= SWIPE_TRACK_PX) {
           hapticImpact()
           prev()
         }
@@ -66,7 +68,7 @@ export default function MiniBar() {
         <motion.div
           layoutId={!smoothMode && !reducedMotion ? 'now-playing-cover' : undefined}
           className="cover relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full text-white"
-          style={{ ['--cover' as string]: song.color }}
+          style={coverVar(song.color)}
         >
           {song.coverSrc ? (
             <img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />

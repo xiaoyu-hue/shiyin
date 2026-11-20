@@ -91,9 +91,11 @@ export default function LyricView() {
     const src = song ? (song.midCoverSrc ?? song.coverSrc) : null
     if (song && src && !smoothMode) {
       const id = song.id
-      void getCoverMesh(id, src).then((url) => {
-        if (alive) setMesh(url ? { id, url } : null)
-      })
+      void getCoverMesh(id, src)
+        .then((url) => {
+          if (alive) setMesh(url ? { id, url } : null)
+        })
+        .catch(() => undefined)
     } else {
       setMesh(null)
     }

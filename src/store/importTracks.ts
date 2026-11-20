@@ -12,6 +12,7 @@
  * 持久化失败不阻断本次导入；导入成功后自动播放第一首新增曲目。
  */
 import { buildLocalTrack, fileKey, isAudioFile } from '../lib/localAudio'
+import { reportSilentError } from '../lib/diag'
 import { isLyricFileName, pairLyricFiles, readLyricFile } from '../lib/lyricFile'
 import type { LyricLine } from '../data/types'
 import { attachLyricsToTrack, nextLocalId, persistTrack } from './bootstrap'
@@ -109,8 +110,9 @@ export async function importTracks(
       }
       try {
         await deps.persistTrack(file, track, key)
-      } catch {
-        // 持久化失败不阻断本次导入，仅影响刷新后是否保留
+      } catch (err) {
+        // 持久化失败不阻断本次导入，仅影响刷新后是否保留（审计 A-35：留诊断痕迹）
+        reportSilentError('导入持久化', err)
       }
       added.push(track)
     } catch {

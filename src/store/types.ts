@@ -92,6 +92,8 @@ export interface UiSlice {
   mePage: 'favorites' | 'history' | 'settings' | 'licenses' | null
   setTab: (t: Tab) => void
   setPlayerOpen: (v: boolean) => void
+  /** 打开播放页，但多选模式下不打断多选（审计 A-31：6 处复制守卫的收口） */
+  openPlayerUnlessSelecting: () => void
   setLyricOpen: (v: boolean) => void
   setQuery: (q: string) => void
   setLibraryView: (v: LibraryView) => void

@@ -129,7 +129,6 @@ function BackHeader({ title }: { title: string }) {
 function FavoritesPage() {
   const tracks = useStore((s) => s.tracks)
   const liked = useStore((s) => s.liked)
-  const setPlayerOpen = useStore((s) => s.setPlayerOpen)
   const indices = tracks.map((t, i) => (liked.has(t.id) ? i : -1)).filter((i) => i >= 0)
 
   return (
@@ -142,7 +141,7 @@ function FavoritesPage() {
           <p className="mb-1 text-sub text-ink2">共 {indices.length} 首</p>
           <div
             onClick={() => {
-              if (useStore.getState().selection === null) setPlayerOpen(true)
+              useStore.getState().openPlayerUnlessSelecting()
             }}
           >
             {indices.map((i) => (
@@ -158,7 +157,6 @@ function FavoritesPage() {
 function HistoryPage() {
   const tracks = useStore((s) => s.tracks)
   const history = useStore((s) => s.history)
-  const setPlayerOpen = useStore((s) => s.setPlayerOpen)
   const indices = history.filter((i) => i >= 0 && i < tracks.length)
 
   return (
@@ -171,7 +169,7 @@ function HistoryPage() {
           <p className="mb-1 text-sub text-ink2">最近 {indices.length} 首</p>
           <div
             onClick={() => {
-              if (useStore.getState().selection === null) setPlayerOpen(true)
+              useStore.getState().openPlayerUnlessSelecting()
             }}
           >
             {indices.map((i, rank) => (
@@ -202,9 +200,11 @@ function SettingsPage() {
 
   useEffect(() => {
     let alive = true
-    void storageUsage().then((u) => {
-      if (alive) setUsage(u)
-    })
+    void storageUsage()
+      .then((u) => {
+        if (alive) setUsage(u)
+      })
+      .catch(() => undefined)
     return () => {
       alive = false
     }
@@ -349,10 +349,13 @@ function SettingsPage() {
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => {
-                  void clearAllMusic().then(() => {
-                    setConfirmingClear(false)
-                    setCleared(true)
-                  })
+                  void clearAllMusic().then(
+                    () => {
+                      setConfirmingClear(false)
+                      setCleared(true)
+                    },
+                    () => setConfirmingClear(false),
+                  )
                 }}
                 className="min-h-11 flex-1 rounded-full bg-danger text-body font-semibold text-white"
               >
@@ -417,9 +420,11 @@ function DesktopSection() {
 
   useEffect(() => {
     let alive = true
-    void getAutostartEnabled().then((v) => {
-      if (alive) setAutostart(v)
-    })
+    void getAutostartEnabled()
+      .then((v) => {
+        if (alive) setAutostart(v)
+      })
+      .catch(() => undefined)
     return () => {
       alive = false
     }

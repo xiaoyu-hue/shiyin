@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { search, byIndex } from './query'
+import { search } from './query'
 import type { Song } from './types'
 
 /** 测试专用曲目夹具（应用本身不再内置任何示例曲目） */
@@ -27,12 +27,4 @@ describe('search 搜索过滤', () => {
     expect(search(songs, 'SHIYIN').length).toBe(0)
   })
   it('无命中返回空数组', () => expect(search(songs, '不存在').length).toBe(0))
-})
-
-describe('byIndex 按索引取曲目', () => {
-  it('取到曲目', () => expect(byIndex(songs, 0)?.name).toBe('晚风遇见海'))
-  it('越界返回 undefined', () => {
-    expect(byIndex(songs, -1)).toBeUndefined()
-    expect(byIndex(songs, 999)).toBeUndefined()
-  })
 })

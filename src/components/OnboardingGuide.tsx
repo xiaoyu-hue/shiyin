@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { coverVar } from '../lib/theme'
 import { useStore } from '../store'
 import { shouldShowOnboarding } from '../lib/onboarding'
 import { registerBackHandler } from '../platform/backButton'
@@ -48,7 +49,7 @@ export default function OnboardingGuide() {
     >
       <div
         className="cover relative mb-7 grid h-36 w-36 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50"
-        style={{ ['--cover' as string]: 'var(--accent)' }}
+        style={coverVar('var(--accent)')}
         aria-hidden
       >
         <div className="h-10 w-10 rounded-full bg-black/25 ring-8 ring-white/20" />

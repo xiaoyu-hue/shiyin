@@ -1,4 +1,6 @@
 import { memo, useRef, useState } from 'react'
+import { coverVar } from '../lib/theme'
+import { SWIPE_NEXT_PX } from '../lib/motion'
 import { motion, useMotionValue, useTransform } from 'motion/react'
 import { Check, Heart, ListPlus, MoreHorizontal, Play } from 'lucide-react'
 import { useStore } from '../store'
@@ -15,8 +17,6 @@ interface Props {
 
 /** 长按触发时长（毫秒）：明显长于点按、又不至于让用户等得不耐烦 */
 const LONG_PRESS_MS = 480
-/** 右滑触发「下一首播放」的位移阈值（px） */
-const SWIPE_NEXT_PX = 72
 
 function SongRow({ index, rank, context }: Props) {
   const tracks = useStore((s) => s.tracks)
@@ -180,7 +180,7 @@ function SongRow({ index, rank, context }: Props) {
         ) : null}
         <div
           className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
-          style={{ ['--cover' as string]: song.color }}
+          style={coverVar(song.color)}
         >
           {song.coverSrc && (
             <img

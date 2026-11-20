@@ -1,4 +1,5 @@
 import { useStore } from '../store'
+import { coverVar } from '../lib/theme'
 import { hapticSelection } from '../platform/haptics'
 import { NAV_ITEMS } from './Tabs'
 
@@ -20,7 +21,7 @@ export default function DesktopNav() {
       <div className="flex items-center gap-3 px-2">
         <span
           className="cover grid h-11 w-11 place-items-center rounded-full text-lg font-bold text-white shadow-md"
-          style={{ ['--cover' as string]: 'var(--accent)' }}
+          style={coverVar('var(--accent)')}
           aria-hidden
         >
           诗

@@ -1,4 +1,5 @@
 import { useDragControls, type PanInfo } from 'motion/react'
+import { SHEET_CLOSE_OFFSET_PX, SHEET_CLOSE_VELOCITY } from '../../lib/motion'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 
 /**
@@ -17,7 +18,7 @@ export function useSheetDrag(onClose: () => void) {
       dragConstraints: { top: 0, bottom: 0 },
       dragElastic: { top: 0, bottom: 0.55 },
       onDragEnd: (_event: unknown, info: PanInfo) => {
-        if (info.offset.y > 110 || info.velocity.y > 550) onClose()
+        if (info.offset.y > SHEET_CLOSE_OFFSET_PX || info.velocity.y > SHEET_CLOSE_VELOCITY) onClose()
       },
     },
     handleProps: {

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { coverVar } from '../lib/theme'
 import {
   ArrowDownWideNarrow,
   ArrowUpNarrowWide,
@@ -110,7 +111,6 @@ function SongsSection({ indexed }: { indexed: IndexedSong[] }) {
   const sortKey = useStore((s) => s.sortKey)
   const sortDir = useStore((s) => s.sortDir)
   const setSort = useStore((s) => s.setSort)
-  const setPlayerOpen = useStore((s) => s.setPlayerOpen)
   const sorted = useMemo(() => sortIndexed(indexed, sortKey, sortDir), [indexed, sortKey, sortDir])
   // context 身份稳定化（审计 A-25）：内联新建数组会打穿 SongRow 的 memo
   const context = useMemo(() => sorted.map((x) => x.index), [sorted])
@@ -147,7 +147,7 @@ function SongsSection({ indexed }: { indexed: IndexedSong[] }) {
         className="pr-3"
         onClick={() => {
           // 多选模式下点行只切换选中，不冒泡打开播放页（1.2.0）
-          if (useStore.getState().selection === null) setPlayerOpen(true)
+          useStore.getState().openPlayerUnlessSelecting()
         }}
       >
         {sorted.map(({ index }) => (
@@ -171,7 +171,7 @@ function AlbumsSection({ indexed }: { indexed: IndexedSong[] }) {
           <button key={a.name} onClick={() => setDetail({ kind: 'album', key: a.name })} className="text-left">
             <div
               className="cover relative grid aspect-square w-full place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-md"
-              style={{ ['--cover' as string]: a.color }}
+              style={coverVar(a.color)}
             >
               {a.coverSrc ? (
                 <img
@@ -290,7 +290,7 @@ function PlaylistsSection({ indexed }: { indexed: IndexedSong[] }) {
               >
                 <span
                   className="cover relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
-                  style={{ ['--cover' as string]: first?.color ?? '#9a8f80' }}
+                  style={coverVar(first?.color ?? '#9a8f80')}
                 >
                   {first?.coverSrc ? (
                     <img
@@ -376,7 +376,7 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
         {detail.kind === 'album' ? (
           <div
             className="cover relative grid h-40 w-40 place-items-center overflow-hidden rounded-[var(--r-card)] text-white shadow-lg"
-            style={{ ['--cover' as string]: color }}
+            style={coverVar(color)}
           >
             {coverSrc ? (
               <img src={midCoverSrc ?? coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
@@ -410,7 +410,7 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
 
       <div
         onClick={() => {
-          if (useStore.getState().selection === null) setPlayerOpen(true)
+          useStore.getState().openPlayerUnlessSelecting()
         }}
       >
         {items.map(({ index }) => (
@@ -459,7 +459,7 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
       <div className="mb-5 flex flex-col items-center text-center">
         <div
           className="cover relative grid h-40 w-40 place-items-center overflow-hidden rounded-[var(--r-card)] text-white shadow-lg"
-          style={{ ['--cover' as string]: first?.color ?? '#9a8f80' }}
+          style={coverVar(first?.color ?? '#9a8f80')}
         >
           {first?.coverSrc ? (
             <img
@@ -557,7 +557,7 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
               <div
                 className="min-w-0 flex-1"
                 onClick={() => {
-                  if (useStore.getState().selection === null) setPlayerOpen(true)
+                  useStore.getState().openPlayerUnlessSelecting()
                 }}
               >
                 <SongRow index={index} context={context} />

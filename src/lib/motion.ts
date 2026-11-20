@@ -21,10 +21,20 @@ export const springGentle = { type: 'spring', stiffness: 260, damping: 26 } as c
 /** 小元素回弹（封面呼吸、拇指放大后的回落） */
 export const springSnappy = { type: 'spring', stiffness: 420, damping: 32 } as const
 
-/** 时长阶梯（秒）：微反馈 / 常规 / 从容 */
-export const durationFast = 0.15
+/** 常规时长（秒）：通用淡入淡出等（审计 A-33：未被引用的 fast/slow 两档已删） */
 export const durationBase = 0.2
-export const durationSlow = 0.35
+
+/** 手势阈值收口（审计 A-49）：全站同类手势共用同一组数，禁止组件内再写魔法数 */
+/** 列表行右滑「下一首播放」触发位移（px） */
+export const SWIPE_NEXT_PX = 72
+/** 横滑切歌触发位移（px）：迷你条与播放页封面区共用 */
+export const SWIPE_TRACK_PX = 60
+/** 下拉关闭的位移阈值（px）：抽屉与全屏播放页共用 */
+export const SHEET_CLOSE_OFFSET_PX = 110
+/** 抽屉下拉关闭的速度阈值（px/s） */
+export const SHEET_CLOSE_VELOCITY = 550
+/** 全屏播放页下拉关闭的速度阈值（px/s）：面积大、误关代价高，略高于抽屉 */
+export const PAGE_CLOSE_VELOCITY = 600
 
 /** 弹层遮罩淡入淡出：全站统一 */
 export const scrimTransition = { duration: 0.18, ease: 'easeOut' } as const

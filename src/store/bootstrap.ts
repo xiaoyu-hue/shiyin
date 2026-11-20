@@ -1,4 +1,5 @@
 import type { Song } from '../data/types'
+import { reportSilentError } from '../lib/diag'
 import { DEFAULT_THEME_INDEX, themes } from '../data/themes'
 import { parsePrefs, serializePrefs } from '../lib/prefs'
 import { platform } from '../platform/instance'
@@ -67,7 +68,10 @@ let restoring: Promise<void> | null = null
 export function restoreLocalTracks(): Promise<void> {
   if (restoring) return restoring
   restoring = (async () => {
-    const records = await trackStore.loadTracks().catch(() => [])
+    const records = await trackStore.loadTracks().catch((err) => {
+      reportSilentError('恢复曲库', err)
+      return []
+    })
     // 无论有无记录、是否失败，走到这里都算恢复完成：首启引导据此判断空库（1.2.0）
     useStore.getState().setRestored(true)
     if (!records.length) return
@@ -106,9 +110,14 @@ export function restoreLocalTracks(): Promise<void> {
 async function backfillCoverThumbs(songs: Song[]): Promise<void> {
   for (const song of songs) {
     if (!song.localKey || !song.coverBlob || song.thumbDone) continue
-    const gen = await generateCoverThumbs(song.coverBlob).catch(() => null)
+    const gen = await generateCoverThumbs(song.coverBlob).catch((err) => {
+      reportSilentError('生成封面缩略图', err)
+      return null
+    })
     if (!gen) continue
-    await trackStore.updateTrackCovers(song.localKey, { thumb: gen.thumb, coverMid: gen.player }).catch(() => undefined)
+    await trackStore
+      .updateTrackCovers(song.localKey, { thumb: gen.thumb, coverMid: gen.player })
+      .catch((err) => reportSilentError('回存封面缩略图', err))
     const state = useStore.getState()
     const at = state.tracks.findIndex((t) => t.localKey === song.localKey)
     if (at < 0) continue
@@ -143,7 +152,8 @@ export async function deleteTrackEverywhere(index: number): Promise<void> {
   state.removeTrack(index)
   revokeTrackUrls(track)
   if (wasCurrent) platform.audio.pause()
-  if (track.localKey) await trackStore.deleteTrack(track.localKey).catch(() => undefined)
+  if (track.localKey)
+    await trackStore.deleteTrack(track.localKey).catch((err) => reportSilentError('删除曲目持久化', err))
 }
 
 /**
@@ -169,7 +179,8 @@ export async function attachLyricsToTrack(index: number, lyrics: LyricLine[]): P
   const tracks = state.tracks.slice()
   tracks[index] = { ...track, lyrics: clean }
   useStore.setState({ tracks })
-  if (track.localKey) await trackStore.updateTrackLyrics(track.localKey, clean).catch(() => undefined)
+  if (track.localKey)
+    await trackStore.updateTrackLyrics(track.localKey, clean).catch((err) => reportSilentError('回存歌词', err))
 }
 
 /**
@@ -182,7 +193,7 @@ export async function clearAllMusic(): Promise<void> {
     revokeTrackUrls(t)
   }
   platform.audio.pause()
-  await trackStore.clearTracks().catch(() => undefined)
+  await trackStore.clearTracks().catch((err) => reportSilentError('清空曲库持久化', err))
   useStore.setState({
     tracks: [],
     queue: [],
@@ -198,7 +209,10 @@ export async function clearAllMusic(): Promise<void> {
 
 /** 本地音乐的存储占用（字节）；网页为浏览器配额估算、原生为文件字节数累加；无法统计时返回 null */
 export async function storageUsage(): Promise<number | null> {
-  return trackStore.storageUsage().catch(() => null)
+  return trackStore.storageUsage().catch((err) => {
+    reportSilentError('统计存储占用', err)
+    return null
+  })
 }
 
 /** 从本地存储恢复收藏、历史与主题（同步读取，应在首帧渲染前调用） */
@@ -263,7 +277,10 @@ export async function persistTrack(file: File, track: Song, key: string): Promis
   let thumb: Blob | null = null
   let coverMid: Blob | null = null
   if (track.coverBlob) {
-    const gen = await generateCoverThumbs(track.coverBlob).catch(() => null)
+    const gen = await generateCoverThumbs(track.coverBlob).catch((err) => {
+      reportSilentError('生成封面缩略图', err)
+      return null
+    })
     if (gen) {
       thumb = gen.thumb
       coverMid = gen.player

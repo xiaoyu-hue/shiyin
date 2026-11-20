@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { Theme } from '../data/types'
 
 /** 中性语义色（不随主题变，只随外观变）：文字墨色与卡片表面色 */
@@ -7,6 +8,11 @@ export const SURFACE_LIGHT = '#FFFFFF'
 export const SURFACE_DARK = '#2E2820'
 
 /** 主题 + 外观 → CSS 变量映射（深色时用主题的深色变体与深色中性色） */
+/** 封面色 CSS 变量的 style 片段（审计 A-30 收口：替代各组件手写的 ['--cover' as string]） */
+export function coverVar(color: string): CSSProperties {
+  return { ['--cover' as string]: color } as CSSProperties
+}
+
 export function themeVariables(t: Theme, dark = false): Record<string, string> {
   return {
     '--accent': dark ? t.accentDark : t.accent,

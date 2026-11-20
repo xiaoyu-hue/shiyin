@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { clamp01, ratioFromClientX, ratioOfSeconds, secondsAtRatio } from '../lib/seekbar'
+import { clamp01, ratioFromClientX, ratioOfSeconds, secondsAtRatio } from '../lib/seekBar'
 import { fmtTime } from '../lib/format'
 import { springSnappy } from '../lib/motion'
 

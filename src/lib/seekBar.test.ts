@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { clamp01, ratioFromClientX, secondsAtRatio, ratioOfSeconds } from './seekbar'
+import { clamp01, ratioFromClientX, secondsAtRatio, ratioOfSeconds } from './seekBar'
 
 describe('seekbar 换算（1.4.0）', () => {
   it('clamp01 钳制并处理非有限值', () => {

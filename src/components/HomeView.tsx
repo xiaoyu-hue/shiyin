@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { coverVar } from '../lib/theme'
 import SongRow from './SongRow'
 import ImportButton from './ImportButton'
 import BatteryGuideCard from './BatteryGuideCard'
@@ -153,7 +154,7 @@ export default function HomeView() {
             <div
               onClick={() => {
                 // 多选模式下点行只切换选中，不冒泡打开播放页（1.2.0）
-                if (useStore.getState().selection === null) setPlayerOpen(true)
+                useStore.getState().openPlayerUnlessSelecting()
               }}
             >
               {tracks.map((s, i) => (
@@ -192,7 +193,7 @@ function CoverCard({ song, title, sub, onPlay }: CardProps) {
     <button onClick={onPlay} className="w-[104px] shrink-0 text-left" aria-label={`播放 ${title ?? song.name}`}>
       <span
         className="cover relative grid h-[104px] w-[104px] place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
-        style={{ ['--cover' as string]: song.color }}
+        style={coverVar(song.color)}
       >
         {song.coverSrc ? (
           <img

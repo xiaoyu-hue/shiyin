@@ -31,9 +31,11 @@ export function bindTauriDesktop(): void {
     const { getCurrentWebviewWindow } = await import('@tauri-apps/api/webviewWindow')
     await getCurrentWebviewWindow().onDragDropEvent((event) => {
       if (event.payload.type === 'drop' && event.payload.paths.length) {
-        void filesFromPaths(event.payload.paths).then((files) => {
-          if (files.length) void importTracks(files)
-        })
+        void filesFromPaths(event.payload.paths)
+          .then((files) => {
+            if (files.length) void importTracks(files)
+          })
+          .catch(() => undefined)
       }
     })
   })().catch(() => undefined)

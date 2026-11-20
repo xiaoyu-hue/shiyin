@@ -2,7 +2,7 @@ import type { StateCreator } from 'zustand'
 import { toggleInSelection } from '../lib/selection'
 import type { AppState, UiSlice } from './types'
 
-export const createUiSlice: StateCreator<AppState, [], [], UiSlice> = (set) => ({
+export const createUiSlice: StateCreator<AppState, [], [], UiSlice> = (set, get) => ({
   tab: 'home',
   playerOpen: false,
   lyricOpen: false,
@@ -22,6 +22,9 @@ export const createUiSlice: StateCreator<AppState, [], [], UiSlice> = (set) => (
 
   setTab: (tab) => set({ tab }),
   setPlayerOpen: (playerOpen) => set({ playerOpen }),
+  openPlayerUnlessSelecting: () => {
+    if (get().selection === null) set({ playerOpen: true })
+  },
   setLyricOpen: (lyricOpen) => set({ lyricOpen }),
   setQuery: (query) => set({ query }),
   setLibraryView: (libraryView) => set({ libraryView, libraryDetail: null }),

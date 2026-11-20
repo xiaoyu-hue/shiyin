@@ -2,9 +2,7 @@ import { useRef, useState } from 'react'
 import { Loader2, Upload } from 'lucide-react'
 import { isAudioFile } from '../lib/localAudio'
 import { importTracks } from '../store/importTracks'
-import { isNativePlatform, isTauriPlatform } from '../platform/env'
-import { pickFilesNative } from '../platform/nativeFiles'
-import { pickFilesTauri } from '../platform/tauriFiles'
+import { pickFiles } from '../platform/pickFiles'
 
 type Status =
   | { kind: 'idle' }
@@ -37,7 +35,7 @@ export default function ImportButton({ className = '', label, primary = false, o
         kind: 'error',
         message: res.lyricOnly
           ? '只选了歌词文件：请连同音频一起选，或在歌曲的「…」菜单里给单首歌导入歌词'
-          : '未发现可播放的音频文件，支持 mp3 / m4a / wav / flac / ogg',
+          : '未发现可播放的音频文件（支持 mp3 / m4a / m4b / aac / wav / flac / ogg / oga / opus / weba / webm / aif / aiff）',
       })
       return
     }
@@ -48,15 +46,13 @@ export default function ImportButton({ className = '', label, primary = false, o
 
   const busy = status.kind === 'busy'
 
-  /** 原生环境走系统文件选择器（多选），选完转成 File 数组喂同一条导入管线 */
-  async function pickNative() {
-    const files = await pickFilesNative(0)
-    if (files.length) await handleFiles(files)
-  }
-
-  /** 桌面环境走 Tauri 系统对话框（多选，不设扩展名过滤，理由见 tauriFiles） */
-  async function pickTauri() {
-    const files = await pickFilesTauri(0)
+  /** 三端选文件统一走 platform/pickFiles（审计 A-32）；网页端返回 null 时点开隐藏 input */
+  async function pick() {
+    const files = await pickFiles(0)
+    if (files === null) {
+      inputRef.current?.click()
+      return
+    }
     if (files.length) await handleFiles(files)
   }
 
@@ -64,11 +60,7 @@ export default function ImportButton({ className = '', label, primary = false, o
     <div className={className}>
       <button
         type="button"
-        onClick={() => {
-          if (isNativePlatform()) void pickNative()
-          else if (isTauriPlatform()) void pickTauri()
-          else inputRef.current?.click()
-        }}
+        onClick={() => void pick()}
         disabled={busy}
         className={
           primary
