@@ -71,7 +71,7 @@ export default function SleepMenu() {
               exit={{ y: '100%' }}
               transition={springDrawer}
               {...sheetProps}
-              className="glass-strong absolute inset-x-0 bottom-0 mx-auto w-full max-w-[430px] rounded-t-[var(--r-sheet)] p-4"
+              className="glass-strong absolute inset-x-0 bottom-0 mx-auto w-full max-w-[430px] lg:max-w-[540px] rounded-t-[var(--r-sheet)] p-4"
               style={{ paddingBottom: 'calc(2rem + var(--sab))' }}
             >
               <div {...handleProps} className="-mt-1 mb-2 flex cursor-grab touch-none justify-center py-1.5">

@@ -3,7 +3,7 @@ import { useStore } from '../store'
 import { hapticSelection } from '../platform/haptics'
 import type { Tab } from '../data/types'
 
-const items: { key: Tab; label: string; icon: typeof Home }[] = [
+export const NAV_ITEMS: { key: Tab; label: string; icon: typeof Home }[] = [
   { key: 'home', label: '主页', icon: Home },
   { key: 'search', label: '搜索', icon: Search },
   { key: 'explore', label: '音乐库', icon: Library },
@@ -17,7 +17,7 @@ export default function Tabs() {
   const compact = useStore((s) => s.chromeCompact)
 
   return (
-    <div className="shrink-0 px-4 pt-1 pb-[max(var(--sab),10px)]">
+    <div className="shrink-0 px-4 pt-1 pb-[max(var(--sab),10px)] lg:hidden">
       <nav
         className="glass group relative flex overflow-hidden rounded-full p-1.5"
         aria-label="主导航"
@@ -32,7 +32,7 @@ export default function Tabs() {
           className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           style={{ background: 'radial-gradient(150px circle at var(--mx, 50%) 50%, rgba(255,255,255,0.30), transparent 70%)' }}
         />
-        {items.map(({ key, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
           const active = tab === key
           return (
             <button

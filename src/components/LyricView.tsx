@@ -19,11 +19,11 @@ import { useLyricAttach } from './useLyricAttach'
 type LineLevel = 'active' | 'near' | 'mid' | 'far' | 'idle'
 
 const LEVEL_CLASS: Record<LineLevel, string> = {
-  active: 'text-[26px] opacity-100',
-  near: 'text-xl opacity-55',
-  mid: 'text-xl opacity-40',
-  far: 'text-xl opacity-30',
-  idle: 'text-xl opacity-60',
+  active: 'text-[26px] opacity-100 lg:text-[32px]',
+  near: 'text-xl opacity-55 lg:text-2xl',
+  mid: 'text-xl opacity-40 lg:text-2xl',
+  far: 'text-xl opacity-30 lg:text-2xl',
+  idle: 'text-xl opacity-60 lg:text-2xl',
 }
 
 interface RowProps {
@@ -227,7 +227,7 @@ export default function LyricView() {
               />
             </div>
           ) : (
-            <div className="lyric-scroll relative mt-2 flex-1 overflow-y-auto py-24">
+            <div className="lyric-scroll relative mt-2 w-full flex-1 overflow-y-auto py-24 lg:mx-auto lg:max-w-3xl">
               <div className="flex flex-col gap-5">
                 {song.lyrics.map((line, i) => {
                   const dist = active < 0 ? 99 : Math.abs(i - active)

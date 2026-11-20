@@ -42,7 +42,7 @@ export default function LibraryView() {
   const indexed = indexTracks(tracks)
 
   return (
-    <div className="px-4 pt-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <div className="mb-5">
         <p className="text-sub tracking-widest" style={{ color: 'var(--accent)' }}>LIBRARY</p>
         <h1 className="mt-1 text-title font-bold">音乐库</h1>
@@ -152,7 +152,7 @@ function AlbumsSection({ indexed }: { indexed: IndexedSong[] }) {
   return (
     <section>
       <p className="mb-3 text-sub text-ink2">共 {albums.length} 张专辑</p>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
         {albums.map((a) => (
           <button key={a.name} onClick={() => setDetail({ kind: 'album', key: a.name })} className="text-left">
             <div

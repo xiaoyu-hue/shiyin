@@ -22,6 +22,30 @@ export function registerBackHandler(handler: BackHandler): () => void {
   return dispatcher.register(handler)
 }
 
+/**
+ * 统一返回分发（弹层栈 → 视图层级链）：消费掉一层返回返回 true。
+ * 安卓系统返回与桌面 Esc 键（1.4.0）共用同一条链，行为完全一致；
+ * 根层无处可退时返回 false，由调用方决定（原生切后台、桌面无操作）。
+ */
+export function handleBackNavigation(): boolean {
+  if (dispatcher.dispatch()) return true
+  const s = useStore.getState()
+  if (s.lyricOpen) {
+    s.setLyricOpen(false)
+  } else if (s.playerOpen) {
+    s.setPlayerOpen(false)
+  } else if (s.libraryDetail) {
+    s.setLibraryDetail(null)
+  } else if (s.mePage) {
+    s.setMePage(null)
+  } else if (s.tab !== 'home') {
+    s.setTab('home')
+  } else {
+    return false
+  }
+  return true
+}
+
 let bound = false
 
 /** 应用生命周期内只绑定一次；非原生环境为空操作 */
@@ -33,21 +57,9 @@ export function bindBackButton(): void {
   void import('@capacitor/app')
     .then(({ App }) => {
       void App.addListener('backButton', () => {
-        if (dispatcher.dispatch()) return
-        const s = useStore.getState()
-        if (s.lyricOpen) {
-          s.setLyricOpen(false)
-        } else if (s.playerOpen) {
-          s.setPlayerOpen(false)
-        } else if (s.libraryDetail) {
-          s.setLibraryDetail(null)
-        } else if (s.mePage) {
-          s.setMePage(null)
-        } else if (s.tab !== 'home') {
-          s.setTab('home')
-        } else {
-          void App.minimizeApp().catch(() => undefined)
-        }
+        if (handleBackNavigation()) return
+        // 根层：切后台保播放——直接退出会销毁 WebView，连带弄断后台播放推进
+        void App.minimizeApp().catch(() => undefined)
       }).catch(() => undefined)
     })
     .catch(() => undefined)

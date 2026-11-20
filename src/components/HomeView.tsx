@@ -20,7 +20,7 @@ export default function HomeView() {
   }, [])
 
   return (
-    <div className="px-4 pt-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <div className="mb-6">
         <p className="text-sub tracking-widest" style={{ color: 'var(--accent)' }}>SHIYIN · 诗音</p>
         <h1 className="mt-1 text-title font-bold">{greetingLine(now)}</h1>

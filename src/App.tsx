@@ -22,6 +22,8 @@ import QueueView from './components/QueueView'
 import SelectionBar from './components/SelectionBar'
 import OnboardingGuide from './components/OnboardingGuide'
 import Toast from './components/Toast'
+import DesktopNav from './components/DesktopNav'
+import { handleBackNavigation } from './platform/backButton'
 import ErrorBoundary from './components/common/ErrorBoundary'
 
 export default function App() {
@@ -84,18 +86,48 @@ export default function App() {
     me: <MeView />,
   }
 
+  // 桌面键盘（1.4.0 包 3）：空格播放/暂停、左右方向键快退/快进 10 秒、Esc 走统一返回链。
+  // 输入框/文本域聚焦时不劫持（空格要打字、方向键要移光标）；焦点在按钮上时空格保留原生点击
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null
+      const typing = !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)
+      if (e.key === 'Escape') {
+        handleBackNavigation()
+        return
+      }
+      if (typing) return
+      const s = useStore.getState()
+      if (e.key === ' ') {
+        if (t instanceof HTMLButtonElement) return
+        e.preventDefault()
+        s.toggle()
+      } else if (e.key === 'ArrowRight') {
+        s.seek(s.pos + 10)
+      } else if (e.key === 'ArrowLeft') {
+        s.seek(Math.max(0, s.pos - 10))
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
     <ErrorBoundary>
       {/* reducedMotion="user"：系统要求减少动态时，Motion 的位移/布局动画自动降为瞬时（1.4.0） */}
       <MotionConfig reducedMotion="user">
       <div className="app-shell">
-        <main ref={mainRef} className="scroll-area" onScroll={handleScroll}>
-          <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={pageTransition}>
-            {views[tab]}
-          </motion.div>
-        </main>
-        <MiniBar />
-        <Tabs />
+        <DesktopNav />
+        {/* 内容列：桌面形态下与侧栏并排（壳变横向 flex），窄屏即整列本身 */}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <main ref={mainRef} className="scroll-area" onScroll={handleScroll}>
+            <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={pageTransition}>
+              {views[tab]}
+            </motion.div>
+          </main>
+          <MiniBar />
+          <Tabs />
+        </div>
         <PlayerView />
         <LyricView />
         <QueueView />

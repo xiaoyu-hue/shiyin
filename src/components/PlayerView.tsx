@@ -148,7 +148,7 @@ export default function PlayerView() {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="absolute inset-0 z-30 flex flex-col overflow-hidden px-6"
+          className="absolute inset-0 z-30 flex flex-col overflow-hidden px-6 lg:px-12"
           style={{
             background: `linear-gradient(180deg, ${glowColor} 0%, var(--bg) 58%, var(--bg-end) 100%)`,
             // 沉浸式：渐变背景照样铺满全屏（含状态栏背后），顶部控件行垫安全区下移（1.1.0）
@@ -224,8 +224,9 @@ export default function PlayerView() {
 
           {/* 中部内容区：默认只有封面是横滑切歌区；设置开启「全屏滑动切歌」后整区可滑。
               两个拖动层互斥启用（drag=false 的一层不拦截手势），下拉关闭走顶部手柄的独立拖动控制，互不干扰 */}
+          <div className="relative flex flex-1 flex-col lg:flex-row lg:items-center lg:gap-12">
           <motion.div
-            className="relative flex flex-1 flex-col items-center justify-center gap-8"
+            className="relative flex flex-1 flex-col items-center justify-center gap-8 lg:min-w-0"
             style={{ touchAction: 'pan-y' }}
             drag={swipeAnywhere ? 'x' : false}
             dragDirectionLock
@@ -250,7 +251,7 @@ export default function PlayerView() {
               transition={springGentle}
             >
               <motion.div
-                className="cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50"
+                className="cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50 lg:h-80 lg:w-80 xl:h-96 xl:w-96"
                 style={{ rotate, ['--cover' as string]: song.color }}
               >
                 {song.coverSrc ? (
@@ -287,13 +288,13 @@ export default function PlayerView() {
               )}
             </motion.div>
             </motion.div>
-            <div className="w-full text-center">
-              <h2 className="text-title font-bold text-ink/85">{song.name}</h2>
+          </motion.div>
+          <div className="contents lg:flex lg:w-[400px] lg:shrink-0 lg:flex-col lg:justify-center lg:gap-8">
+            <div className="w-full text-center lg:text-left">
+              <h2 className="text-title font-bold text-ink/85 lg:text-display">{song.name}</h2>
               <p className="mt-1 text-body text-ink2">{song.artist}</p>
               {audioError && <p className="mt-2 text-caption text-danger">{audioError}</p>}
             </div>
-          </motion.div>
-
           <div className="glass-strong relative rounded-[var(--r-sheet)] p-5">
             <SeekBar value={Math.min(pos, duration)} max={duration} onSeek={seek} />
             <div className="mt-1 flex justify-between text-sub tabular-nums text-ink2">
@@ -317,6 +318,8 @@ export default function PlayerView() {
                 <ListVideo size={22} style={{ color: 'var(--accent)' }} />
               </button>
             </div>
+          </div>
+          </div>
           </div>
         </motion.div>
       )}

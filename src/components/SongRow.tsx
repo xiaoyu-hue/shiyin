@@ -151,7 +151,7 @@ function SongRow({ index, rank, context }: Props) {
         dragElastic={{ left: 0, right: 0.45 }}
         onDragStart={clearPressTimer}
         onDragEnd={(_, info) => handleDragEnd(info.offset.x)}
-        className={`relative flex items-center gap-3 px-2 py-2.5 transition-colors ${inSelection ? '' : 'active:bg-ink/5'}`}
+        className={`relative flex items-center gap-3 px-2 py-2.5 transition-colors ${inSelection ? '' : 'hover:bg-ink/[0.04] active:bg-ink/5'}`}
         onClick={handleClick}
         role="button"
         tabIndex={0}

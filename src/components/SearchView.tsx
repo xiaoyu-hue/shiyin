@@ -12,7 +12,7 @@ export default function SearchView() {
   const hits = search(tracks, query)
 
   return (
-    <div className="px-4 pt-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <h1 className="mb-4 text-title font-bold">搜索</h1>
       <div className="mb-5 flex items-center gap-2 rounded-[var(--r-card)] bg-surface/70 px-4 py-3 shadow-sm">
         <Search size={18} className="text-ink2" />

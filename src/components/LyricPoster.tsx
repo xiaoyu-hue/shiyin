@@ -234,7 +234,7 @@ export default function LyricPoster({ song, open, onClose }: Props) {
             exit={{ y: '100%' }}
             transition={springDrawer}
             {...sheetProps}
-            className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[88dvh] w-full max-w-[430px] flex-col rounded-t-[var(--r-sheet)] p-4"
+            className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[88dvh] w-full max-w-[430px] lg:max-w-[540px] flex-col rounded-t-[var(--r-sheet)] p-4"
             style={{ paddingBottom: 'calc(1.5rem + var(--sab))' }}
           >
             <div {...handleProps} className="-mt-1 mb-2 flex shrink-0 cursor-grab touch-none justify-center py-1.5">

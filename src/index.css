@@ -224,6 +224,16 @@ body {
   transition: background 0.5s ease;
 }
 
+/* 桌面形态（1.4.0 包 3）：≥lg 壳放开限宽变横向——左侧边导航 + 右内容列；
+   窄屏（手机/平板竖屏）保持 430px 居中单列，与历史版本完全一致 */
+@media (min-width: 1024px) {
+  .app-shell {
+    max-width: none;
+    flex-direction: row;
+    box-shadow: none;
+  }
+}
+
 .scroll-area {
   flex: 1;
   overflow-y: auto;

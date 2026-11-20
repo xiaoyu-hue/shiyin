@@ -45,7 +45,7 @@ export default function MeView() {
   if (mePage === 'licenses') return <LicensesPage />
 
   return (
-    <div className="px-4 pt-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <h1 className="mb-6 text-title font-bold">我的</h1>
 
       <div className="mb-7 grid grid-cols-3 gap-3">
@@ -75,7 +75,9 @@ export default function MeView() {
         </button>
       </div>
 
-      <section className="mb-7">
+      {/* 桌面双列（1.4.0 包 3）：导入区与设置入口并排，窄屏纵向不变 */}
+      <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-4">
+      <section className="mb-7 lg:mb-0">
         <h2 className="mb-3 text-heading font-semibold">本地音乐</h2>
         <p className="mb-3 text-sub text-ink2">
           音频保存在本机浏览器中，不会上传到任何服务器。共 {localCount} 首
@@ -94,6 +96,7 @@ export default function MeView() {
         </span>
         <ChevronRight size={18} className="text-ink3" />
       </button>
+      </div>
 
       <p className="mt-8 text-center text-caption text-ink3">
         诗音 · 共 {localCount} 首本地音乐
@@ -122,7 +125,7 @@ function FavoritesPage() {
   const indices = tracks.map((t, i) => (liked.has(t.id) ? i : -1)).filter((i) => i >= 0)
 
   return (
-    <div className="px-4 pt-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <BackHeader title="我的收藏" />
       {indices.length === 0 ? (
         <EmptyState icon="💛" title="还没有收藏" description="在歌曲行点爱心，或在播放页收藏喜欢的歌" />
@@ -149,7 +152,7 @@ function HistoryPage() {
   const indices = history.filter((i) => i >= 0 && i < tracks.length)
 
   return (
-    <div className="px-4 pt-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <BackHeader title="最近播放" />
       {indices.length === 0 ? (
         <EmptyState icon="🕘" title="还没有播放记录" description="听过的歌会按时间排在这里" />
@@ -199,7 +202,7 @@ function SettingsPage() {
     usage === null ? '读取中…' : usage < 1024 * 1024 ? `${(usage / 1024).toFixed(0)} KB` : `${(usage / 1024 / 1024).toFixed(1)} MB`
 
   return (
-    <div className="px-4 pt-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <BackHeader title="设置" />
 
       <section className="mb-7">
@@ -466,7 +469,7 @@ function DesktopSection() {
 
 function LicensesPage() {
   return (
-    <div className="px-4 pt-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <BackHeader title="开源许可与致谢" />
 
       <section className="mb-7">
