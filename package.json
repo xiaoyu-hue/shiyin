@@ -1,7 +1,7 @@
 {
   "name": "shiyin",
   "private": true,
-  "version": "1.4.1",
+  "version": "1.5.0",
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
-    "check:cycles": "madge --circular --extensions ts,tsx src",
+    "check:cycles": "node scripts/check-cycles.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "audit:deps": "npm audit --audit-level=high"
@@ -62,7 +62,6 @@
     "fake-indexeddb": "^6.2.8",
     "globals": "^17.14.0",
     "happy-dom": "^21.0.4",
-    "madge": "^8.0.0",
     "prettier": "^3.10.1",
     "tailwindcss": "4.3.5",
     "typescript": "^6.0.3",

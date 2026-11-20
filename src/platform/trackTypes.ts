@@ -1,7 +1,7 @@
 /**
  * 曲目持久化的接口类型（审计 A-29 从 trackStore.ts 抽出独立成文）：
  * 三端实现只依赖本文件的类型，不再反向 import 分流出口 trackStore.ts，
- * 消除「分流器 ↔ 实现」的循环依赖（madge 已实测归零，check:cycles 守门）。
+ * 消除「分流器 ↔ 实现」的循环依赖（check:cycles 守门脚本实测归零）。
  */
 import type { LyricLine } from '../data/types'
 import type { StoredTrack } from './idb'

@@ -37,7 +37,7 @@ jobs:
       - name: Test
         run: npm test
 
-      # 循环依赖守门（审计 A-29）：madge 检出环即红灯
+      # 循环依赖守门（审计 A-29）：自研脚本检出环即红灯
       - name: 循环依赖检查
         run: npm run check:cycles
 
