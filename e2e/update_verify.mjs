@@ -153,6 +153,23 @@ async function gotoMe(browser) {
   await sleep(1200)
 }
 
+/**
+ * 进设置子页（第三轮回验教训）：「我的」标签页只是概览（收藏/本地音乐/最近播放
+ * + 设置入口卡），「桌面版（应用更新）」与「关于（版本号）」都在设置子页里，
+ * 要先点那张写着「主题配色 · 数据管理 · 关于诗音」的设置入口卡。
+ */
+async function gotoSettings(browser) {
+  await gotoMe(browser)
+  const clicked = await browser.execute(() => {
+    const btn = [...document.querySelectorAll('button')].find((b) => b.textContent.includes('主题配色'))
+    if (!btn) return false
+    btn.click()
+    return true
+  })
+  if (clicked) await sleep(1500)
+  return clicked
+}
+
 async function aboutVersion(browser) {
   const text = await browser.execute(() => document.body.innerText)
   const m = text.match(/诗音 Shiyin · v(\d+\.\d+\.\d+)/)
@@ -200,7 +217,7 @@ async function main() {
     }
     gate('shellRender', true)
     report.info.onboardingDismissed = await dismissOnboarding(browser)
-    await gotoMe(browser)
+    report.info.settingsOpened = await gotoSettings(browser)
     const v0 = await aboutVersion(browser)
     report.info.aboutVersionBefore = v0
     gate('oldVersionShown', Boolean(v0) && (!FROM || v0 === FROM), { aboutVersion: v0 })
@@ -310,7 +327,7 @@ async function main() {
       { timeout: 60000, interval: 1000, timeoutMsg: '等待升级后应用外壳超时' },
     )
     await dismissOnboarding(browser)
-    await gotoMe(browser)
+    await gotoSettings(browser)
     const v1 = await aboutVersion(browser)
     report.info.aboutVersionAfter = v1
     gate('upgradedVersionShown', v1 === EXPECTED, { aboutVersion: v1 })
