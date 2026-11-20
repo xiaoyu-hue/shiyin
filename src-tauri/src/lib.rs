@@ -8,6 +8,10 @@
 //!    fs 插件的 capability scope 只放行应用数据目录（$APPDATA/**），
 //!    目录外的源文件只能走这条命令——它不被页面内任何业务代码直接调用，
 //!    入口收敛在前端 platform/tauriFiles.ts；
+//!    路径登记校验（审计 A-08）：上述三路来源的路径必须先经
+//!    register_picked_paths 在 Rust 侧登记（规范化后入集合），读命令与
+//!    copy_import_file 的源路径只接受登记内路径——前端页面即便被注入
+//!    脚本，也无法借这组命令读任意本地文件；
 //! 5. 窄命令 copy_import_file：把导入源音频流式复制进曲库目录（大文件
 //!    不整读入内存），目标路径在 Rust 侧拼装并校验，只许落在曲库目录内。
 //!
@@ -24,12 +28,45 @@ use tauri::{
     Manager, WindowEvent,
 };
 
-/// 读取任意路径文件的全部字节（二进制 IPC 响应，避免大文件走 JSON 数组）。
+/// 已登记可读路径集合（审计 A-08）：只放行经系统对话框 / 拖放 / CI 钩子
+/// 递到前端、再由前端登记回 Rust 的源文件路径，本进程生命周期内有效。
+#[derive(Default)]
+struct PickedPaths(std::sync::Mutex<std::collections::HashSet<std::path::PathBuf>>);
+
+/// 登记一批源文件路径为可读。规范化失败（文件不存在等）的路径跳过——
+/// 后续读命令自然会以「未登记」拒绝，不在此处报错打断整批。
+#[tauri::command]
+fn register_picked_paths(state: tauri::State<'_, PickedPaths>, paths: Vec<String>) {
+    let mut set = state.0.lock().unwrap();
+    for p in paths {
+        if let Ok(canon) = std::fs::canonicalize(&p) {
+            set.insert(canon);
+        }
+    }
+}
+
+/// 校验路径已登记（规范化后比对），未登记直接拒绝。
+fn ensure_registered(state: &PickedPaths, path: &str) -> Result<std::path::PathBuf, String> {
+    let canon = std::fs::canonicalize(path)
+        .map_err(|e| format!("读取文件失败（{path}）：{e}"))?;
+    let set = state.0.lock().unwrap();
+    if set.contains(&canon) {
+        Ok(canon)
+    } else {
+        Err(format!("路径未登记，拒绝读取：{path}"))
+    }
+}
+
+/// 读取已登记路径文件的全部字节（二进制 IPC 响应，避免大文件走 JSON 数组）。
 /// 仅供导入管线读取用户选中的源文件（歌词、封面等小文件），见文件头说明。
 /// 音频本体落盘走 copy_import_file 流式复制，不经本命令。
 #[tauri::command]
-fn read_picked_file(path: String) -> Result<tauri::ipc::Response, String> {
-    let data = std::fs::read(&path).map_err(|e| format!("读取文件失败（{path}）：{e}"))?;
+fn read_picked_file(
+    state: tauri::State<'_, PickedPaths>,
+    path: String,
+) -> Result<tauri::ipc::Response, String> {
+    let canon = ensure_registered(&state, &path)?;
+    let data = std::fs::read(&canon).map_err(|e| format!("读取文件失败（{path}）：{e}"))?;
     Ok(tauri::ipc::Response::new(data))
 }
 
@@ -41,10 +78,14 @@ struct PickedFileMeta {
     modified_ms: Option<u64>,
 }
 
-/// 读取文件元信息（导入管线用其构造与本地文件一致的 File.lastModified 做去重键）
+/// 读取已登记文件的元信息（导入管线用其构造与本地文件一致的 File.lastModified 做去重键）
 #[tauri::command]
-fn read_picked_file_meta(path: String) -> Result<PickedFileMeta, String> {
-    let md = std::fs::metadata(&path).map_err(|e| format!("读取文件信息失败（{path}）：{e}"))?;
+fn read_picked_file_meta(
+    state: tauri::State<'_, PickedPaths>,
+    path: String,
+) -> Result<PickedFileMeta, String> {
+    let canon = ensure_registered(&state, &path)?;
+    let md = std::fs::metadata(&canon).map_err(|e| format!("读取文件信息失败（{path}）：{e}"))?;
     let modified_ms = md
         .modified()
         .ok()
@@ -71,9 +112,12 @@ const TRACKS_DIR_NAME: &str = "tracks";
 #[tauri::command]
 fn copy_import_file(
     app: tauri::AppHandle,
+    state: tauri::State<'_, PickedPaths>,
     src_path: String,
     dest_rel_path: String,
 ) -> Result<u64, String> {
+    // 源路径同样必须已登记（审计 A-08），与读命令同一道门
+    let src_canon = ensure_registered(&state, &src_path)?;
     let mut parts = dest_rel_path.split(['/', '\\']);
     let dir = parts.next().unwrap_or("");
     let file_name = parts.next().unwrap_or("");
@@ -99,7 +143,7 @@ fn copy_import_file(
     if dest.parent() != Some(dest_dir.as_path()) || !dest.starts_with(&app_data) {
         return Err(format!("目标路径越界：{dest_rel_path}"));
     }
-    let mut src = std::fs::File::open(&src_path)
+    let mut src = std::fs::File::open(&src_canon)
         .map_err(|e| format!("打开源文件失败（{src_path}）：{e}"))?;
     let mut out = std::fs::File::create(&dest)
         .map_err(|e| format!("创建目标文件失败：{e}"))?;
@@ -132,6 +176,8 @@ fn show_main_window(app: &tauri::AppHandle) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
+        // 已登记可读路径集合（审计 A-08）：读命令/流式拷贝的源路径白名单
+        .manage(PickedPaths::default())
         // 单实例必须第一个注册：二次启动时只唤起已有窗口，新进程随即退出
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             show_main_window(app);
@@ -152,6 +198,7 @@ pub fn run() {
     }
     builder
         .invoke_handler(tauri::generate_handler![
+            register_picked_paths,
             read_picked_file,
             read_picked_file_meta,
             copy_import_file

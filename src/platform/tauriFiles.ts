@@ -60,6 +60,9 @@ export function srcPathOf(file: File): string | null {
 /** 一组绝对路径 → File 数组（拖放、测试钩子、对话框三路共用）；读失败的单个文件跳过 */
 export async function filesFromPaths(paths: string[]): Promise<File[]> {
   const { invoke } = await import('@tauri-apps/api/core')
+  // 路径登记（审计 A-08）：先把这批来源路径登记到 Rust 侧白名单，
+  // 读命令与流式拷贝只接受登记内路径，前端无法借命令读任意文件
+  await invoke('register_picked_paths', { paths }).catch(() => undefined)
   const files: File[] = []
   for (const path of paths) {
     try {

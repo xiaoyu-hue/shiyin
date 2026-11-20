@@ -39,6 +39,9 @@ jobs:
 
       - name: 打包 NSIS 安装包（验收构建：带 ci-webdriver feature 与 CI 能力集）
         env:
+          # 验收构建标记（审计 A-09/A-65）：前端构建据此包含 CI 测试钩子与采样句柄；
+          # 正式发布构建不设此变量，相关代码整段剔除
+          SHIYIN_ACCEPTANCE: '1'
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npx tauri build --bundles nsis --features ci-webdriver --config src-tauri/tauri.ci.conf.json

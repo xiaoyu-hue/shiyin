@@ -56,6 +56,8 @@ jobs:
       - name: 打包旧版 NSIS 安装包（验收构建：带 ci-webdriver feature 与 CI 能力集）
         working-directory: old-src
         env:
+          # 验收构建标记（审计 A-09/A-65）：旧版源码为 1.5.0+ 时据此包含验收钩子；更早的 tag 无此门控、无害
+          SHIYIN_ACCEPTANCE: '1'
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npx tauri build --bundles nsis --features ci-webdriver --config src-tauri/tauri.ci.conf.json

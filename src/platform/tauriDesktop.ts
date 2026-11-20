@@ -4,11 +4,12 @@
  *
  * 1. 原生拖放导入：监听窗口 drag-drop 事件，drop 时把文件路径经
  *    tauriFiles 转成 File 数组喂导入管线（与对话框导入同一条管线）。
- * 2. CI 测试钩子：restore 完成后检查应用数据目录根下的
- *    test-import.json（内容为待导入文件绝对路径的 JSON 数组，CI 预置）；
- *    存在则走真实导入管线导入，处理完（无论成败）删除钩子文件，
- *    避免下次启动重复导入。普通用户环境没有此文件，行为为零。
- *    正式版上线前应移除本钩子或保留此「无文件即无操作」的形态。
+ * 2. CI 测试钩子（仅验收构建，审计 A-09）：restore 完成后检查应用数据
+ *    目录根下的 test-import.json（内容为待导入文件绝对路径的 JSON 数组，
+ *    CI 预置）；存在则走真实导入管线导入，处理完（无论成败）删除钩子
+ *    文件，避免下次启动重复导入。本钩子由构建期标记 __SHIYIN_ACCEPTANCE__
+ *    门控：只有 CI 验收构建（SHIYIN_ACCEPTANCE=1）才包含这段代码，
+ *    正式发布构建整段剔除，正式产物里不存在此触发路径。
  */
 import { importTracks } from '../store/importTracks'
 import { restoreLocalTracks } from '../store/bootstrap'
@@ -37,10 +38,13 @@ export function bindTauriDesktop(): void {
     })
   })().catch(() => undefined)
 
-  // 测试钩子必须在曲库恢复完成后检查（restoreLocalTracks 是记忆化 Promise，重复调用安全）
-  void restoreLocalTracks()
-    .then(() => runTestImportHook())
-    .catch(() => undefined)
+  // 测试钩子必须在曲库恢复完成后检查（restoreLocalTracks 是记忆化 Promise，重复调用安全）；
+  // 仅验收构建包含（审计 A-09），正式构建此分支与 runTestImportHook 一并被剔除
+  if (__SHIYIN_ACCEPTANCE__) {
+    void restoreLocalTracks()
+      .then(() => runTestImportHook())
+      .catch(() => undefined)
+  }
 
   // 启动静默检查更新（1.3.0）：发现新版只在设置页提示，不打扰使用
   startSilentUpdateCheck()
