@@ -10,6 +10,9 @@ on:
 
 permissions:
   contents: read
+  # rustsec/audit-check 需要回写 Check Run 结果，缺此权限时审计本身跑完
+  # 也会因回写 403 判红（2026-11-20 首跑实证），故单独给本流补 checks 写
+  checks: write
 
 jobs:
   audit:
