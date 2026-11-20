@@ -1,0 +1,46 @@
+# 依赖安全审计常态化（全面自审 A-06/A-11 配套，2026-11-20）：
+# 每周一与手动触发各跑一次 npm audit 与 cargo audit，结果归档为构建产物。
+# 报告制——发现高危只出报告、不阻断任何发版流程（与覆盖率门禁同一口径）。
+name: Security Audit
+
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: npm audit（高危及以上出报告，报告制不阻断）
+        run: |
+          npm ci --ignore-scripts
+          npm audit --audit-level=high --json > npm-audit.json || true
+          npm audit --audit-level=high > npm-audit.txt || true
+          cat npm-audit.txt
+
+      - name: cargo audit（RustSec 数据库核查 src-tauri 锁定依赖）
+        uses: rustsec/audit-check@858dc40f52ca2b8570b7a997c1c4e35c6fc9a432 # v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: src-tauri
+
+      - name: 归档审计报告
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: security-audit-report
+          path: |
+            npm-audit.json
+            npm-audit.txt
+          retention-days: 90

@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => ({
             transformIndexHtml(html: string) {
               return html.replace(
                 '<meta name="theme-color"',
-                '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' blob: data:; media-src \'self\' blob:; font-src \'self\' data:; connect-src \'self\'; object-src \'none\'; base-uri \'self\'" />\n    <meta name="theme-color"',
+                "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'\" />\n    <meta name=\"theme-color\"",
               )
             },
           },

@@ -17,7 +17,8 @@
     "lint": "eslint .",
     "check:cycles": "madge --circular --extensions ts,tsx src",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "audit:deps": "npm audit --audit-level=high"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.2",
