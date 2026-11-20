@@ -52,10 +52,7 @@ describe('偏好持久化装配', () => {
   it('restorePrefs 能把已保存的偏好恢复进 store', () => {
     // 先把 store 改成不同状态，再直接写入存储原文（绕过订阅回写），然后恢复
     useStore.setState({ liked: new Set(), history: [], themeIdx: 0 })
-    storage.setItem(
-      'shiyin:prefs:v1',
-      JSON.stringify({ v: 1, liked: [4], history: [2], themeIdx: 1 }),
-    )
+    storage.setItem('shiyin:prefs:v1', JSON.stringify({ v: 1, liked: [4], history: [2], themeIdx: 1 }))
     restorePrefs()
     const s = useStore.getState()
     expect([...s.liked]).toEqual([4])

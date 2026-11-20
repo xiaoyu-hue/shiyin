@@ -1,13 +1,20 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { Check, ChevronLeft, ChevronRight, FileText, Heart, History, ListMusic, Monitor, Moon, Settings, Sun } from 'lucide-react'
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Heart,
+  History,
+  ListMusic,
+  Monitor,
+  Moon,
+  Settings,
+  Sun,
+} from 'lucide-react'
 import { useStore, themes } from '../store'
 import type { Appearance } from '../data/types'
-import {
-  OPEN_SOURCE_ENTRIES,
-  PROJECT_CODE_LICENSE,
-  PROJECT_COPYRIGHT,
-  PROJECT_DOCS_LICENSE,
-} from '../data/openSource'
+import { OPEN_SOURCE_ENTRIES, PROJECT_CODE_LICENSE, PROJECT_COPYRIGHT, PROJECT_DOCS_LICENSE } from '../data/openSource'
 import { useResolvedDark } from '../hooks/useTheme'
 import { APP_VERSION } from '../lib/appVersion'
 import ImportButton from './ImportButton'
@@ -78,30 +85,26 @@ export default function MeView() {
       {/* 桌面双列（1.4.0 包 3）：导入区与设置入口并排，窄屏纵向不变；
           1.4.1 起由 desk: 平台门控，网页/安卓宽视口下不触发 */}
       <div className="desk:grid desk:grid-cols-2 desk:items-start desk:gap-4">
-      <section className="mb-7 desk:mb-0">
-        <h2 className="mb-3 text-heading font-semibold">本地音乐</h2>
-        <p className="mb-3 text-sub text-ink2">
-          音频保存在本机浏览器中，不会上传到任何服务器。共 {localCount} 首
-        </p>
-        <ImportButton />
-      </section>
+        <section className="mb-7 desk:mb-0">
+          <h2 className="mb-3 text-heading font-semibold">本地音乐</h2>
+          <p className="mb-3 text-sub text-ink2">音频保存在本机浏览器中，不会上传到任何服务器。共 {localCount} 首</p>
+          <ImportButton />
+        </section>
 
-      <button
-        onClick={() => setMePage('settings')}
-        className="flex w-full items-center gap-3 rounded-[var(--r-card)] bg-surface/60 px-4 py-4 text-left shadow-sm transition-transform active:scale-[0.99]"
-      >
-        <Settings size={20} style={{ color: 'var(--accent)' }} />
-        <span className="flex-1">
-          <span className="block text-body font-medium">设置</span>
-          <span className="mt-0.5 block text-sub text-ink2">主题配色 · 数据管理 · 关于诗音</span>
-        </span>
-        <ChevronRight size={18} className="text-ink3" />
-      </button>
+        <button
+          onClick={() => setMePage('settings')}
+          className="flex w-full items-center gap-3 rounded-[var(--r-card)] bg-surface/60 px-4 py-4 text-left shadow-sm transition-transform active:scale-[0.99]"
+        >
+          <Settings size={20} style={{ color: 'var(--accent)' }} />
+          <span className="flex-1">
+            <span className="block text-body font-medium">设置</span>
+            <span className="mt-0.5 block text-sub text-ink2">主题配色 · 数据管理 · 关于诗音</span>
+          </span>
+          <ChevronRight size={18} className="text-ink3" />
+        </button>
       </div>
 
-      <p className="mt-8 text-center text-caption text-ink3">
-        诗音 · 共 {localCount} 首本地音乐
-      </p>
+      <p className="mt-8 text-center text-caption text-ink3">诗音 · 共 {localCount} 首本地音乐</p>
     </div>
   )
 }
@@ -110,7 +113,11 @@ function BackHeader({ title }: { title: string }) {
   const setMePage = useStore((s) => s.setMePage)
   return (
     <div className="mb-4 flex items-center gap-1">
-      <button onClick={() => setMePage(null)} className="flex min-h-11 items-center gap-1 text-body text-ink2" aria-label="返回我的">
+      <button
+        onClick={() => setMePage(null)}
+        className="flex min-h-11 items-center gap-1 text-body text-ink2"
+        aria-label="返回我的"
+      >
         <ChevronLeft size={20} />
         我的
       </button>
@@ -138,7 +145,9 @@ function FavoritesPage() {
               if (useStore.getState().selection === null) setPlayerOpen(true)
             }}
           >
-            {indices.map((i) => <SongRow key={tracks[i].id} index={i} context={indices} />)}
+            {indices.map((i) => (
+              <SongRow key={tracks[i].id} index={i} context={indices} />
+            ))}
           </div>
         </>
       )}
@@ -165,7 +174,9 @@ function HistoryPage() {
               if (useStore.getState().selection === null) setPlayerOpen(true)
             }}
           >
-            {indices.map((i, rank) => <SongRow key={`${tracks[i].id}-${rank}`} index={i} context={indices} />)}
+            {indices.map((i, rank) => (
+              <SongRow key={`${tracks[i].id}-${rank}`} index={i} context={indices} />
+            ))}
           </div>
         </>
       )}
@@ -200,7 +211,11 @@ function SettingsPage() {
   }, [tracks.length])
 
   const usageText =
-    usage === null ? '读取中…' : usage < 1024 * 1024 ? `${(usage / 1024).toFixed(0)} KB` : `${(usage / 1024 / 1024).toFixed(1)} MB`
+    usage === null
+      ? '读取中…'
+      : usage < 1024 * 1024
+        ? `${(usage / 1024).toFixed(0)} KB`
+        : `${(usage / 1024 / 1024).toFixed(1)} MB`
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pt-6">
@@ -232,7 +247,9 @@ function SettingsPage() {
 
       <section className="mb-7">
         <h2 className="mb-3 text-heading font-semibold">主题配色</h2>
-        <p className="mb-3 text-sub text-ink2">当前：{themes[themeIdx].name}（共 {themes.length} 套）</p>
+        <p className="mb-3 text-sub text-ink2">
+          当前：{themes[themeIdx].name}（共 {themes.length} 套）
+        </p>
         <div className="grid grid-cols-6 gap-2">
           {themes.map((t, i) => {
             const active = i === themeIdx
@@ -240,7 +257,12 @@ function SettingsPage() {
             const swBgEnd = dark ? t.bgEndDark : t.bgEnd
             const swAccent = dark ? t.accentDark : t.accent
             return (
-              <button key={t.slug} onClick={() => setTheme(i)} className="flex flex-col items-center" aria-pressed={active}>
+              <button
+                key={t.slug}
+                onClick={() => setTheme(i)}
+                className="flex flex-col items-center"
+                aria-pressed={active}
+              >
                 <span
                   className="grid h-11 w-11 place-items-center rounded-full shadow-sm transition-transform active:scale-95"
                   style={{
@@ -251,7 +273,9 @@ function SettingsPage() {
                 >
                   {active && <Check size={18} style={{ color: swAccent }} />}
                 </span>
-                <span className={`mt-1.5 w-full truncate text-center text-caption ${active ? 'font-semibold text-ink/75' : 'text-ink2'}`}>
+                <span
+                  className={`mt-1.5 w-full truncate text-center text-caption ${active ? 'font-semibold text-ink/75' : 'text-ink2'}`}
+                >
                   {t.name}
                 </span>
               </button>
@@ -289,7 +313,8 @@ function SettingsPage() {
           <div className="min-w-0 flex-1">
             <p className="text-body font-medium">播放页全屏滑动切歌</p>
             <p className="mt-0.5 text-sub leading-relaxed text-ink2">
-              默认只有封面区域左右滑能切歌。打开后，播放页任意处左右滑都可以切歌；点封面左右两侧快退 / 快进 10 秒不受影响。
+              默认只有封面区域左右滑能切歌。打开后，播放页任意处左右滑都可以切歌；点封面左右两侧快退 / 快进 10
+              秒不受影响。
             </p>
           </div>
           <button
@@ -311,7 +336,9 @@ function SettingsPage() {
         <div className="rounded-[var(--r-card)] bg-surface/60 p-4 shadow-sm">
           <div className="flex items-center justify-between text-body">
             <span className="text-ink2">本地音乐占用</span>
-            <span className="font-medium">{tracks.length} 首 · {usageText}</span>
+            <span className="font-medium">
+              {tracks.length} 首 · {usageText}
+            </span>
           </div>
           <p className="mt-2 text-sub leading-relaxed text-ink2">
             所有音频与封面只存在这台设备的浏览器里。清除后需要重新导入（你设备里的原文件不受影响）。
@@ -331,7 +358,10 @@ function SettingsPage() {
               >
                 确认清除 {tracks.length} 首
               </button>
-              <button onClick={() => setConfirmingClear(false)} className="min-h-11 flex-1 rounded-full bg-surface/60 text-body text-ink2">
+              <button
+                onClick={() => setConfirmingClear(false)}
+                className="min-h-11 flex-1 rounded-full bg-surface/60 text-body text-ink2"
+              >
                 取消
               </button>
             </div>
@@ -358,7 +388,8 @@ function SettingsPage() {
           </p>
           {isTauriPlatform() && (
             <p className="mt-1.5">
-              这是 Windows 桌面版：关掉窗口会缩到系统托盘继续播放；新版发布后会在上方「桌面版」一栏提示你一键更新，不用重新下载安装。
+              这是 Windows
+              桌面版：关掉窗口会缩到系统托盘继续播放；新版发布后会在上方「桌面版」一栏提示你一键更新，不用重新下载安装。
             </p>
           )}
         </div>
@@ -420,7 +451,9 @@ function DesktopSection() {
             className={`relative h-8 w-[52px] shrink-0 rounded-full transition-colors ${autostart ? '' : 'bg-ink/15'}`}
             style={autostart ? { background: 'var(--accent)' } : undefined}
           >
-            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${autostart ? 'left-[24px]' : 'left-1'}`} />
+            <span
+              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${autostart ? 'left-[24px]' : 'left-1'}`}
+            />
           </button>
         </div>
         {autostartFailed && <p className="mt-2 text-sub text-danger">设置没成功，请再试一次。</p>}
@@ -430,7 +463,9 @@ function DesktopSection() {
         <p className="text-body font-medium">应用更新</p>
         {update.kind === 'available' ? (
           <>
-            <p className="mt-0.5 text-sub leading-relaxed text-ink2">发现新版 v{update.version}，下载安装后会自动重启诗音。</p>
+            <p className="mt-0.5 text-sub leading-relaxed text-ink2">
+              发现新版 v{update.version}，下载安装后会自动重启诗音。
+            </p>
             <button
               onClick={() => void installPendingUpdate()}
               className="mt-3 min-h-11 w-full rounded-full text-body font-semibold text-white"

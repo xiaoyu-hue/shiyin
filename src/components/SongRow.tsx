@@ -200,12 +200,21 @@ function SongRow({ index, rank, context }: Props) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className={`truncate text-body ${isCurrent ? 'font-semibold' : 'font-medium'}`} style={isCurrent ? { color: 'var(--accent)' } : undefined}>
+          <div
+            className={`truncate text-body ${isCurrent ? 'font-semibold' : 'font-medium'}`}
+            style={isCurrent ? { color: 'var(--accent)' } : undefined}
+          >
             {song.name}
           </div>
-          <div className="mt-0.5 truncate text-sub text-ink2">{song.artist} · {song.album}</div>
+          <div className="mt-0.5 truncate text-sub text-ink2">
+            {song.artist} · {song.album}
+          </div>
         </div>
-        {selected && <span className="shrink-0 text-sub font-medium" style={{ color: 'var(--accent)' }}>已选</span>}
+        {selected && (
+          <span className="shrink-0 text-sub font-medium" style={{ color: 'var(--accent)' }}>
+            已选
+          </span>
+        )}
         <span className="flex shrink-0 items-center gap-1.5 text-sub tabular-nums text-ink3">
           {isLocal && (
             <span
@@ -219,14 +228,25 @@ function SongRow({ index, rank, context }: Props) {
         {!inSelection && (
           <>
             <button
-              onClick={(e) => { e.stopPropagation(); hapticImpact(); toggleLike(song.id) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                hapticImpact()
+                toggleLike(song.id)
+              }}
               aria-label={liked.has(song.id) ? '取消收藏' : '收藏'}
               className="-mr-1 grid h-11 w-11 shrink-0 place-items-center rounded-full"
             >
-              <Heart size={18} fill={liked.has(song.id) ? 'var(--accent)' : 'none'} style={{ color: liked.has(song.id) ? 'var(--accent)' : '#b8b0a4' }} />
+              <Heart
+                size={18}
+                fill={liked.has(song.id) ? 'var(--accent)' : 'none'}
+                style={{ color: liked.has(song.id) ? 'var(--accent)' : '#b8b0a4' }}
+              />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); setMenuTrack(index) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                setMenuTrack(index)
+              }}
               aria-label={`《${song.name}》的更多操作`}
               className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink3"
             >

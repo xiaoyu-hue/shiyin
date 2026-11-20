@@ -35,12 +35,13 @@ export default function HomeView() {
   const indexed = useMemo(() => tracks.map((song, index) => ({ song, index })), [tracks])
   // 全部曲目列表的 context 身份稳定化（审计 A-25）
   const allContext = useMemo(() => tracks.map((_, j) => j), [tracks])
-  const continueRail = useMemo(
-    () => history.filter((i) => tracks[i]).slice(0, 8),
-    [history, tracks],
-  )
+  const continueRail = useMemo(() => history.filter((i) => tracks[i]).slice(0, 8), [history, tracks])
   const recentRail = useMemo(
-    () => [...indexed].sort((a, b) => (b.song.addedAt ?? 0) - (a.song.addedAt ?? 0)).slice(0, 8).map((x) => x.index),
+    () =>
+      [...indexed]
+        .sort((a, b) => (b.song.addedAt ?? 0) - (a.song.addedAt ?? 0))
+        .slice(0, 8)
+        .map((x) => x.index),
     [indexed],
   )
   const randomRail = useMemo(() => {
@@ -65,7 +66,9 @@ export default function HomeView() {
     <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <header className="mb-7">
         <div className="flex items-baseline justify-between">
-          <p className="text-sub font-medium tracking-widest" style={{ color: 'var(--accent)' }}>SHIYIN · 诗音</p>
+          <p className="text-sub font-medium tracking-widest" style={{ color: 'var(--accent)' }}>
+            SHIYIN · 诗音
+          </p>
           <p className="text-sub text-ink3">{dateLine}</p>
         </div>
         <h1 className="mt-2 text-hero font-bold leading-tight tracking-tight">{greetingLine(now)}</h1>
@@ -90,21 +93,36 @@ export default function HomeView() {
           {continueRail.length > 0 && (
             <RailSection title="继续聆听">
               {continueRail.map((i) => (
-                <CoverCard key={tracks[i].id} song={tracks[i]} sub={tracks[i].artist} onPlay={() => playFromRail(i, continueRail)} />
+                <CoverCard
+                  key={tracks[i].id}
+                  song={tracks[i]}
+                  sub={tracks[i].artist}
+                  onPlay={() => playFromRail(i, continueRail)}
+                />
               ))}
             </RailSection>
           )}
 
           <RailSection title="最近添加">
             {recentRail.map((i) => (
-              <CoverCard key={tracks[i].id} song={tracks[i]} sub={tracks[i].artist} onPlay={() => playFromRail(i, recentRail)} />
+              <CoverCard
+                key={tracks[i].id}
+                song={tracks[i]}
+                sub={tracks[i].artist}
+                onPlay={() => playFromRail(i, recentRail)}
+              />
             ))}
           </RailSection>
 
           {tracks.length >= 3 && (
             <RailSection title="随机推荐">
               {randomRail.map((i) => (
-                <CoverCard key={tracks[i].id} song={tracks[i]} sub={tracks[i].artist} onPlay={() => playFromRail(i, randomRail)} />
+                <CoverCard
+                  key={tracks[i].id}
+                  song={tracks[i]}
+                  sub={tracks[i].artist}
+                  onPlay={() => playFromRail(i, randomRail)}
+                />
               ))}
             </RailSection>
           )}
@@ -116,7 +134,12 @@ export default function HomeView() {
                 song={a.items[0].song}
                 title={a.name}
                 sub={`${a.artist} · ${a.items.length} 首`}
-                onPlay={() => playFromRail(a.items[0].index, a.items.map((x) => x.index))}
+                onPlay={() =>
+                  playFromRail(
+                    a.items[0].index,
+                    a.items.map((x) => x.index),
+                  )
+                }
               />
             ))}
           </RailSection>
@@ -133,7 +156,9 @@ export default function HomeView() {
                 if (useStore.getState().selection === null) setPlayerOpen(true)
               }}
             >
-              {tracks.map((s, i) => <SongRow key={s.id} index={i} context={allContext} />)}
+              {tracks.map((s, i) => (
+                <SongRow key={s.id} index={i} context={allContext} />
+              ))}
             </div>
             <p className="mt-2 text-center text-caption text-ink3">点歌展开播放器 · 长按多选 · 右滑排到下一首</p>
           </section>
@@ -170,7 +195,12 @@ function CoverCard({ song, title, sub, onPlay }: CardProps) {
         style={{ ['--cover' as string]: song.color }}
       >
         {song.coverSrc ? (
-          <img src={song.thumbSrc ?? song.coverSrc} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+          <img
+            src={song.thumbSrc ?? song.coverSrc}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
         ) : (
           <span className="text-3xl font-bold">{(title ?? song.name).charAt(0)}</span>
         )}

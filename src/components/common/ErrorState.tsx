@@ -7,11 +7,7 @@ interface Props {
 }
 
 /** 错误态：加载失败 / 运行时错误时展示（架构任务 4.2） */
-export default function ErrorState({
-  title = '出了点问题',
-  description = '请稍后重试',
-  onRetry,
-}: Props) {
+export default function ErrorState({ title = '出了点问题', description = '请稍后重试', onRetry }: Props) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-center" role="alert">
       <p className="text-3xl">⚠️</p>

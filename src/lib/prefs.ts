@@ -95,11 +95,7 @@ export function serializePrefs(data: PrefsData): string {
  * 解析落盘字符串。整体损坏（非 JSON / 非对象）返回 null；
  * 单个字段损坏只清洗该字段，不连累其他字段。
  */
-export function parsePrefs(
-  raw: string | null,
-  themeCount: number,
-  defaultThemeIdx: number,
-): PrefsData | null {
+export function parsePrefs(raw: string | null, themeCount: number, defaultThemeIdx: number): PrefsData | null {
   if (!raw) return null
   let obj: unknown
   try {

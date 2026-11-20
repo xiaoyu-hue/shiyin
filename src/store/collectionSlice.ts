@@ -81,9 +81,7 @@ export const createCollectionSlice: StateCreator<AppState, [], [], CollectionSli
 
   addToPlaylist: (id, trackId) => set((s) => ({ playlists: addTrackToList(s.playlists, id, trackId) })),
 
-  addManyToPlaylist: (id, trackIds) =>
-    set((s) => ({ playlists: addTracksToList(s.playlists, id, trackIds) })),
+  addManyToPlaylist: (id, trackIds) => set((s) => ({ playlists: addTracksToList(s.playlists, id, trackIds) })),
 
-  removeFromPlaylist: (id, trackId) =>
-    set((s) => ({ playlists: removeTrackFromList(s.playlists, id, trackId) })),
+  removeFromPlaylist: (id, trackId) => set((s) => ({ playlists: removeTrackFromList(s.playlists, id, trackId) })),
 })

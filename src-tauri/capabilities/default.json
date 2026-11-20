@@ -1,1 +1,26 @@
-{"$schema":"../gen/schemas/desktop-schema.json","description":"主窗口权限（正式版集合）：核心能力 + 文件选择对话框 + 应用数据目录（$APPDATA）内的文件读写 + 自动更新 + 进程重启 + 开机自启。fs scope 只放行 $APPDATA/**，不开放任何系统目录；目录外的导入源文件走 Rust 窄命令（见 src/lib.rs）。CI 验收专用的 WebDriver 权限不在此文件内（见 webdriver.json，仅验收构建经 tauri.ci.conf.json 启用）。","identifier":"default","permissions":["core:default","dialog:allow-open","fs:allow-read-file","fs:allow-write-file","fs:allow-read-text-file","fs:allow-write-text-file","fs:allow-exists","fs:allow-mkdir","fs:allow-remove","fs:allow-stat","fs:allow-read-dir","updater:default","process:allow-restart","process:allow-exit","autostart:allow-enable","autostart:allow-disable","autostart:allow-is-enabled",{"allow":["$APPDATA/*","$APPDATA/**"],"identifier":"fs:scope"}],"windows":["main"]}
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "description": "主窗口权限（正式版集合）：核心能力 + 文件选择对话框 + 应用数据目录（$APPDATA）内的文件读写 + 自动更新 + 进程重启 + 开机自启。fs scope 只放行 $APPDATA/**，不开放任何系统目录；目录外的导入源文件走 Rust 窄命令（见 src/lib.rs）。CI 验收专用的 WebDriver 权限不在此文件内（见 webdriver.json，仅验收构建经 tauri.ci.conf.json 启用）。",
+  "identifier": "default",
+  "permissions": [
+    "core:default",
+    "dialog:allow-open",
+    "fs:allow-read-file",
+    "fs:allow-write-file",
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "fs:allow-exists",
+    "fs:allow-mkdir",
+    "fs:allow-remove",
+    "fs:allow-stat",
+    "fs:allow-read-dir",
+    "updater:default",
+    "process:allow-restart",
+    "process:allow-exit",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled",
+    { "allow": ["$APPDATA/*", "$APPDATA/**"], "identifier": "fs:scope" }
+  ],
+  "windows": ["main"]
+}

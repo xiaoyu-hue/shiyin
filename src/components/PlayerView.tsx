@@ -1,6 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useAnimationFrame, useDragControls, useMotionValue, useReducedMotion, useTransform, type PanInfo } from 'motion/react'
-import { ChevronDown, Heart, Play, Pause, SkipBack, SkipForward, Repeat, RotateCcw, RotateCw, Shuffle, ListMusic, ListVideo, Mic2 } from 'lucide-react'
+import {
+  AnimatePresence,
+  motion,
+  useAnimationFrame,
+  useDragControls,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+  type PanInfo,
+} from 'motion/react'
+import {
+  ChevronDown,
+  Heart,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Repeat,
+  RotateCcw,
+  RotateCw,
+  Shuffle,
+  ListMusic,
+  ListVideo,
+  Mic2,
+} from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
 import { crossfadeTransition, springGentle, springSheet } from '../lib/motion'
@@ -204,7 +227,11 @@ export default function PlayerView() {
             className="relative flex items-center justify-between text-ink/70"
             onPointerDown={(e) => dragControls.start(e)}
           >
-            <button onClick={() => setOpen(false)} aria-label="收起播放器" className="glass grid h-11 w-11 place-items-center rounded-full">
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="收起播放器"
+              className="glass grid h-11 w-11 place-items-center rounded-full"
+            >
               <ChevronDown size={24} />
             </button>
             <div className="text-center">
@@ -213,11 +240,26 @@ export default function PlayerView() {
             </div>
             <div className="flex items-center gap-2">
               <SleepMenu />
-              <button onClick={() => setLyricOpen(true)} aria-label="打开歌词" className="glass grid h-11 w-11 place-items-center rounded-full">
+              <button
+                onClick={() => setLyricOpen(true)}
+                aria-label="打开歌词"
+                className="glass grid h-11 w-11 place-items-center rounded-full"
+              >
                 <Mic2 size={20} />
               </button>
-              <button onClick={() => { hapticImpact(); toggleLike(song.id) }} aria-label="收藏" className="glass grid h-11 w-11 place-items-center rounded-full">
-                <Heart size={21} fill={liked.has(song.id) ? 'var(--accent)' : 'none'} style={{ color: 'var(--accent)' }} />
+              <button
+                onClick={() => {
+                  hapticImpact()
+                  toggleLike(song.id)
+                }}
+                aria-label="收藏"
+                className="glass grid h-11 w-11 place-items-center rounded-full"
+              >
+                <Heart
+                  size={21}
+                  fill={liked.has(song.id) ? 'var(--accent)' : 'none'}
+                  style={{ color: 'var(--accent)' }}
+                />
               </button>
             </div>
           </div>
@@ -225,101 +267,149 @@ export default function PlayerView() {
           {/* 中部内容区：默认只有封面是横滑切歌区；设置开启「全屏滑动切歌」后整区可滑。
               两个拖动层互斥启用（drag=false 的一层不拦截手势），下拉关闭走顶部手柄的独立拖动控制，互不干扰 */}
           <div className="relative flex flex-1 flex-col desk:flex-row desk:items-center desk:gap-12">
-          <motion.div
-            className="relative flex flex-1 flex-col items-center justify-center gap-8 desk:min-w-0"
-            style={{ touchAction: 'pan-y' }}
-            drag={swipeAnywhere ? 'x' : false}
-            dragDirectionLock
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.5}
-            onDragEnd={handleSwipeEnd}
-          >
-            <motion.div layoutId={morphCover ? 'now-playing-cover' : undefined} className="relative">
             <motion.div
-              className="relative"
-              style={{ touchAction: 'pan-y', x: dragX }}
-              drag={swipeAnywhere ? false : 'x'}
+              className="relative flex flex-1 flex-col items-center justify-center gap-8 desk:min-w-0"
+              style={{ touchAction: 'pan-y' }}
+              drag={swipeAnywhere ? 'x' : false}
               dragDirectionLock
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.5}
               onDragEnd={handleSwipeEnd}
-              onPointerDown={() => {
-                dragDist.current = 0
-              }}
-              onClick={handleCoverClick}
-              animate={{ scale: playing ? 1 : 0.94 }}
-              transition={springGentle}
             >
-              <motion.div
-                className="cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50 desk:h-80 desk:w-80 desk:xl:h-96 desk:xl:w-96"
-                style={{ rotate, ['--cover' as string]: song.color }}
-              >
-                {song.coverSrc ? (
-                  <>
-                    <img src={song.midCoverSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
-                    <div className="relative h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
-                  </>
-                ) : (
-                  <div className="h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
-                )}
-              </motion.div>
-              {/* 横滑跟手提示：拖向哪侧，哪侧的切歌图标先探头（1.4.0） */}
-              <motion.span style={{ opacity: prevHintOpacity }} className="pointer-events-none absolute inset-y-0 -left-4 flex items-center" aria-hidden>
-                <span className="glass grid h-9 w-9 place-items-center rounded-full" style={{ color: 'var(--accent)' }}>
-                  <SkipBack size={16} />
-                </span>
-              </motion.span>
-              <motion.span style={{ opacity: nextHintOpacity }} className="pointer-events-none absolute inset-y-0 -right-4 flex items-center" aria-hidden>
-                <span className="glass grid h-9 w-9 place-items-center rounded-full" style={{ color: 'var(--accent)' }}>
-                  <SkipForward size={16} />
-                </span>
-              </motion.span>
-              {/* 点封面两侧快退/快进的短暂方向提示 */}
-              {seekHint && (
-                <div
-                  className={`pointer-events-none absolute inset-y-0 flex items-center ${seekHint === 'back' ? '-left-2' : '-right-2'}`}
-                  aria-hidden
+              <motion.div layoutId={morphCover ? 'now-playing-cover' : undefined} className="relative">
+                <motion.div
+                  className="relative"
+                  style={{ touchAction: 'pan-y', x: dragX }}
+                  drag={swipeAnywhere ? false : 'x'}
+                  dragDirectionLock
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.5}
+                  onDragEnd={handleSwipeEnd}
+                  onPointerDown={() => {
+                    dragDist.current = 0
+                  }}
+                  onClick={handleCoverClick}
+                  animate={{ scale: playing ? 1 : 0.94 }}
+                  transition={springGentle}
                 >
-                  <span className="glass flex items-center gap-1 rounded-full px-3 py-1.5 text-sub font-semibold text-ink/80">
-                    {seekHint === 'back' ? <RotateCcw size={14} /> : <RotateCw size={14} />}
-                    {seekHint === 'back' ? '快退 10 秒' : '快进 10 秒'}
-                  </span>
+                  <motion.div
+                    className="cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50 desk:h-80 desk:w-80 desk:xl:h-96 desk:xl:w-96"
+                    style={{ rotate, ['--cover' as string]: song.color }}
+                  >
+                    {song.coverSrc ? (
+                      <>
+                        <img
+                          src={song.midCoverSrc ?? song.coverSrc}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                        <div className="relative h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
+                      </>
+                    ) : (
+                      <div className="h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
+                    )}
+                  </motion.div>
+                  {/* 横滑跟手提示：拖向哪侧，哪侧的切歌图标先探头（1.4.0） */}
+                  <motion.span
+                    style={{ opacity: prevHintOpacity }}
+                    className="pointer-events-none absolute inset-y-0 -left-4 flex items-center"
+                    aria-hidden
+                  >
+                    <span
+                      className="glass grid h-9 w-9 place-items-center rounded-full"
+                      style={{ color: 'var(--accent)' }}
+                    >
+                      <SkipBack size={16} />
+                    </span>
+                  </motion.span>
+                  <motion.span
+                    style={{ opacity: nextHintOpacity }}
+                    className="pointer-events-none absolute inset-y-0 -right-4 flex items-center"
+                    aria-hidden
+                  >
+                    <span
+                      className="glass grid h-9 w-9 place-items-center rounded-full"
+                      style={{ color: 'var(--accent)' }}
+                    >
+                      <SkipForward size={16} />
+                    </span>
+                  </motion.span>
+                  {/* 点封面两侧快退/快进的短暂方向提示 */}
+                  {seekHint && (
+                    <div
+                      className={`pointer-events-none absolute inset-y-0 flex items-center ${seekHint === 'back' ? '-left-2' : '-right-2'}`}
+                      aria-hidden
+                    >
+                      <span className="glass flex items-center gap-1 rounded-full px-3 py-1.5 text-sub font-semibold text-ink/80">
+                        {seekHint === 'back' ? <RotateCcw size={14} /> : <RotateCw size={14} />}
+                        {seekHint === 'back' ? '快退 10 秒' : '快进 10 秒'}
+                      </span>
+                    </div>
+                  )}
+                </motion.div>
+              </motion.div>
+            </motion.div>
+            <div className="contents desk:flex desk:w-[400px] desk:shrink-0 desk:flex-col desk:justify-center desk:gap-8">
+              <div className="w-full text-center desk:text-left">
+                <h2 className="text-title font-bold text-ink/85 desk:text-display">{song.name}</h2>
+                <p className="mt-1 text-body text-ink2">{song.artist}</p>
+                {audioError && <p className="mt-2 text-caption text-danger">{audioError}</p>}
+              </div>
+              <div className="glass-strong relative rounded-[var(--r-sheet)] p-5">
+                <SeekBar value={Math.min(pos, duration)} max={duration} onSeek={seek} />
+                <div className="mt-1 flex justify-between text-sub tabular-nums text-ink2">
+                  <span>{fmtTime(pos)}</span>
+                  <span>{song.dur > 0 ? fmtTime(song.dur) : '--:--'}</span>
                 </div>
-              )}
-            </motion.div>
-            </motion.div>
-          </motion.div>
-          <div className="contents desk:flex desk:w-[400px] desk:shrink-0 desk:flex-col desk:justify-center desk:gap-8">
-            <div className="w-full text-center desk:text-left">
-              <h2 className="text-title font-bold text-ink/85 desk:text-display">{song.name}</h2>
-              <p className="mt-1 text-body text-ink2">{song.artist}</p>
-              {audioError && <p className="mt-2 text-caption text-danger">{audioError}</p>}
+                <div className="mt-2 flex items-center justify-center gap-6">
+                  <button
+                    onClick={cycleMode}
+                    aria-label="播放模式"
+                    className="grid h-11 w-11 place-items-center rounded-full"
+                  >
+                    <ModeIcon size={22} style={{ color: 'var(--accent)' }} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      hapticImpact()
+                      prev()
+                    }}
+                    aria-label="上一首"
+                    className="grid h-11 w-11 place-items-center rounded-full"
+                  >
+                    <SkipBack size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
+                  </button>
+                  <button
+                    onClick={toggle}
+                    aria-label={playing ? '暂停' : '播放'}
+                    className="grid h-16 w-16 place-items-center rounded-full shadow-lg accent-bg"
+                  >
+                    {playing ? (
+                      <Pause size={28} fill="white" className="text-white" />
+                    ) : (
+                      <Play size={28} fill="white" className="text-white" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      hapticImpact()
+                      next()
+                    }}
+                    aria-label="下一首"
+                    className="grid h-11 w-11 place-items-center rounded-full"
+                  >
+                    <SkipForward size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
+                  </button>
+                  <button
+                    onClick={() => setQueueOpen(true)}
+                    aria-label="打开播放队列"
+                    className="grid h-11 w-11 place-items-center rounded-full"
+                  >
+                    <ListVideo size={22} style={{ color: 'var(--accent)' }} />
+                  </button>
+                </div>
+              </div>
             </div>
-          <div className="glass-strong relative rounded-[var(--r-sheet)] p-5">
-            <SeekBar value={Math.min(pos, duration)} max={duration} onSeek={seek} />
-            <div className="mt-1 flex justify-between text-sub tabular-nums text-ink2">
-              <span>{fmtTime(pos)}</span>
-              <span>{song.dur > 0 ? fmtTime(song.dur) : '--:--'}</span>
-            </div>
-            <div className="mt-2 flex items-center justify-center gap-6">
-              <button onClick={cycleMode} aria-label="播放模式" className="grid h-11 w-11 place-items-center rounded-full">
-                <ModeIcon size={22} style={{ color: 'var(--accent)' }} />
-              </button>
-              <button onClick={() => { hapticImpact(); prev() }} aria-label="上一首" className="grid h-11 w-11 place-items-center rounded-full">
-                <SkipBack size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
-              </button>
-              <button onClick={toggle} aria-label={playing ? '暂停' : '播放'} className="grid h-16 w-16 place-items-center rounded-full shadow-lg accent-bg">
-                {playing ? <Pause size={28} fill="white" className="text-white" /> : <Play size={28} fill="white" className="text-white" />}
-              </button>
-              <button onClick={() => { hapticImpact(); next() }} aria-label="下一首" className="grid h-11 w-11 place-items-center rounded-full">
-                <SkipForward size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
-              </button>
-              <button onClick={() => setQueueOpen(true)} aria-label="打开播放队列" className="grid h-11 w-11 place-items-center rounded-full">
-                <ListVideo size={22} style={{ color: 'var(--accent)' }} />
-              </button>
-            </div>
-          </div>
-          </div>
           </div>
         </motion.div>
       )}

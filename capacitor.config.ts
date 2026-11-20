@@ -1,4 +1,4 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
   appId: 'com.shiyin.player',
@@ -14,6 +14,6 @@ const config: CapacitorConfig = {
       backgroundColor: '#F6F3EF',
     },
   },
-};
+}
 
-export default config;
+export default config

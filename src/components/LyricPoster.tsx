@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Check, Download, Share2, X } from 'lucide-react'
 import type { Song } from '../data/types'
-import { computePosterLayout, POSTER_H, POSTER_MAX_LINES, POSTER_W, toggleLineSelection, truncateToWidth } from '../lib/poster'
+import {
+  computePosterLayout,
+  POSTER_H,
+  POSTER_MAX_LINES,
+  POSTER_W,
+  toggleLineSelection,
+  truncateToWidth,
+} from '../lib/poster'
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
 import { springDrawer, scrimTransition } from '../lib/motion'
 import { useSheetDrag } from './common/useSheetDrag'
@@ -240,7 +247,14 @@ export default function LyricPoster({ song, open, onClose }: Props) {
   return (
     <AnimatePresence>
       {open && (
-        <div ref={panelRef} tabIndex={-1} className="fixed inset-0 z-50 outline-none" role="dialog" aria-modal="true" aria-label="歌词海报">
+        <div
+          ref={panelRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-50 outline-none"
+          role="dialog"
+          aria-modal="true"
+          aria-label="歌词海报"
+        >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -259,13 +273,17 @@ export default function LyricPoster({ song, open, onClose }: Props) {
             style={{ paddingBottom: 'calc(1.5rem + var(--sab))' }}
           >
             <div {...handleProps} className="-mt-1 mb-2 flex shrink-0 cursor-grab touch-none justify-center py-1.5">
-            <div className="h-1.5 w-10 rounded-full bg-ink/15" />
-          </div>
+              <div className="h-1.5 w-10 rounded-full bg-ink/15" />
+            </div>
             <div className="mb-2 flex items-center px-1">
               <p className="flex-1 text-body font-semibold">
                 {phase === 'select' ? `选择歌词行（已选 ${selected.length}/${POSTER_MAX_LINES}）` : '歌词海报'}
               </p>
-              <button onClick={onClose} aria-label="关闭海报" className="grid h-11 w-11 place-items-center rounded-full text-ink2">
+              <button
+                onClick={onClose}
+                aria-label="关闭海报"
+                className="grid h-11 w-11 place-items-center rounded-full text-ink2"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -313,7 +331,11 @@ export default function LyricPoster({ song, open, onClose }: Props) {
                   {/* 隐藏画布负责绘制，预览图展示同一结果 */}
                   <canvas ref={canvasRef} width={POSTER_W} height={POSTER_H} className="hidden" aria-hidden />
                   {dataUrl ? (
-                    <img src={dataUrl} alt={`${song.name} 歌词海报预览`} className="mx-auto max-h-full w-auto rounded-[var(--r-card)] shadow-lg" />
+                    <img
+                      src={dataUrl}
+                      alt={`${song.name} 歌词海报预览`}
+                      className="mx-auto max-h-full w-auto rounded-[var(--r-card)] shadow-lg"
+                    />
                   ) : (
                     <p className="py-16 text-center text-body text-ink2">正在生成海报…</p>
                   )}

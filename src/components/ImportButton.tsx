@@ -99,14 +99,11 @@ export default function ImportButton({ className = '', label, primary = false, o
 
       {status.kind === 'done' && (
         <p className="mt-2 text-center text-sub" style={{ color: 'var(--accent)' }}>
-          已导入 {status.added} 首
-          {status.skipped > 0 ? `，跳过 ${status.skipped} 首（重复或无法读取）` : ''}
+          已导入 {status.added} 首{status.skipped > 0 ? `，跳过 ${status.skipped} 首（重复或无法读取）` : ''}
           {status.lrc > 0 ? `，配上歌词 ${status.lrc} 首` : ''}
         </p>
       )}
-      {status.kind === 'error' && (
-        <p className="mt-2 text-center text-sub text-danger">{status.message}</p>
-      )}
+      {status.kind === 'error' && <p className="mt-2 text-center text-sub text-danger">{status.message}</p>}
     </div>
   )
 }

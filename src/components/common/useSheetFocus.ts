@@ -21,8 +21,7 @@ export function useSheetFocus<T extends HTMLElement>(open: boolean) {
 
     const focusables = () =>
       Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-        (el) =>
-          el.offsetParent !== null || el.getClientRects().length > 0 || el === document.activeElement,
+        (el) => el.offsetParent !== null || el.getClientRects().length > 0 || el === document.activeElement,
       )
     const first = focusables()[0]
     ;(first ?? panel).focus()
@@ -46,7 +45,7 @@ export function useSheetFocus<T extends HTMLElement>(open: boolean) {
       document.removeEventListener('keydown', onKeyDown, true)
       if (previous && document.contains(previous)) previous.focus()
     }
-  }, [open ])
+  }, [open])
 
   return panelRef
 }

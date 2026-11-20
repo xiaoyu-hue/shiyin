@@ -1,5 +1,14 @@
 import { useMemo, useState } from 'react'
-import { ArrowDownWideNarrow, ArrowUpNarrowWide, ChevronLeft, ChevronRight, ListMusic, Play, Plus, X } from 'lucide-react'
+import {
+  ArrowDownWideNarrow,
+  ArrowUpNarrowWide,
+  ChevronLeft,
+  ChevronRight,
+  ListMusic,
+  Play,
+  Plus,
+  X,
+} from 'lucide-react'
 import SongRow from './SongRow'
 import FastScroller from './FastScroller'
 import EmptyState from './common/EmptyState'
@@ -44,7 +53,9 @@ export default function LibraryView() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pt-6">
       <div className="mb-5">
-        <p className="text-sub tracking-widest" style={{ color: 'var(--accent)' }}>LIBRARY</p>
+        <p className="text-sub tracking-widest" style={{ color: 'var(--accent)' }}>
+          LIBRARY
+        </p>
         <h1 className="mt-1 text-title font-bold">音乐库</h1>
       </div>
 
@@ -77,7 +88,11 @@ export default function LibraryView() {
           ) : !restored ? (
             <SkeletonRows count={6} />
           ) : tracks.length === 0 ? (
-            <EmptyState icon="🎵" title="音乐库是空的" description="先去主页导入本地音乐，这里会按歌曲、专辑、歌手自动整理" />
+            <EmptyState
+              icon="🎵"
+              title="音乐库是空的"
+              description="先去主页导入本地音乐，这里会按歌曲、专辑、歌手自动整理"
+            />
           ) : view === 'songs' ? (
             <SongsSection indexed={indexed} />
           ) : view === 'albums' ? (
@@ -139,10 +154,7 @@ function SongsSection({ indexed }: { indexed: IndexedSong[] }) {
           <SongRow key={index} index={index} context={context} />
         ))}
       </div>
-      <FastScroller
-        count={sorted.length}
-        bubbleFor={(i, f) => bubbleLabel(sortKey, sorted[i]?.song.name, f)}
-      />
+      <FastScroller count={sorted.length} bubbleFor={(i, f) => bubbleLabel(sortKey, sorted[i]?.song.name, f)} />
     </section>
   )
 }
@@ -162,13 +174,21 @@ function AlbumsSection({ indexed }: { indexed: IndexedSong[] }) {
               style={{ ['--cover' as string]: a.color }}
             >
               {a.coverSrc ? (
-                <img src={a.midCoverSrc ?? a.coverSrc} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+                <img
+                  src={a.midCoverSrc ?? a.coverSrc}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
               ) : (
                 <span className="px-3 text-center text-lg font-bold drop-shadow">{a.name}</span>
               )}
             </div>
             <p className="mt-2 truncate text-body font-semibold">{a.name}</p>
-            <p className="truncate text-sub text-ink2">{a.artist} · {a.items.length} 首</p>
+            <p className="truncate text-sub text-ink2">
+              {a.artist} · {a.items.length} 首
+            </p>
           </button>
         ))}
       </div>
@@ -197,7 +217,9 @@ function ArtistsSection({ indexed }: { indexed: IndexedSong[] }) {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-body font-medium">{a.name}</span>
-            <span className="mt-0.5 block text-sub text-ink2">{a.items.length} 首 · {a.albumCount} 张专辑</span>
+            <span className="mt-0.5 block text-sub text-ink2">
+              {a.items.length} 首 · {a.albumCount} 张专辑
+            </span>
           </span>
           <ChevronRight size={18} className="shrink-0 text-ink3" />
         </button>
@@ -245,7 +267,10 @@ function PlaylistsSection({ indexed }: { indexed: IndexedSong[] }) {
             autoFocus
             className="min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-ink3"
           />
-          <button onClick={submit} className="accent-bg min-h-9 shrink-0 rounded-full px-4 text-sub font-semibold text-white">
+          <button
+            onClick={submit}
+            className="accent-bg min-h-9 shrink-0 rounded-full px-4 text-sub font-semibold text-white"
+          >
             建好
           </button>
         </div>
@@ -268,7 +293,13 @@ function PlaylistsSection({ indexed }: { indexed: IndexedSong[] }) {
                   style={{ ['--cover' as string]: first?.color ?? '#9a8f80' }}
                 >
                   {first?.coverSrc ? (
-                    <img src={first.thumbSrc ?? first.coverSrc} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+                    <img
+                      src={first.thumbSrc ?? first.coverSrc}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
                   ) : (
                     <ListMusic size={20} className="opacity-90" />
                   )}
@@ -332,7 +363,11 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
 
   return (
     <section>
-      <button onClick={() => setDetail(null)} className="mb-4 flex min-h-11 items-center gap-1 text-body text-ink2" aria-label="返回音乐库">
+      <button
+        onClick={() => setDetail(null)}
+        className="mb-4 flex min-h-11 items-center gap-1 text-body text-ink2"
+        aria-label="返回音乐库"
+      >
         <ChevronLeft size={20} />
         音乐库
       </button>
@@ -360,7 +395,12 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
         <h2 className="mt-3 max-w-full truncate text-xl font-bold">{title}</h2>
         <p className="mt-1 text-sub text-ink2">{subtitle}</p>
         <button
-          onClick={() => { if (items[0]) { play(items[0].index, context); setPlayerOpen(true) } }}
+          onClick={() => {
+            if (items[0]) {
+              play(items[0].index, context)
+              setPlayerOpen(true)
+            }
+          }}
           className="accent-bg mt-4 flex min-h-11 items-center gap-2 rounded-full px-6 text-body font-semibold text-white shadow-md"
         >
           <Play size={16} fill="white" />
@@ -407,7 +447,11 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
 
   return (
     <section>
-      <button onClick={() => setDetail(null)} className="mb-4 flex min-h-11 items-center gap-1 text-body text-ink2" aria-label="返回音乐库">
+      <button
+        onClick={() => setDetail(null)}
+        className="mb-4 flex min-h-11 items-center gap-1 text-body text-ink2"
+        aria-label="返回音乐库"
+      >
         <ChevronLeft size={20} />
         音乐库
       </button>
@@ -418,7 +462,11 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
           style={{ ['--cover' as string]: first?.color ?? '#9a8f80' }}
         >
           {first?.coverSrc ? (
-            <img src={first.midCoverSrc ?? first.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <img
+              src={first.midCoverSrc ?? first.coverSrc}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
           ) : (
             <ListMusic size={44} className="opacity-90" />
           )}
@@ -456,7 +504,12 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
 
         <div className="mt-4 flex items-center gap-2">
           <button
-            onClick={() => { if (items[0]) { play(items[0].index, context); setPlayerOpen(true) } }}
+            onClick={() => {
+              if (items[0]) {
+                play(items[0].index, context)
+                setPlayerOpen(true)
+              }
+            }}
             disabled={items.length === 0}
             className="accent-bg flex min-h-11 items-center gap-2 rounded-full px-6 text-body font-semibold text-white shadow-md disabled:opacity-40"
           >
@@ -464,20 +517,30 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
             播放全部
           </button>
           <button
-            onClick={() => { setDraft(playlist.name); setEditing(true) }}
+            onClick={() => {
+              setDraft(playlist.name)
+              setEditing(true)
+            }}
             className="min-h-11 rounded-full bg-surface/50 px-5 text-body text-ink2"
           >
             改名
           </button>
           {confirmingDelete ? (
             <button
-              onClick={() => { deletePlaylist(id); setDetail(null); showToast('已删除歌单') }}
+              onClick={() => {
+                deletePlaylist(id)
+                setDetail(null)
+                showToast('已删除歌单')
+              }}
               className="min-h-11 rounded-full bg-danger px-5 text-body font-semibold text-white"
             >
               确认删除
             </button>
           ) : (
-            <button onClick={() => setConfirmingDelete(true)} className="min-h-11 rounded-full bg-surface/50 px-5 text-body text-danger">
+            <button
+              onClick={() => setConfirmingDelete(true)}
+              className="min-h-11 rounded-full bg-surface/50 px-5 text-body text-danger"
+            >
               删除歌单
             </button>
           )}
@@ -500,7 +563,10 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
                 <SongRow index={index} context={context} />
               </div>
               <button
-                onClick={() => { removeFromPlaylist(id, song.id); showToast('已从歌单移除') }}
+                onClick={() => {
+                  removeFromPlaylist(id, song.id)
+                  showToast('已从歌单移除')
+                }}
                 aria-label={`从歌单移除 ${song.name}`}
                 className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink3"
               >
@@ -520,7 +586,11 @@ function DetailMissing() {
   const setDetail = useStore((s) => s.setLibraryDetail)
   return (
     <div>
-      <button onClick={() => setDetail(null)} className="mb-4 flex min-h-11 items-center gap-1 text-body text-ink2" aria-label="返回音乐库">
+      <button
+        onClick={() => setDetail(null)}
+        className="mb-4 flex min-h-11 items-center gap-1 text-body text-ink2"
+        aria-label="返回音乐库"
+      >
         <ChevronLeft size={20} />
         音乐库
       </button>

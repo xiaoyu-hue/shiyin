@@ -12,7 +12,5 @@ export function hideSplashScreen(): void {
   if (hidden) return
   hidden = true
   if (!isNativePlatform()) return
-  void import('@capacitor/splash-screen')
-    .then(({ SplashScreen }) => SplashScreen.hide())
-    .catch(() => undefined)
+  void import('@capacitor/splash-screen').then(({ SplashScreen }) => SplashScreen.hide()).catch(() => undefined)
 }

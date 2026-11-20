@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  OPEN_SOURCE_ENTRIES,
-  PROJECT_CODE_LICENSE,
-  PROJECT_DOCS_LICENSE,
-  PROJECT_COPYRIGHT,
-} from './openSource'
+import { OPEN_SOURCE_ENTRIES, PROJECT_CODE_LICENSE, PROJECT_DOCS_LICENSE, PROJECT_COPYRIGHT } from './openSource'
 
 describe('开源许可数据完整性', () => {
   it('主要组件条目数不少于 10 条', () => {

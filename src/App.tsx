@@ -116,27 +116,34 @@ export default function App() {
     <ErrorBoundary>
       {/* reducedMotion="user"：系统要求减少动态时，Motion 的位移/布局动画自动降为瞬时（1.4.0） */}
       <MotionConfig reducedMotion="user">
-      <div className="app-shell">
-        <DesktopNav />
-        {/* 内容列：桌面形态下与侧栏并排（壳变横向 flex），窄屏即整列本身 */}
-        <div className="flex min-w-0 flex-1 flex-col">
-          <main ref={mainRef} className="scroll-area" onScroll={handleScroll}>
-            <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={pageTransition}>
-              {views[tab]}
-            </motion.div>
-          </main>
-          <MiniBar />
-          <Tabs />
+        <div className="app-shell">
+          <DesktopNav />
+          {/* 内容列：桌面形态下与侧栏并排（壳变横向 flex），窄屏即整列本身 */}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <main ref={mainRef} className="scroll-area" onScroll={handleScroll}>
+              <motion.div
+                key={tab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={pageTransition}
+              >
+                {views[tab]}
+              </motion.div>
+            </main>
+            <MiniBar />
+            <Tabs />
+          </div>
+          <PlayerView />
+          <LyricView />
+          <QueueView />
+          <SongMenu />
+          <SelectionBar />
+          <OnboardingGuide />
+          <Toast />
+          <span className="sr-only" aria-live="polite">
+            当前页面：{tab}
+          </span>
         </div>
-        <PlayerView />
-        <LyricView />
-        <QueueView />
-        <SongMenu />
-        <SelectionBar />
-        <OnboardingGuide />
-        <Toast />
-        <span className="sr-only" aria-live="polite">当前页面：{tab}</span>
-      </div>
       </MotionConfig>
     </ErrorBoundary>
   )

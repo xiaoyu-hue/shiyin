@@ -10,7 +10,8 @@ const DARK_QUERY = '(prefers-color-scheme: dark)'
 export function useResolvedDark(): boolean {
   const appearance = useStore((s) => s.appearance)
   const [systemDark, setSystemDark] = useState<boolean>(
-    () => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(DARK_QUERY).matches,
+    () =>
+      typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(DARK_QUERY).matches,
   )
   useEffect(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
@@ -33,7 +34,8 @@ export function useTheme() {
   const appearance = useStore((s) => s.appearance)
   const smoothMode = useStore((s) => s.smoothMode)
   const [systemDark, setSystemDark] = useState<boolean>(
-    () => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(DARK_QUERY).matches,
+    () =>
+      typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(DARK_QUERY).matches,
   )
 
   useEffect(() => {

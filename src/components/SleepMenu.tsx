@@ -46,19 +46,31 @@ export default function SleepMenu() {
   return (
     <>
       <button
-        onClick={() => { setNow(Date.now()); setOpen(true) }}
+        onClick={() => {
+          setNow(Date.now())
+          setOpen(true)
+        }}
         aria-label={active ? '睡眠定时已开启，打开定时设置' : '睡眠定时'}
         className="glass flex h-11 min-w-11 flex-col items-center justify-center rounded-full px-1"
         style={active ? { color: 'var(--accent)' } : undefined}
       >
         <MoonStar size={19} />
-        {remaining !== null && <span className="text-caption font-semibold tabular-nums leading-tight">{formatRemaining(remaining)}</span>}
+        {remaining !== null && (
+          <span className="text-caption font-semibold tabular-nums leading-tight">{formatRemaining(remaining)}</span>
+        )}
         {sleepAfterTrack && <span className="text-caption font-semibold leading-tight">本首</span>}
       </button>
 
       <AnimatePresence>
         {open && (
-          <div ref={panelRef} tabIndex={-1} className="fixed inset-0 z-50 outline-none" role="dialog" aria-modal="true" aria-label="睡眠定时">
+          <div
+            ref={panelRef}
+            tabIndex={-1}
+            className="fixed inset-0 z-50 outline-none"
+            role="dialog"
+            aria-modal="true"
+            aria-label="睡眠定时"
+          >
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -85,7 +97,11 @@ export default function SleepMenu() {
                   <span className="text-sub text-ink2">还剩 {formatRemaining(remaining)} 停播</span>
                 )}
                 {sleepAfterTrack && <span className="text-sub text-ink2">这首播完就停</span>}
-                <button onClick={() => setOpen(false)} aria-label="关闭定时设置" className="grid h-11 w-11 place-items-center rounded-full text-ink2">
+                <button
+                  onClick={() => setOpen(false)}
+                  aria-label="关闭定时设置"
+                  className="grid h-11 w-11 place-items-center rounded-full text-ink2"
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -94,7 +110,11 @@ export default function SleepMenu() {
                 <button
                   key={min}
                   className={itemCls}
-                  onClick={() => { hapticSelection(); setSleepMinutes(min); setOpen(false) }}
+                  onClick={() => {
+                    hapticSelection()
+                    setSleepMinutes(min)
+                    setOpen(false)
+                  }}
                 >
                   <MoonStar size={19} style={{ color: 'var(--accent)' }} />
                   {min} 分钟后停播
@@ -103,7 +123,11 @@ export default function SleepMenu() {
 
               <button
                 className={itemCls}
-                onClick={() => { hapticSelection(); setSleepAfterTrack(true); setOpen(false) }}
+                onClick={() => {
+                  hapticSelection()
+                  setSleepAfterTrack(true)
+                  setOpen(false)
+                }}
               >
                 <MoonStar size={19} style={{ color: 'var(--accent)' }} />
                 播完这首就停
@@ -113,7 +137,10 @@ export default function SleepMenu() {
               {active && (
                 <button
                   className={`${itemCls} text-danger`}
-                  onClick={() => { clearSleep(); setOpen(false) }}
+                  onClick={() => {
+                    clearSleep()
+                    setOpen(false)
+                  }}
                 >
                   <X size={19} />
                   关闭定时

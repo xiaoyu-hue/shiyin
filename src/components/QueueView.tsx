@@ -33,7 +33,14 @@ export default function QueueView() {
   return (
     <AnimatePresence>
       {queueOpen && (
-        <div ref={panelRef} tabIndex={-1} className="fixed inset-0 z-50 outline-none" role="dialog" aria-modal="true" aria-label="播放队列">
+        <div
+          ref={panelRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-50 outline-none"
+          role="dialog"
+          aria-modal="true"
+          aria-label="播放队列"
+        >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -58,7 +65,10 @@ export default function QueueView() {
               <h2 className="flex-1 text-heading font-bold">播放队列</h2>
               <span className="text-sub text-ink2">{queue.length} 首</span>
               <button
-                onClick={() => { clearQueue(); showToast('已清空播放队列') }}
+                onClick={() => {
+                  clearQueue()
+                  showToast('已清空播放队列')
+                }}
                 disabled={queue.length <= 1}
                 className="min-h-9 rounded-full bg-surface/50 px-3 text-sub text-ink2 disabled:opacity-40"
               >
@@ -117,11 +127,16 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
       <div
         className="cover relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
         style={{ ['--cover' as string]: song.color }}
-        onClick={() => { playQueueAt(pos); setQueueOpen(false) }}
+        onClick={() => {
+          playQueueAt(pos)
+          setQueueOpen(false)
+        }}
         role="button"
         aria-label={`播放 ${song.name}`}
       >
-        {song.coverSrc && <img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+        {song.coverSrc && (
+          <img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        )}
         {isCurrent && (
           <span className="relative grid h-6 min-w-9 place-items-center rounded-full bg-black/35 px-1.5">
             <PlayingIndicator playing={playing} className="[&_span]:bg-white" />
@@ -130,14 +145,21 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
       </div>
       <div
         className="min-w-0 flex-1"
-        onClick={() => { playQueueAt(pos); setQueueOpen(false) }}
+        onClick={() => {
+          playQueueAt(pos)
+          setQueueOpen(false)
+        }}
         role="button"
       >
-        <p className={`truncate text-body ${isCurrent ? 'font-semibold' : 'font-medium'}`} style={isCurrent ? { color: 'var(--accent)' } : undefined}>
+        <p
+          className={`truncate text-body ${isCurrent ? 'font-semibold' : 'font-medium'}`}
+          style={isCurrent ? { color: 'var(--accent)' } : undefined}
+        >
           {song.name}
         </p>
         <p className="mt-0.5 truncate text-sub text-ink2">
-          {isCurrent ? '正在播放 · ' : ''}{song.artist} · {fmtTime(song.dur)}
+          {isCurrent ? '正在播放 · ' : ''}
+          {song.artist} · {fmtTime(song.dur)}
         </p>
       </div>
       {!isCurrent && (

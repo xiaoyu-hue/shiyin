@@ -124,98 +124,100 @@ export default function SelectionBar() {
         initial={{ y: '110%' }}
         animate={{ y: 0 }}
         transition={springBar}
-          className="glass-strong absolute inset-x-3 bottom-0 z-40 rounded-t-[var(--r-sheet)] p-4"
-          style={{ paddingBottom: 'calc(1.25rem + var(--sab))' }}
-          role="toolbar"
-          aria-label="批量操作"
-        >
-          {view === 'bar' && (
-            <div className="flex gap-2">
-              <button className={actionCls} onClick={doPlayNext} disabled={count === 0}>
-                <ListPlus size={21} style={{ color: 'var(--accent)' }} />
-                下一首播放
-              </button>
-              <button className={actionCls} onClick={() => setView('playlists')} disabled={count === 0}>
-                <ListMusic size={21} style={{ color: 'var(--accent)' }} />
-                加入歌单
-              </button>
-              <button className={`${actionCls} text-danger`} onClick={() => setView('confirmDelete')} disabled={count === 0}>
-                <Trash2 size={21} />
-                删除
-              </button>
-            </div>
-          )}
+        className="glass-strong absolute inset-x-3 bottom-0 z-40 rounded-t-[var(--r-sheet)] p-4"
+        style={{ paddingBottom: 'calc(1.25rem + var(--sab))' }}
+        role="toolbar"
+        aria-label="批量操作"
+      >
+        {view === 'bar' && (
+          <div className="flex gap-2">
+            <button className={actionCls} onClick={doPlayNext} disabled={count === 0}>
+              <ListPlus size={21} style={{ color: 'var(--accent)' }} />
+              下一首播放
+            </button>
+            <button className={actionCls} onClick={() => setView('playlists')} disabled={count === 0}>
+              <ListMusic size={21} style={{ color: 'var(--accent)' }} />
+              加入歌单
+            </button>
+            <button
+              className={`${actionCls} text-danger`}
+              onClick={() => setView('confirmDelete')}
+              disabled={count === 0}
+            >
+              <Trash2 size={21} />
+              删除
+            </button>
+          </div>
+        )}
 
-          {view === 'playlists' && (
-            <>
-              <p className="px-1 pb-2 text-body font-semibold">把 {count} 首加入哪个歌单？</p>
-              {addedTo ? (
-                <p className="flex items-center gap-1.5 px-1 py-3 text-body text-ink2">
-                  <Check size={16} style={{ color: 'var(--accent)' }} />
-                  已加入「{addedTo}」
-                </p>
-              ) : (
-                <>
-                  <div className="max-h-56 overflow-y-auto overscroll-contain">
-                    {playlists.length === 0 && (
-                      <p className="px-1 py-2 text-body text-ink2">还没有歌单，先新建一个：</p>
-                    )}
-                    {playlists.map((p) => (
-                      <button
-                        key={p.id}
-                        className="flex min-h-12 w-full items-center gap-3 rounded-[var(--r-card)] px-3 text-left text-body transition-colors active:bg-ink/5"
-                        onClick={() => doAddToPlaylist(p.id, p.name)}
-                      >
-                        <ListMusic size={20} style={{ color: 'var(--accent)' }} />
-                        <span className="min-w-0 flex-1 truncate">{p.name}</span>
-                        <span className="text-sub text-ink2">{p.trackIds.length} 首</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="glass mt-2 flex items-center gap-2 rounded-full p-1.5 pl-4">
-                    <input
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      placeholder="新建歌单的名字"
-                      className="min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-ink3"
-                      aria-label="新建歌单的名字"
-                    />
-                    <button
-                      onClick={() => {
-                        const p = createPlaylist(newName)
-                        if (p) doAddToPlaylist(p.id, p.name)
-                      }}
-                      className="accent-bg flex min-h-9 shrink-0 items-center gap-1 rounded-full px-4 text-sub font-semibold text-white"
-                    >
-                      <Plus size={14} />
-                      新建并加入
-                    </button>
-                  </div>
-                </>
-              )}
-              <button className="mt-2 min-h-11 w-full text-body text-ink2" onClick={() => setView('bar')}>
-                返回
-              </button>
-            </>
-          )}
-
-          {view === 'confirmDelete' && (
-            <>
-              <p className="px-1 pb-1 text-body font-semibold">删除选中的 {count} 首？</p>
-              <p className="px-1 pb-3 text-body leading-relaxed text-ink2">
-                会从曲库、收藏、所有歌单和播放队列中一并移除，本地保存的文件记录也会删掉。此操作不能撤销（你手机/电脑里的原文件不受影响）。
+        {view === 'playlists' && (
+          <>
+            <p className="px-1 pb-2 text-body font-semibold">把 {count} 首加入哪个歌单？</p>
+            {addedTo ? (
+              <p className="flex items-center gap-1.5 px-1 py-3 text-body text-ink2">
+                <Check size={16} style={{ color: 'var(--accent)' }} />
+                已加入「{addedTo}」
               </p>
-              <button
-                className="mb-2 min-h-12 w-full rounded-full bg-danger text-body font-semibold text-white"
-                onClick={doDelete}
-              >
-                确认删除 {count} 首
-              </button>
-              <button className="min-h-11 w-full text-body text-ink2" onClick={() => setView('bar')}>
-                先不删
-              </button>
-            </>
-          )}
+            ) : (
+              <>
+                <div className="max-h-56 overflow-y-auto overscroll-contain">
+                  {playlists.length === 0 && <p className="px-1 py-2 text-body text-ink2">还没有歌单，先新建一个：</p>}
+                  {playlists.map((p) => (
+                    <button
+                      key={p.id}
+                      className="flex min-h-12 w-full items-center gap-3 rounded-[var(--r-card)] px-3 text-left text-body transition-colors active:bg-ink/5"
+                      onClick={() => doAddToPlaylist(p.id, p.name)}
+                    >
+                      <ListMusic size={20} style={{ color: 'var(--accent)' }} />
+                      <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                      <span className="text-sub text-ink2">{p.trackIds.length} 首</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="glass mt-2 flex items-center gap-2 rounded-full p-1.5 pl-4">
+                  <input
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="新建歌单的名字"
+                    className="min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-ink3"
+                    aria-label="新建歌单的名字"
+                  />
+                  <button
+                    onClick={() => {
+                      const p = createPlaylist(newName)
+                      if (p) doAddToPlaylist(p.id, p.name)
+                    }}
+                    className="accent-bg flex min-h-9 shrink-0 items-center gap-1 rounded-full px-4 text-sub font-semibold text-white"
+                  >
+                    <Plus size={14} />
+                    新建并加入
+                  </button>
+                </div>
+              </>
+            )}
+            <button className="mt-2 min-h-11 w-full text-body text-ink2" onClick={() => setView('bar')}>
+              返回
+            </button>
+          </>
+        )}
+
+        {view === 'confirmDelete' && (
+          <>
+            <p className="px-1 pb-1 text-body font-semibold">删除选中的 {count} 首？</p>
+            <p className="px-1 pb-3 text-body leading-relaxed text-ink2">
+              会从曲库、收藏、所有歌单和播放队列中一并移除，本地保存的文件记录也会删掉。此操作不能撤销（你手机/电脑里的原文件不受影响）。
+            </p>
+            <button
+              className="mb-2 min-h-12 w-full rounded-full bg-danger text-body font-semibold text-white"
+              onClick={doDelete}
+            >
+              确认删除 {count} 首
+            </button>
+            <button className="min-h-11 w-full text-body text-ink2" onClick={() => setView('bar')}>
+              先不删
+            </button>
+          </>
+        )}
       </motion.div>
     </>
   )

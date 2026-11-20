@@ -61,8 +61,4 @@ export interface TrackStore {
 const runtimeEnv = getRuntimeEnv()
 
 export const trackStore: TrackStore =
-  runtimeEnv === 'capacitor'
-    ? nativeTrackStore
-    : runtimeEnv === 'tauri'
-      ? tauriTrackStore
-      : webTrackStore
+  runtimeEnv === 'capacitor' ? nativeTrackStore : runtimeEnv === 'tauri' ? tauriTrackStore : webTrackStore

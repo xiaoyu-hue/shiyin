@@ -39,7 +39,10 @@ export default function MiniBar() {
       onKeyDown={(e) => e.key === 'Enter' && setPlayerOpen(true)}
       onPointerMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect()
-        e.currentTarget.style.setProperty('--mx', `${(((e.clientX - r.left) / Math.max(1, r.width)) * 100).toFixed(1)}%`)
+        e.currentTarget.style.setProperty(
+          '--mx',
+          `${(((e.clientX - r.left) / Math.max(1, r.width)) * 100).toFixed(1)}%`,
+        )
       }}
       drag
       dragDirectionLock
@@ -77,20 +80,34 @@ export default function MiniBar() {
         </motion.div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-body font-semibold">{song.name}</p>
-          <p className={`flex items-center gap-1 truncate text-sub text-ink2 transition-all duration-300 ${compact ? 'max-h-0 opacity-0' : 'max-h-5 opacity-100'}`}>
+          <p
+            className={`flex items-center gap-1 truncate text-sub text-ink2 transition-all duration-300 ${compact ? 'max-h-0 opacity-0' : 'max-h-5 opacity-100'}`}
+          >
             {sleepActive && <MoonStar size={11} style={{ color: 'var(--accent)' }} aria-label="睡眠定时已开启" />}
             {song.artist}
           </p>
         </div>
         <button
-          onClick={(e) => { e.stopPropagation(); hapticImpact(); toggle() }}
+          onClick={(e) => {
+            e.stopPropagation()
+            hapticImpact()
+            toggle()
+          }}
           aria-label={playing ? '暂停' : '播放'}
           className="pill-active grid h-11 w-11 place-items-center rounded-full"
         >
-          {playing ? <Pause size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} /> : <Play size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} />}
+          {playing ? (
+            <Pause size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
+          ) : (
+            <Play size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
+          )}
         </button>
         <button
-          onClick={(e) => { e.stopPropagation(); hapticImpact(); next() }}
+          onClick={(e) => {
+            e.stopPropagation()
+            hapticImpact()
+            next()
+          }}
           aria-label="下一首"
           className="grid h-11 w-11 place-items-center rounded-full"
         >
@@ -101,7 +118,9 @@ export default function MiniBar() {
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{ background: 'radial-gradient(150px circle at var(--mx, 50%) 50%, rgba(255,255,255,0.26), transparent 70%)' }}
+        style={{
+          background: 'radial-gradient(150px circle at var(--mx, 50%) 50%, rgba(255,255,255,0.26), transparent 70%)',
+        }}
       />
       {/* 底部细进度线：贴合胶囊弧度，居中收窄 */}
       <div className="absolute right-6 bottom-0.5 left-6 h-0.5 overflow-hidden rounded-full bg-ink/10">

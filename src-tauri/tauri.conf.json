@@ -4,14 +4,10 @@
     "security": {
       "assetProtocol": {
         "enable": true,
-        "scope": [
-          "$APPDATA/**"
-        ]
+        "scope": ["$APPDATA/**"]
       },
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: http://asset.localhost blob: data:; media-src 'self' asset: http://asset.localhost blob: data:; connect-src 'self' ipc: http://ipc.localhost; font-src 'self' data:",
-      "capabilities": [
-        "default"
-      ]
+      "capabilities": ["default"]
     },
     "windows": [
       {
@@ -34,16 +30,8 @@
   },
   "bundle": {
     "active": true,
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
-    "targets": [
-      "nsis"
-    ],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "targets": ["nsis"],
     "windows": {
       "webviewInstallMode": {
         "silent": true,
@@ -58,9 +46,7 @@
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDUxMTVGMjRDMDI3OTJGQjYKUldTMkwza0NUUElWVWFnUkVCNnlkTjNqRXBPK2kyWkZYVFE4V3J3TVFGTG5nNnNmdU5KaXNXQzkK",
-      "endpoints": [
-        "https://github.com/xiaoyu-hue/shiyin/releases/latest/download/latest.json"
-      ]
+      "endpoints": ["https://github.com/xiaoyu-hue/shiyin/releases/latest/download/latest.json"]
     }
   }
 }

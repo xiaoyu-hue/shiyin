@@ -64,18 +64,12 @@ function stampToMs(min: string, sec: string, frac?: string): number {
  * 有些工具把逐词歌词写进同步歌词帧/歌词文本，逐词时间戳会夹在字间漏进展示文本，统一在此清理。
  */
 export function stripLyricStamps(text: string): string {
-  return text
-    .replace(LRC_STAMP_LOOSE, '')
-    .replace(LRC_WORD_STAMP_LOOSE, '')
-    .replace(/ {2,}/g, ' ')
-    .trim()
+  return text.replace(LRC_STAMP_LOOSE, '').replace(LRC_WORD_STAMP_LOOSE, '').replace(/ {2,}/g, ' ').trim()
 }
 
 /** 清洗已成行的歌词：剥净每行文本的时间戳残留，丢弃变空的行（用于已存数据自愈） */
 export function sanitizeLyricLines(lines: LyricLine[]): LyricLine[] {
-  return lines
-    .map((l) => ({ t: l.t, text: stripLyricStamps(l.text) }))
-    .filter((l) => l.text)
+  return lines.map((l) => ({ t: l.t, text: stripLyricStamps(l.text) })).filter((l) => l.text)
 }
 
 /**
@@ -128,7 +122,9 @@ export function lyricsFromText(text?: string | null): LyricLine[] {
 /** 同步歌词条目（毫秒时间戳）→ 逐行歌词；时间戳非法、文本为空或剥净时间戳后变空的条目丢弃 */
 export function lyricsFromSyncText(items: { text: string; timestamp?: number }[]): LyricLine[] {
   return items
-    .filter((i) => i.text?.trim() && typeof i.timestamp === 'number' && Number.isFinite(i.timestamp) && i.timestamp >= 0)
+    .filter(
+      (i) => i.text?.trim() && typeof i.timestamp === 'number' && Number.isFinite(i.timestamp) && i.timestamp >= 0,
+    )
     .sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
     .map((i) => ({ t: formatLyricTime(i.timestamp ?? 0), text: stripLyricStamps(i.text) }))
     .filter((l) => l.text)
@@ -187,7 +183,14 @@ export async function extractAudioTags(file: File): Promise<ExtractedTags | null
       coverBlob,
     }
     // 什么都没读到（无标签或文件损坏但未抛错）与解析失败同等对待，调用方整体回退
-    if (!result.title && !result.artist && !result.album && !result.duration && !result.lyrics.length && !result.coverBlob) {
+    if (
+      !result.title &&
+      !result.artist &&
+      !result.album &&
+      !result.duration &&
+      !result.lyrics.length &&
+      !result.coverBlob
+    ) {
       return null
     }
     return result

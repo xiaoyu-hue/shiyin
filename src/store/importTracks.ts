@@ -18,8 +18,7 @@ import { attachLyricsToTrack, nextLocalId, persistTrack } from './bootstrap'
 import { useStore } from './index'
 
 export type ImportResult =
-  | { kind: 'no-audio'; lyricOnly: boolean }
-  | { kind: 'done'; added: number; skipped: number; lrc: number }
+  { kind: 'no-audio'; lyricOnly: boolean } | { kind: 'done'; added: number; skipped: number; lrc: number }
 
 /** 导入管线的外部依赖（审计 A-04 可测性）：默认即生产实现，测试可注入桩 */
 export interface ImportDeps {

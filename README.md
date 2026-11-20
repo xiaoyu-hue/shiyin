@@ -104,18 +104,18 @@ npx tauri build       # Windows 桌面打包（需 Rust 工具链；正式发版
 
 ### 技术栈
 
-| 层次 | 选型 |
-| --- | --- |
-| 界面 | React + TypeScript |
-| 构建 | Vite |
-| 样式 | Tailwind CSS（主题令牌驱动） |
-| 状态 | Zustand（四个 slice） |
-| 动画 | Motion |
-| 图标 | Lucide |
-| 测试 | Vitest |
-| 持久化 | 网页：IndexedDB；App / 桌面：本地文件 + JSON 索引 |
-| 元数据 | music-metadata（内嵌标签、封面与歌词解析，按需动态加载） |
-| 移动端 | Capacitor（安卓打包、媒体会话与原生文件能力） |
+| 层次   | 选型                                                                                   |
+| ------ | -------------------------------------------------------------------------------------- |
+| 界面   | React + TypeScript                                                                     |
+| 构建   | Vite                                                                                   |
+| 样式   | Tailwind CSS（主题令牌驱动）                                                           |
+| 状态   | Zustand（四个 slice）                                                                  |
+| 动画   | Motion                                                                                 |
+| 图标   | Lucide                                                                                 |
+| 测试   | Vitest                                                                                 |
+| 持久化 | 网页：IndexedDB；App / 桌面：本地文件 + JSON 索引                                      |
+| 元数据 | music-metadata（内嵌标签、封面与歌词解析，按需动态加载）                               |
+| 移动端 | Capacitor（安卓打包、媒体会话与原生文件能力）                                          |
 | 桌面端 | Tauri 2（Rust 壳：托盘 / 单实例 / 文件桥 / 自动更新 / 开机自启，界面与逻辑与网页共用） |
 
 平台相关能力（主题注入、音频播放、曲目存储、文件选择）收口在 `src/platform/`，按运行环境分流实现，上层业务不感知平台差异。
@@ -145,18 +145,18 @@ src/
 
 诗音基于以下主要开源组件构建，在此致谢各项目的作者与维护者：
 
-| 组件 | 用途 | 许可证 |
-| --- | --- | --- |
-| React | 界面组件与渲染 | MIT |
-| Vite | 构建与开发服务器 | MIT |
-| Tailwind CSS | 样式与主题令牌 | MIT |
-| Zustand | 状态管理 | MIT |
-| Motion | 动画与手势 | MIT |
-| Lucide（lucide-react） | 界面图标 | ISC |
-| music-metadata | 音频内嵌标签、封面与歌词解析 | MIT |
-| Capacitor 及官方插件 | 安卓打包与原生能力（文件、触觉、启动屏等） | MIT |
-| @capawesome/capacitor-file-picker | 安卓系统文件选择器 | MIT |
-| @capgo/capacitor-media-session | 锁屏 / 通知栏媒体控制 | MPL-2.0（保持其原始许可证） |
+| 组件                              | 用途                                       | 许可证                      |
+| --------------------------------- | ------------------------------------------ | --------------------------- |
+| React                             | 界面组件与渲染                             | MIT                         |
+| Vite                              | 构建与开发服务器                           | MIT                         |
+| Tailwind CSS                      | 样式与主题令牌                             | MIT                         |
+| Zustand                           | 状态管理                                   | MIT                         |
+| Motion                            | 动画与手势                                 | MIT                         |
+| Lucide（lucide-react）            | 界面图标                                   | ISC                         |
+| music-metadata                    | 音频内嵌标签、封面与歌词解析               | MIT                         |
+| Capacitor 及官方插件              | 安卓打包与原生能力（文件、触觉、启动屏等） | MIT                         |
+| @capawesome/capacitor-file-picker | 安卓系统文件选择器                         | MIT                         |
+| @capgo/capacitor-media-session    | 锁屏 / 通知栏媒体控制                      | MPL-2.0（保持其原始许可证） |
 
 全部依赖（含传递依赖）的名称、版本与许可证见 [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md)。
 

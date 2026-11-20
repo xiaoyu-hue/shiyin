@@ -13,7 +13,10 @@ export default function DesktopNav() {
   const setTab = useStore((s) => s.setTab)
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-ink/8 bg-surface/40 px-4 pt-8 pb-6 desk:flex" aria-label="主导航（桌面）">
+    <aside
+      className="hidden w-60 shrink-0 flex-col border-r border-ink/8 bg-surface/40 px-4 pt-8 pb-6 desk:flex"
+      aria-label="主导航（桌面）"
+    >
       <div className="flex items-center gap-3 px-2">
         <span
           className="cover grid h-11 w-11 place-items-center rounded-full text-lg font-bold text-white shadow-md"
@@ -33,14 +36,22 @@ export default function DesktopNav() {
           return (
             <button
               key={key}
-              onClick={() => { hapticSelection(); setTab(key) }}
+              onClick={() => {
+                hapticSelection()
+                setTab(key)
+              }}
               aria-current={active ? 'page' : undefined}
               className={`flex min-h-12 items-center gap-3 rounded-full px-4 text-body transition-colors ${
                 active ? 'pill-active font-semibold' : 'text-ink2 hover:bg-ink/5'
               }`}
               style={active ? { color: 'var(--accent)' } : undefined}
             >
-              <Icon size={20} strokeWidth={active ? 2.4 : 1.8} fill={active ? 'currentColor' : 'none'} fillOpacity={active ? 0.18 : 0} />
+              <Icon
+                size={20}
+                strokeWidth={active ? 2.4 : 1.8}
+                fill={active ? 'currentColor' : 'none'}
+                fillOpacity={active ? 0.18 : 0}
+              />
               {label}
             </button>
           )

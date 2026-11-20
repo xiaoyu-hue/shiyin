@@ -77,7 +77,13 @@ export function getCoverMesh(trackId: number, src: string): Promise<string | nul
       const tctx = tiny.getContext('2d')
       if (tctx) {
         const ts = Math.max(18 / img.naturalWidth, 18 / img.naturalHeight)
-        tctx.drawImage(img, (18 - img.naturalWidth * ts) / 2, (18 - img.naturalHeight * ts) / 2, img.naturalWidth * ts, img.naturalHeight * ts)
+        tctx.drawImage(
+          img,
+          (18 - img.naturalWidth * ts) / 2,
+          (18 - img.naturalHeight * ts) / 2,
+          img.naturalWidth * ts,
+          img.naturalHeight * ts,
+        )
         ctx.imageSmoothingEnabled = true
         ctx.drawImage(tiny, -16, -16, S + 32, S + 32)
       }

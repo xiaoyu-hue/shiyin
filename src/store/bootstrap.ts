@@ -108,9 +108,7 @@ async function backfillCoverThumbs(songs: Song[]): Promise<void> {
     if (!song.localKey || !song.coverBlob || song.thumbDone) continue
     const gen = await generateCoverThumbs(song.coverBlob).catch(() => null)
     if (!gen) continue
-    await trackStore
-      .updateTrackCovers(song.localKey, { thumb: gen.thumb, coverMid: gen.player })
-      .catch(() => undefined)
+    await trackStore.updateTrackCovers(song.localKey, { thumb: gen.thumb, coverMid: gen.player }).catch(() => undefined)
     const state = useStore.getState()
     const at = state.tracks.findIndex((t) => t.localKey === song.localKey)
     if (at < 0) continue

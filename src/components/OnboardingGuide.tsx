@@ -58,8 +58,7 @@ export default function OnboardingGuide() {
       </p>
       <h2 className="mt-2 text-title font-bold">欢迎来到诗音</h2>
       <p className="mt-3 max-w-xs text-body leading-relaxed text-ink2">
-        诗音只播放你设备里的音乐文件：不联网、不上传、没有账号。
-        先选几首你喜欢的歌导进来，就能开始听了。
+        诗音只播放你设备里的音乐文件：不联网、不上传、没有账号。 先选几首你喜欢的歌导进来，就能开始听了。
       </p>
       {/* 手势教学（1.4.0）：三个核心手势此前全靠用户自己发现，这里一次讲清 */}
       <div className="mt-7 flex w-full max-w-xs flex-col gap-2.5 text-left">
@@ -69,19 +68,17 @@ export default function OnboardingGuide() {
           { icon: ArrowUp, text: '上滑底部小条，展开全屏播放页' },
         ].map(({ icon: Icon, text }) => (
           <p key={text} className="flex items-center gap-2.5 text-sub text-ink2">
-            <span className="glass grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ color: 'var(--accent)' }}>
+            <span
+              className="glass grid h-8 w-8 shrink-0 place-items-center rounded-full"
+              style={{ color: 'var(--accent)' }}
+            >
               <Icon size={15} />
             </span>
             {text}
           </p>
         ))}
       </div>
-      <ImportButton
-        primary
-        label="选择音乐导入"
-        onDone={() => setOnboarded(true)}
-        className="mt-9 w-full max-w-xs"
-      />
+      <ImportButton primary label="选择音乐导入" onDone={() => setOnboarded(true)} className="mt-9 w-full max-w-xs" />
       <button
         type="button"
         onClick={() => setOnboarded(true)}

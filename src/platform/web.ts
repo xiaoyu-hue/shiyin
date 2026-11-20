@@ -92,9 +92,7 @@ export function createWebAudioEngine(): AudioEngine {
       } catch (err) {
         const reason = err instanceof Error ? err.name : ''
         errorCb?.(
-          reason === 'NotAllowedError'
-            ? '浏览器阻止了自动播放，请再次点击播放'
-            : '无法播放该音频，请确认文件格式',
+          reason === 'NotAllowedError' ? '浏览器阻止了自动播放，请再次点击播放' : '无法播放该音频，请确认文件格式',
         )
         throw err
       }

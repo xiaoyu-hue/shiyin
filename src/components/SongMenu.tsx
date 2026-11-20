@@ -61,7 +61,14 @@ export default function SongMenu() {
   return (
     <AnimatePresence>
       {open && (
-        <div ref={panelRef} tabIndex={-1} className="fixed inset-0 z-[70] outline-none" role="dialog" aria-modal="true" aria-label="歌曲操作菜单">
+        <div
+          ref={panelRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-[70] outline-none"
+          role="dialog"
+          aria-modal="true"
+          aria-label="歌曲操作菜单"
+        >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -91,25 +98,49 @@ export default function SongMenu() {
                     style={{ ['--cover' as string]: song.color }}
                   >
                     {song.coverSrc ? (
-                      <img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                      <img
+                        src={song.thumbSrc ?? song.coverSrc}
+                        alt=""
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
                     ) : (
                       <Play size={18} fill="white" className="opacity-90" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-body font-semibold">{song.name}</p>
-                    <p className="truncate text-sub text-ink2">{song.artist} · {song.album}</p>
+                    <p className="truncate text-sub text-ink2">
+                      {song.artist} · {song.album}
+                    </p>
                   </div>
-                  <button onClick={close} aria-label="关闭菜单" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink2">
+                  <button
+                    onClick={close}
+                    aria-label="关闭菜单"
+                    className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink2"
+                  >
                     <X size={20} />
                   </button>
                 </div>
 
-                <button className={itemCls} onClick={() => { playNext(menuTrack); showToast('已排到下一首播放'); close() }}>
+                <button
+                  className={itemCls}
+                  onClick={() => {
+                    playNext(menuTrack)
+                    showToast('已排到下一首播放')
+                    close()
+                  }}
+                >
                   <ListPlus size={20} style={{ color: 'var(--accent)' }} />
                   下一首播放
                 </button>
-                <button className={itemCls} onClick={() => { enqueue(menuTrack); showToast('已加入播放队列'); close() }}>
+                <button
+                  className={itemCls}
+                  onClick={() => {
+                    enqueue(menuTrack)
+                    showToast('已加入播放队列')
+                    close()
+                  }}
+                >
                   <ListEnd size={20} style={{ color: 'var(--accent)' }} />
                   加入播放队列
                 </button>
@@ -120,7 +151,11 @@ export default function SongMenu() {
                 </button>
                 <button
                   className={itemCls}
-                  onClick={() => { hapticImpact(); toggleLike(song.id); close() }}
+                  onClick={() => {
+                    hapticImpact()
+                    toggleLike(song.id)
+                    close()
+                  }}
                 >
                   <Heart
                     size={20}
@@ -133,7 +168,9 @@ export default function SongMenu() {
                   <ScrollText size={20} style={{ color: 'var(--accent)' }} />
                   <span className="flex-1">
                     导入歌词文件
-                    {song.lyrics.length > 0 && <span className="block text-sub font-normal text-ink2">已有歌词，导入将覆盖</span>}
+                    {song.lyrics.length > 0 && (
+                      <span className="block text-sub font-normal text-ink2">已有歌词，导入将覆盖</span>
+                    )}
                   </span>
                 </button>
                 {lyricAttach.error && <p className="px-3 pb-1 text-sub text-danger">{lyricAttach.error}</p>}
@@ -142,7 +179,9 @@ export default function SongMenu() {
                   type="file"
                   accept=".lrc,.txt"
                   className="hidden"
-                  onChange={(e) => { void lyricAttach.onChange(e) }}
+                  onChange={(e) => {
+                    void lyricAttach.onChange(e)
+                  }}
                 />
                 <button className={`${itemCls} text-danger`} onClick={() => setView('confirmDelete')}>
                   <Trash2 size={20} />

@@ -101,7 +101,8 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
     const s = get()
     const q = effectiveQueue(s)
     if (!q.length) return
-    const pos = s.mode === 'shuffle' ? shuffleIndex(q.length, posOf(q, s.cur)) : stepIndex(q.length, posOf(q, s.cur), -1)
+    const pos =
+      s.mode === 'shuffle' ? shuffleIndex(q.length, posOf(q, s.cur)) : stepIndex(q.length, posOf(q, s.cur), -1)
     set({ cur: q[pos], queue: q, queuePos: pos, pos: 0, playing: true, audioError: null })
     syncEngine(get())
   },
@@ -112,8 +113,7 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
     if (get().tracks[get().cur]?.audioSrc) engine.seek(target)
   },
 
-  cycleMode: () =>
-    set((s) => ({ mode: s.mode === 'list' ? 'repeat' : s.mode === 'repeat' ? 'shuffle' : 'list' })),
+  cycleMode: () => set((s) => ({ mode: s.mode === 'list' ? 'repeat' : s.mode === 'repeat' ? 'shuffle' : 'list' })),
 
   applyAudioPos: (sec) => {
     if (!get().playing) return
@@ -139,8 +139,7 @@ export const createPlayerSlice: StateCreator<AppState, [], [], PlayerSlice> = (s
     }
     const q = effectiveQueue(s)
     if (!q.length) return
-    const pos =
-      s.mode === 'shuffle' ? shuffleIndex(q.length, posOf(q, s.cur)) : stepIndex(q.length, posOf(q, s.cur), 1)
+    const pos = s.mode === 'shuffle' ? shuffleIndex(q.length, posOf(q, s.cur)) : stepIndex(q.length, posOf(q, s.cur), 1)
     set({ cur: q[pos], queue: q, queuePos: pos, pos: 0, playing: true })
     syncEngine(get())
   },

@@ -150,112 +150,127 @@ export default function LyricView() {
 
   return (
     <>
-    <AnimatePresence>
-      {open && song && (
-        <motion.div
-          className="absolute inset-0 z-40 flex flex-col overflow-hidden px-6"
-          style={{
-            background: `linear-gradient(180deg, var(--bg) 0%, var(--bg-end) 100%)`,
-            // 沉浸式：背景铺满全屏，顶部控件行垫安全区下移（1.1.0）
-            paddingTop: 'calc(1.25rem + var(--sat))',
-            paddingBottom: 'calc(2rem + var(--sab))',
-          }}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 12 }}
-          transition={fadeTransition}
-          role="dialog"
-          aria-label="歌词"
-          onPointerDown={poke}
-        >
-          {/* mesh 氛围层 + 薄纱：静态位图零每帧成本，纱层保文字对比 */}
-          <AnimatePresence>
-            {mesh && mesh.id === song.id && (
-              <motion.img
-                key={mesh.id}
-                src={mesh.url}
-                alt=""
-                aria-hidden
-                className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.6 }}
-                exit={{ opacity: 0 }}
-                transition={crossfadeTransition}
-              />
-            )}
-          </AnimatePresence>
-          <div className="pointer-events-none absolute inset-0 bg-surface/30" aria-hidden />
+      <AnimatePresence>
+        {open && song && (
+          <motion.div
+            className="absolute inset-0 z-40 flex flex-col overflow-hidden px-6"
+            style={{
+              background: `linear-gradient(180deg, var(--bg) 0%, var(--bg-end) 100%)`,
+              // 沉浸式：背景铺满全屏，顶部控件行垫安全区下移（1.1.0）
+              paddingTop: 'calc(1.25rem + var(--sat))',
+              paddingBottom: 'calc(2rem + var(--sab))',
+            }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={fadeTransition}
+            role="dialog"
+            aria-label="歌词"
+            onPointerDown={poke}
+          >
+            {/* mesh 氛围层 + 薄纱：静态位图零每帧成本，纱层保文字对比 */}
+            <AnimatePresence>
+              {mesh && mesh.id === song.id && (
+                <motion.img
+                  key={mesh.id}
+                  src={mesh.url}
+                  alt=""
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.6 }}
+                  exit={{ opacity: 0 }}
+                  transition={crossfadeTransition}
+                />
+              )}
+            </AnimatePresence>
+            <div className="pointer-events-none absolute inset-0 bg-surface/30" aria-hidden />
 
-          <div className={`relative flex items-center justify-between text-ink/70 transition-opacity duration-500 ${idle ? 'pointer-events-none opacity-0' : 'opacity-100'}`}>
-            <button onClick={() => setOpen(false)} aria-label="收起歌词" className="glass grid h-11 w-11 place-items-center rounded-full">
-              <ChevronDown size={24} />
-            </button>
-            <div className="text-center">
-              <p className="text-caption text-ink2">歌词</p>
-              <p className="max-w-[16rem] truncate text-body font-semibold text-ink/85">{song.name}</p>
-            </div>
-            {song.lyrics.length > 0 ? (
-              <button onClick={() => setPosterOpen(true)} aria-label="生成歌词海报" className="glass grid h-11 w-11 place-items-center rounded-full">
-                <ImagePlus size={20} />
-              </button>
-            ) : (
-              <div className="w-11" />
-            )}
-          </div>
-
-          {song.lyrics.length === 0 ? (
-            <div className="relative flex flex-1 flex-col items-center justify-center px-6 text-center">
-              <p className="text-body text-ink2">
-                该曲目暂无歌词
-                <br />
-                <span className="text-sub text-ink3">这首歌的文件里没有内嵌歌词</span>
-              </p>
+            <div
+              className={`relative flex items-center justify-between text-ink/70 transition-opacity duration-500 ${idle ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+            >
               <button
-                onClick={() => lyricAttach.openPicker(cur)}
-                className="glass mt-5 flex min-h-11 items-center gap-2 rounded-full px-5 text-body font-medium"
+                onClick={() => setOpen(false)}
+                aria-label="收起歌词"
+                className="glass grid h-11 w-11 place-items-center rounded-full"
               >
-                <ScrollText size={17} style={{ color: 'var(--accent)' }} />
-                导入歌词文件（.lrc）
+                <ChevronDown size={24} />
               </button>
-              {lyricAttach.error && <p className="mt-3 text-sub text-danger">{lyricAttach.error}</p>}
-              <input
-                ref={lyricAttach.inputRef}
-                type="file"
-                accept=".lrc,.txt"
-                className="hidden"
-                onChange={(e) => { void lyricAttach.onChange(e) }}
-              />
-            </div>
-          ) : (
-            <div className="lyric-scroll relative mt-2 w-full flex-1 overflow-y-auto py-24 desk:mx-auto desk:max-w-3xl">
-              <div className="flex flex-col gap-5">
-                {song.lyrics.map((line, i) => {
-                  const dist = active < 0 ? 99 : Math.abs(i - active)
-                  const level: LineLevel = i === active ? 'active' : active < 0 ? 'idle' : dist === 1 ? 'near' : dist === 2 ? 'mid' : 'far'
-                  return (
-                    <LyricRow
-                      key={`${line.t}-${i}`}
-                      text={line.text}
-                      tSec={toSeconds(line.t)}
-                      level={level}
-                      sweep={i === active ? sweep : null}
-                      softBlur={!smoothMode}
-                      onSeek={handleSeek}
-                      registerRef={getRefCallback(i)}
-                    />
-                  )
-                })}
+              <div className="text-center">
+                <p className="text-caption text-ink2">歌词</p>
+                <p className="max-w-[16rem] truncate text-body font-semibold text-ink/85">{song.name}</p>
               </div>
+              {song.lyrics.length > 0 ? (
+                <button
+                  onClick={() => setPosterOpen(true)}
+                  aria-label="生成歌词海报"
+                  className="glass grid h-11 w-11 place-items-center rounded-full"
+                >
+                  <ImagePlus size={20} />
+                </button>
+              ) : (
+                <div className="w-11" />
+              )}
             </div>
-          )}
 
-          <p className={`relative text-center text-caption text-ink2 transition-opacity duration-500 ${idle ? 'opacity-0' : 'opacity-100'}`}>
-            {song.lyrics.length ? '点击任意歌词行可跳转播放进度' : ''}
-          </p>
-        </motion.div>
-      )}
-    </AnimatePresence>
-    <LyricPoster song={song ?? null} open={posterOpen} onClose={() => setPosterOpen(false)} />
+            {song.lyrics.length === 0 ? (
+              <div className="relative flex flex-1 flex-col items-center justify-center px-6 text-center">
+                <p className="text-body text-ink2">
+                  该曲目暂无歌词
+                  <br />
+                  <span className="text-sub text-ink3">这首歌的文件里没有内嵌歌词</span>
+                </p>
+                <button
+                  onClick={() => lyricAttach.openPicker(cur)}
+                  className="glass mt-5 flex min-h-11 items-center gap-2 rounded-full px-5 text-body font-medium"
+                >
+                  <ScrollText size={17} style={{ color: 'var(--accent)' }} />
+                  导入歌词文件（.lrc）
+                </button>
+                {lyricAttach.error && <p className="mt-3 text-sub text-danger">{lyricAttach.error}</p>}
+                <input
+                  ref={lyricAttach.inputRef}
+                  type="file"
+                  accept=".lrc,.txt"
+                  className="hidden"
+                  onChange={(e) => {
+                    void lyricAttach.onChange(e)
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="lyric-scroll relative mt-2 w-full flex-1 overflow-y-auto py-24 desk:mx-auto desk:max-w-3xl">
+                <div className="flex flex-col gap-5">
+                  {song.lyrics.map((line, i) => {
+                    const dist = active < 0 ? 99 : Math.abs(i - active)
+                    const level: LineLevel =
+                      i === active ? 'active' : active < 0 ? 'idle' : dist === 1 ? 'near' : dist === 2 ? 'mid' : 'far'
+                    return (
+                      <LyricRow
+                        key={`${line.t}-${i}`}
+                        text={line.text}
+                        tSec={toSeconds(line.t)}
+                        level={level}
+                        sweep={i === active ? sweep : null}
+                        softBlur={!smoothMode}
+                        onSeek={handleSeek}
+                        registerRef={getRefCallback(i)}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            <p
+              className={`relative text-center text-caption text-ink2 transition-opacity duration-500 ${idle ? 'opacity-0' : 'opacity-100'}`}
+            >
+              {song.lyrics.length ? '点击任意歌词行可跳转播放进度' : ''}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <LyricPoster song={song ?? null} open={posterOpen} onClose={() => setPosterOpen(false)} />
     </>
   )
 }

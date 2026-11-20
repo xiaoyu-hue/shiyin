@@ -25,7 +25,11 @@ export default function EmptyState({ icon = '🔍', title, description }: Props)
   const Icon = (typeof icon === 'string' ? ICON_MAP[icon] : undefined) ?? SearchX
   return (
     <div className="mt-16 text-center text-body text-ink2" role="status">
-      <div className="glass mx-auto grid h-16 w-16 place-items-center rounded-full" style={{ color: 'var(--accent)' }} aria-hidden>
+      <div
+        className="glass mx-auto grid h-16 w-16 place-items-center rounded-full"
+        style={{ color: 'var(--accent)' }}
+        aria-hidden
+      >
         {typeof icon === 'string' ? <Icon size={28} strokeWidth={1.8} /> : icon}
       </div>
       <p className="mt-4 font-medium">{title}</p>

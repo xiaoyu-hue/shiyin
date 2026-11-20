@@ -43,7 +43,9 @@ export default function SearchView() {
       ) : (
         <div>
           <p className="mb-1 text-sub text-ink2">{q ? `找到 ${hits.length} 首` : '全部歌曲'}</p>
-          {hits.map(({ index }) => <SongRow key={tracks[index].id} index={index} context={context} />)}
+          {hits.map(({ index }) => (
+            <SongRow key={tracks[index].id} index={index} context={context} />
+          ))}
         </div>
       )}
     </div>

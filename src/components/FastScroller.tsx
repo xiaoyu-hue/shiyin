@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import {
-  fractionForPointer,
-  fractionForScroll,
-  indexForFraction,
-  scrollTopForFraction,
-} from '../lib/fastScroll'
+import { fractionForPointer, fractionForScroll, indexForFraction, scrollTopForFraction } from '../lib/fastScroll'
 
 interface Props {
   /** 列表总条数：决定目标索引与是否启用 */

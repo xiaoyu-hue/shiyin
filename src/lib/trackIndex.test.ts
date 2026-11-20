@@ -136,13 +136,7 @@ describe('serializeTrackIndex / parseTrackIndex', () => {
   it('缺 key 或 audioPath 的记录被丢弃，重复 key 只留一条', () => {
     const raw = JSON.stringify({
       version: 1,
-      tracks: [
-        entry(),
-        entry({ audioPath: '' }),
-        { name: '无 key' },
-        entry({ name: '重复 key 的第二条' }),
-        'garbage',
-      ],
+      tracks: [entry(), entry({ audioPath: '' }), { name: '无 key' }, entry({ name: '重复 key 的第二条' }), 'garbage'],
     })
     const parsed = parseTrackIndex(raw)
     expect(parsed).toHaveLength(1)
@@ -179,7 +173,9 @@ describe('totalIndexSize', () => {
     expect(totalIndexSize([])).toBe(0)
     // 1.1.0：缩略图/中图字节数一并计入
     expect(
-      totalIndexSize([entry({ thumbPath: 'thumbs/x.jpg', thumbSize: 100, midCoverPath: 'midcovers/x.jpg', midCoverSize: 200 })]),
+      totalIndexSize([
+        entry({ thumbPath: 'thumbs/x.jpg', thumbSize: 100, midCoverPath: 'midcovers/x.jpg', midCoverSize: 200 }),
+      ]),
     ).toBe(5_050_000 + 300)
   })
 })
