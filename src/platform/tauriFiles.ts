@@ -45,6 +45,18 @@ interface PickedFileMeta {
   modifiedMs: number | null
 }
 
+/**
+ * File → 源绝对路径（1.3.0）：filesFromPaths 构造 File 时登记，
+ * tauriTrackStore 落盘时据此走 Rust 流式拷贝（copy_import_file），
+ * 音频本体不再整读入内存。WeakMap 不污染 File 本身，对象回收自动清理；
+ * 非本模块构造的 File 查不到路径，存储层回退整读写入。
+ */
+const srcPathByFile = new WeakMap<File, string>()
+
+export function srcPathOf(file: File): string | null {
+  return srcPathByFile.get(file) ?? null
+}
+
 /** 一组绝对路径 → File 数组（拖放、测试钩子、对话框三路共用）；读失败的单个文件跳过 */
 export async function filesFromPaths(paths: string[]): Promise<File[]> {
   const { invoke } = await import('@tauri-apps/api/core')
@@ -54,12 +66,12 @@ export async function filesFromPaths(paths: string[]): Promise<File[]> {
       const buf = await invoke<ArrayBuffer>('read_picked_file', { path })
       const meta = await invoke<PickedFileMeta>('read_picked_file_meta', { path }).catch(() => null)
       const name = baseName(path)
-      files.push(
-        new File([buf], name, {
-          type: mimeOf(name),
-          lastModified: meta?.modifiedMs ?? Date.now(),
-        }),
-      )
+      const file = new File([buf], name, {
+        type: mimeOf(name),
+        lastModified: meta?.modifiedMs ?? Date.now(),
+      })
+      srcPathByFile.set(file, path)
+      files.push(file)
     } catch {
       // 单个文件读失败不阻断整批导入（与网页/安卓管线口径一致）
     }

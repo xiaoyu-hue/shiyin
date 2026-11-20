@@ -14,6 +14,7 @@ import { importTracks } from '../store/importTracks'
 import { restoreLocalTracks } from '../store/bootstrap'
 import { isTauriPlatform } from './env'
 import { filesFromPaths } from './tauriFiles'
+import { startSilentUpdateCheck } from './tauriUpdate'
 
 const TEST_HOOK_FILE = 'test-import.json'
 
@@ -40,6 +41,9 @@ export function bindTauriDesktop(): void {
   void restoreLocalTracks()
     .then(() => runTestImportHook())
     .catch(() => undefined)
+
+  // 启动静默检查更新（1.3.0）：发现新版只在设置页提示，不打扰使用
+  startSilentUpdateCheck()
 }
 
 /** 解析钩子内容：只接受字符串数组，其余形状按无钩子处理 */

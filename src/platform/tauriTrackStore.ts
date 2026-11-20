@@ -11,10 +11,13 @@
  * 播放/封面地址用 convertFileSrc 把绝对路径转成 asset 协议地址，
  * assetProtocol 的 scope 在 tauri.conf.json 里只放行 $APPDATA/**。
  *
- * 大文件写盘取舍：plugin-fs 的 writeFile 接受 Uint8Array，本实现把 Blob
- * 整文件读入内存后一次写入（桌面内存充裕，个人曲库单文件量级可接受）。
- * 已知上限：超大文件（如数百 MB 的无损专辑镜像）会整文件驻留内存，
- * 正式版如需支持应改走 Rust 侧流式拷贝或 open()+分段 write，验证包不做。
+ * 大文件写盘（1.3.0）：音频落盘走 Rust 窄命令 copy_import_file 流式复制
+ *（256KB 缓冲逐块拷贝，落盘环节内存占用与文件大小无关），源路径由
+ * tauriFiles 在构造 File 时登记（对话框/拖放/钩子三路都有真实路径）。
+ * 查不到源路径时（理论上桌面端不发生）回退 plugin-fs 整读写入。
+ * 如实说明：导入解析阶段（标签解析管线）仍需持有 File 对象本体，
+ * 内存峰值约一份文件量级；要连解析也零整读需重构解析管线，不在本版范围。
+ * 封面/缩略图等小文件维持整读写入。
  *
  * 本模块只在 Tauri 环境被 trackStore 选中；插件用动态 import 加载，
  * 网页/安卓构建产物不包含其代码。
@@ -37,6 +40,7 @@ import {
   totalIndexSize,
   type TrackIndexEntry,
 } from '../lib/trackIndex'
+import { srcPathOf } from './tauriFiles'
 
 interface TauriFsBundle {
   fs: typeof import('@tauri-apps/plugin-fs')
@@ -125,7 +129,18 @@ export const tauriTrackStore: TrackStore = {
     await ensureDirs()
     const fileName = (rec.blob as File).name || `${rec.key}.bin`
     const audioPath = audioRelPath(rec.key, fileName)
-    await writeBlob(audioPath, rec.blob)
+    // 音频落盘优先流式拷贝（源路径已知时）；回退整读仅作兜底
+    let audioSize = rec.blob.size
+    const srcPath = srcPathOf(rec.blob as File)
+    if (srcPath) {
+      const { core } = await loadFs()
+      audioSize = await core.invoke<number>('copy_import_file', {
+        srcPath,
+        destRelPath: audioPath,
+      })
+    } else {
+      await writeBlob(audioPath, rec.blob)
+    }
 
     let coverPath: string | null = null
     let coverSize = 0
@@ -161,7 +176,7 @@ export const tauriTrackStore: TrackStore = {
       addedAt: rec.addedAt,
       lyrics: rec.lyrics ?? [],
       audioPath,
-      audioSize: rec.blob.size,
+      audioSize,
       coverPath,
       coverSize,
       thumbPath,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import { Check, ChevronLeft, ChevronRight, FileText, Heart, History, ListMusic, Monitor, Moon, Settings, Sun } from 'lucide-react'
 import { useStore, themes } from '../store'
 import type { Appearance } from '../data/types'
@@ -13,6 +13,15 @@ import ImportButton from './ImportButton'
 import SongRow from './SongRow'
 import EmptyState from './common/EmptyState'
 import { clearAllMusic, storageUsage } from '../store/bootstrap'
+import { isTauriPlatform } from '../platform/env'
+import {
+  checkForUpdate,
+  getAutostartEnabled,
+  getUpdateStatus,
+  installPendingUpdate,
+  setAutostartEnabled,
+  subscribeUpdateStatus,
+} from '../platform/tauriUpdate'
 
 const APPEARANCE_OPTIONS: { value: Appearance; label: string; Icon: typeof Sun }[] = [
   { value: 'system', label: '跟随系统', Icon: Monitor },
@@ -333,13 +342,20 @@ function SettingsPage() {
         </div>
       </section>
 
+      {isTauriPlatform() && <DesktopSection />}
+
       <section>
         <h2 className="mb-3 text-base font-semibold">关于</h2>
         <div className="rounded-2xl bg-surface/60 p-4 text-sm leading-relaxed text-ink/60 shadow-sm">
-          <p className="font-semibold text-ink/80">诗音 Shiyin · v1.2.1</p>
+          <p className="font-semibold text-ink/80">诗音 Shiyin · v1.3.0</p>
           <p className="mt-1.5">
             一款只播放你自己音乐的本地播放器：没有账号、没有上传、没有推荐流。你的音乐、收藏与歌单都只保存在这台设备上。
           </p>
+          {isTauriPlatform() && (
+            <p className="mt-1.5">
+              这是 Windows 桌面版：关掉窗口会缩到系统托盘继续播放；新版发布后会在上方「桌面版」一栏提示你一键更新，不用重新下载安装。
+            </p>
+          )}
         </div>
         <button
           onClick={() => setMePage('licenses')}
@@ -354,6 +370,96 @@ function SettingsPage() {
         </button>
       </section>
     </div>
+  )
+}
+
+/** 桌面版专属设置区（仅 Tauri 环境渲染）：开机自启 + 应用更新 */
+function DesktopSection() {
+  const [autostart, setAutostart] = useState(false)
+  const [autostartFailed, setAutostartFailed] = useState(false)
+  const update = useSyncExternalStore(subscribeUpdateStatus, getUpdateStatus)
+
+  useEffect(() => {
+    let alive = true
+    void getAutostartEnabled().then((v) => {
+      if (alive) setAutostart(v)
+    })
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  const toggleAutostart = () => {
+    const next = !autostart
+    setAutostart(next)
+    setAutostartFailed(false)
+    void setAutostartEnabled(next).catch(() => {
+      setAutostart(!next)
+      setAutostartFailed(true)
+    })
+  }
+
+  return (
+    <section className="mb-7">
+      <h2 className="mb-3 text-base font-semibold">桌面版</h2>
+      <div className="rounded-2xl bg-surface/60 p-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[15px] font-medium">开机时自动启动</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">打开后，电脑开机登录时诗音会自动在托盘里待命。</p>
+          </div>
+          <button
+            onClick={toggleAutostart}
+            aria-pressed={autostart}
+            aria-label="开机自启开关"
+            className={`relative h-8 w-[52px] shrink-0 rounded-full transition-colors ${autostart ? '' : 'bg-ink/15'}`}
+            style={autostart ? { background: 'var(--accent)' } : undefined}
+          >
+            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${autostart ? 'left-[24px]' : 'left-1'}`} />
+          </button>
+        </div>
+        {autostartFailed && <p className="mt-2 text-xs text-red-500">设置没成功，请再试一次。</p>}
+      </div>
+
+      <div className="mt-3 rounded-2xl bg-surface/60 p-4 shadow-sm">
+        <p className="text-[15px] font-medium">应用更新</p>
+        {update.kind === 'available' ? (
+          <>
+            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">发现新版 v{update.version}，下载安装后会自动重启诗音。</p>
+            <button
+              onClick={() => void installPendingUpdate()}
+              className="mt-3 min-h-11 w-full rounded-full text-sm font-semibold text-white"
+              style={{ background: 'var(--accent)' }}
+            >
+              更新到 v{update.version}
+            </button>
+          </>
+        ) : update.kind === 'updating' ? (
+          <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+            正在下载更新{update.percent !== null ? `（${update.percent}%）` : ''}，装好后会自动重启…
+          </p>
+        ) : (
+          <>
+            <p className="mt-0.5 text-xs leading-relaxed text-ink/45">
+              {update.kind === 'checking'
+                ? '正在检查有没有新版…'
+                : update.kind === 'latest'
+                  ? '已是最新版 ✓'
+                  : update.kind === 'error'
+                    ? '检查失败，请确认联网后再试一次。'
+                    : '应用会在启动时自动检查，也可以现在手动检查。'}
+            </p>
+            <button
+              onClick={() => void checkForUpdate()}
+              disabled={update.kind === 'checking'}
+              className="mt-3 min-h-11 w-full rounded-full bg-surface/60 text-sm font-medium disabled:opacity-40"
+            >
+              检查更新
+            </button>
+          </>
+        )}
+      </div>
+    </section>
   )
 }
 

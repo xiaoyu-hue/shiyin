@@ -1,1 +1,66 @@
-{"$schema":"https://schema.tauri.app/config/2","app":{"security":{"assetProtocol":{"enable":true,"scope":["$APPDATA/**"]},"csp":"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: http://asset.localhost blob: data:; media-src 'self' asset: http://asset.localhost blob: data:; connect-src 'self' ipc: http://ipc.localhost; font-src 'self' data:"},"windows":[{"height":720,"label":"main","minHeight":600,"minWidth":900,"resizable":true,"title":"诗音 Shiyin","width":1100}]},"build":{"beforeBuildCommand":"npm run build:desktop","beforeDevCommand":"npm run dev","devUrl":"http://localhost:5173","frontendDist":"../dist"},"bundle":{"active":true,"icon":["icons/32x32.png","icons/128x128.png","icons/128x128@2x.png","icons/icon.icns","icons/icon.ico"],"targets":["nsis"],"windows":{"webviewInstallMode":{"silent":true,"type":"downloadBootstrapper"}}},"identifier":"com.shiyin.player","productName":"Shiyin","version":"../package.json"}
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "app": {
+    "security": {
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "$APPDATA/**"
+        ]
+      },
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: http://asset.localhost blob: data:; media-src 'self' asset: http://asset.localhost blob: data:; connect-src 'self' ipc: http://ipc.localhost; font-src 'self' data:",
+      "capabilities": [
+        "default"
+      ]
+    },
+    "windows": [
+      {
+        "height": 720,
+        "label": "main",
+        "minHeight": 600,
+        "minWidth": 900,
+        "resizable": true,
+        "title": "诗音 Shiyin",
+        "width": 1100,
+        "additionalBrowserArgs": "--autoplay-policy=no-user-gesture-required"
+      }
+    ]
+  },
+  "build": {
+    "beforeBuildCommand": "npm run build:desktop",
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
+  },
+  "bundle": {
+    "active": true,
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "targets": [
+      "nsis"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "silent": true,
+        "type": "downloadBootstrapper"
+      }
+    },
+    "createUpdaterArtifacts": true
+  },
+  "identifier": "com.shiyin.player",
+  "productName": "Shiyin",
+  "version": "../package.json",
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDUxMTVGMjRDMDI3OTJGQjYKUldTMkwza0NUUElWVWFnUkVCNnlkTjNqRXBPK2kyWkZYVFE4V3J3TVFGTG5nNnNmdU5KaXNXQzkK",
+      "endpoints": [
+        "https://github.com/xiaoyu-hue/shiyin/releases/latest/download/latest.json"
+      ]
+    }
+  }
+}

@@ -16,3 +16,8 @@ src-tauri/target/
 
 # e2e 验收产物
 e2e/artifacts/
+
+# 签名密钥红线：更新签名私钥等凭证绝不入仓（原件只存用户保管目录与 GitHub Secrets）
+*.key
+*.key.pub
+tauri-updater*
