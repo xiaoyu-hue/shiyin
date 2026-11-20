@@ -22,7 +22,7 @@ const collator = new Intl.Collator('zh-Hans-CN')
 export function sortIndexed(list: IndexedSong[], key: SortKey, dir: SortDir): IndexedSong[] {
   const sign = dir === 'asc' ? 1 : -1
   return [...list].sort((a, b) => {
-    let c = 0
+    let c: number
     if (key === 'addedAt') c = (a.song.addedAt ?? 0) - (b.song.addedAt ?? 0)
     else if (key === 'name') c = collator.compare(a.song.name, b.song.name)
     else c = collator.compare(a.song.artist, b.song.artist) || collator.compare(a.song.name, b.song.name)

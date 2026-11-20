@@ -1,0 +1,12 @@
+# 生成物与第三方/平台目录不格式化
+dist
+node_modules
+coverage
+android
+src-tauri/target
+src-tauri/gen
+e2e
+package-lock.json
+CHANGELOG.md
+docs
+THIRD-PARTY-LICENSES.md

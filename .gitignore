@@ -31,3 +31,6 @@ keystore.properties
 .env
 .env.*
 !.env.example
+
+# 覆盖率报告（审计 A-05）
+coverage/

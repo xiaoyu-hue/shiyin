@@ -42,6 +42,7 @@ export function estimateTextWidth(text: string, fontSize: number): number {
   let w = 0
   for (const ch of text) {
     if (ch === ' ') w += fontSize * 0.3
+    // eslint-disable-next-line no-control-regex -- Latin-1 字符范围判断，本就需要控制字符区间
     else if (/[\x00-\xff]/.test(ch)) w += fontSize * 0.55
     else w += fontSize
   }

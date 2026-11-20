@@ -212,8 +212,8 @@ export default function LyricPoster({ song, open, onClose }: Props) {
   const shareImage = () => {
     const canvas = canvasRef.current
     if (!canvas) return
-    canvas.toBlob(async (blob) => {
-      if (!blob) return
+    // toBlob 回调须是同步签名：异步分享逻辑拆成独立函数后 void 触发（审计 A-19 纠错规则）
+    const shareBlob = async (blob: Blob) => {
       const file = new File([blob], `${song.name}-歌词海报.png`, { type: 'image/png' })
       const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean }
       if (nav.canShare?.({ files: [file] }) && typeof nav.share === 'function') {
@@ -226,6 +226,9 @@ export default function LyricPoster({ song, open, onClose }: Props) {
       }
       saveImage()
       setHint('此浏览器不支持系统分享，已为你保存图片')
+    }
+    canvas.toBlob((blob) => {
+      if (blob) void shareBlob(blob)
     }, 'image/png')
   }
 
