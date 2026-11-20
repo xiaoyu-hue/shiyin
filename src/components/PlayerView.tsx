@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import PlayerControls from './PlayerControls'
 import { coverVar } from '../lib/theme'
 import {
   AnimatePresence,
@@ -13,8 +14,6 @@ import {
 import {
   ChevronDown,
   Heart,
-  Play,
-  Pause,
   SkipBack,
   SkipForward,
   Repeat,
@@ -22,7 +21,6 @@ import {
   RotateCw,
   Shuffle,
   ListMusic,
-  ListVideo,
   Mic2,
 } from 'lucide-react'
 import { useStore } from '../store'
@@ -375,56 +373,15 @@ export default function PlayerView() {
                   <span>{fmtTime(pos)}</span>
                   <span>{song.dur > 0 ? fmtTime(song.dur) : '--:--'}</span>
                 </div>
-                <div className="mt-2 flex items-center justify-center gap-6">
-                  <button
-                    onClick={cycleMode}
-                    aria-label="播放模式"
-                    className="grid h-11 w-11 place-items-center rounded-full"
-                  >
-                    <ModeIcon size={22} style={{ color: 'var(--accent)' }} />
-                  </button>
-                  <button
-                    onClick={() => {
-                      hapticImpact()
-                      prev()
-                    }}
-                    aria-label="上一首"
-                    className="grid h-11 w-11 place-items-center rounded-full"
-                  >
-                    <SkipBack size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
-                  </button>
-                  <button
-                    onClick={() => {
-                      hapticImpact()
-                      toggle()
-                    }}
-                    aria-label={playing ? '暂停' : '播放'}
-                    className="grid h-16 w-16 place-items-center rounded-full shadow-lg accent-bg"
-                  >
-                    {playing ? (
-                      <Pause size={28} fill="white" className="text-white" />
-                    ) : (
-                      <Play size={28} fill="white" className="text-white" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      hapticImpact()
-                      next()
-                    }}
-                    aria-label="下一首"
-                    className="grid h-11 w-11 place-items-center rounded-full"
-                  >
-                    <SkipForward size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
-                  </button>
-                  <button
-                    onClick={() => setQueueOpen(true)}
-                    aria-label="打开播放队列"
-                    className="grid h-11 w-11 place-items-center rounded-full"
-                  >
-                    <ListVideo size={22} style={{ color: 'var(--accent)' }} />
-                  </button>
-                </div>
+                <PlayerControls
+                  playing={playing}
+                  ModeIcon={ModeIcon}
+                  onCycleMode={cycleMode}
+                  onPrev={prev}
+                  onNext={next}
+                  onToggle={toggle}
+                  onOpenQueue={() => setQueueOpen(true)}
+                />
               </div>
             </div>
           </div>

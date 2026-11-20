@@ -1,3 +1,8 @@
+/**
+ * 通用按钮（审计 A-36 定案保留）：当前由错误空状态（ErrorState）使用，
+ * 作为设计系统预留件——新界面优先沿用既有按钮写法，出现第二处同类
+ * 需求时统一收编到本组件，不再各写一份。
+ */
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
