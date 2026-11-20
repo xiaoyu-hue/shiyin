@@ -1,0 +1,139 @@
+name: windows-update-verify
+
+# Windows 自动更新端到端回验（1.3.1 起）：1.3.0 发布时遗留的待办——
+# 「从旧版真正升到新版」在旧版当下无法自验，只能等新版发布后回验。
+# 本工作流从旧版 tag 的源码构建验收版（版本号/更新公钥/端点与旧版正式包
+# 一致，仅多 ci-webdriver 内嵌驱动）并安装，再让它对着线上真实
+# latest.json 检查更新、下载验签、安装重启，最后断言关于页版本号已变新版。
+# 前提：新版 GitHub Release 已发布且为 latest（latest.json 指向新版）。
+# 触发：手动 dispatch（发布完成后执行）。
+on:
+  workflow_dispatch:
+    inputs:
+      from_tag:
+        description: '旧版 tag（从该版本升级）'
+        required: true
+        default: 'v1.3.0'
+
+jobs:
+  update-verify:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 旧版源码（按 tag 检出到 old-src）
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.from_tag }}
+          path: old-src
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust 构建缓存
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: 'old-src/src-tauri -> target'
+
+      - name: 记录版本期望（新版=当前 package.json，旧版=old-src package.json）
+        shell: pwsh
+        run: |
+          $new = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $old = (Get-Content old-src/package.json -Raw | ConvertFrom-Json).version
+          "EXPECTED_VERSION=$new" >> $env:GITHUB_ENV
+          "FROM_VERSION=$old" >> $env:GITHUB_ENV
+          "回验路径：$old → $new（端点 latest.json 应指向 $new）"
+
+      - name: 安装旧版前端依赖
+        working-directory: old-src
+        run: npm ci
+
+      - name: 打包旧版 NSIS 安装包（验收构建：带 ci-webdriver feature 与 CI 能力集）
+        working-directory: old-src
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npx tauri build --bundles nsis --features ci-webdriver --config src-tauri/tauri.ci.conf.json
+
+      - name: 静默安装旧版
+        shell: pwsh
+        run: |
+          $f = Get-ChildItem 'old-src/src-tauri/target/release/bundle/nsis/*.exe' | Select-Object -First 1
+          if (-not $f) { throw '旧版 NSIS 安装包未生成' }
+          "旧版安装包：$($f.FullName)（$($f.Length) 字节）"
+          $p = Start-Process $f.FullName -ArgumentList '/S' -Wait -PassThru
+          "安装器退出码：$($p.ExitCode)"
+          Start-Sleep -Seconds 3
+          $exe = $null
+          foreach ($root in @(
+            'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+          )) {
+            Get-ItemProperty $root -ErrorAction SilentlyContinue |
+              Where-Object { $_.DisplayName -like 'Shiyin*' } |
+              ForEach-Object {
+                $loc = $_.InstallLocation.Trim('"')
+                if ($loc -and (Test-Path $loc)) {
+                  $c = Get-ChildItem $loc -Filter *.exe | Where-Object { $_.Name -ne 'uninstall.exe' } | Select-Object -First 1
+                  if ($c) { $exe = $c.FullName }
+                }
+              }
+            if ($exe) { break }
+          }
+          if (-not $exe) {
+            foreach ($cand in @("$env:LOCALAPPDATA\Shiyin\shiyin.exe", "$env:ProgramFiles\Shiyin\shiyin.exe")) {
+              if (Test-Path $cand) { $exe = $cand; break }
+            }
+          }
+          if (-not $exe) { throw '注册表/安装目录里找不到已安装的诗音 exe' }
+          "已安装 exe：$exe"
+          "SHIYIN_EXE=$exe" >> $env:GITHUB_ENV
+          "SHIYIN_PROC=$([IO.Path]::GetFileName($exe))" >> $env:GITHUB_ENV
+
+      - name: 自动更新端到端回验（WebdriverIO + 应用内嵌 WebDriver）
+        working-directory: e2e
+        run: |
+          npm ci
+          node update_verify.mjs
+
+      - name: 静默卸载
+        if: always()
+        shell: pwsh
+        run: |
+          $un = $null
+          foreach ($root in @(
+            'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+          )) {
+            Get-ItemProperty $root -ErrorAction SilentlyContinue |
+              Where-Object { $_.DisplayName -like 'Shiyin*' } |
+              ForEach-Object {
+                $loc = $_.InstallLocation.Trim('"')
+                if ($loc) {
+                  $c = Join-Path $loc 'uninstall.exe'
+                  if (Test-Path $c) { $un = $c }
+                }
+              }
+            if ($un) { break }
+          }
+          if ($un) {
+            $p = Start-Process $un -ArgumentList '/S' -Wait -PassThru
+            "卸载器退出码：$($p.ExitCode)"
+          } else {
+            '未找到卸载器（可能安装未成功），跳过'
+          }
+
+      - name: 上传回验产物（报告 + 截图）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-update-verify-artifacts
+          path: e2e/artifacts-update/**
+          if-no-files-found: warn
