@@ -13,14 +13,17 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: read
+
 jobs:
   release:
     runs-on: windows-latest
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -28,10 +31,28 @@ jobs:
       - name: 安装前端依赖
         run: npm ci
 
-      - uses: dtolnay/rust-toolchain@stable
+      # 发布门禁（审计 A-06）：构建前先跑全量单测，红灯不打包
+      - name: 单元测试门禁
+        run: npm test
+
+      # 版本一致性（审计 A-17/A-18）：锁文件与 Cargo 版本必须与 package.json 一致
+      - name: 版本一致性校验（锁文件）
+        run: node -e "const p=require('./package.json');const l=require('./package-lock.json');if(l.version!==p.version||l.packages[''].version!==p.version){console.error('package-lock.json 版本与 package.json 不一致');process.exit(1)}"
+
+      - name: 版本一致性校验（Cargo）
+        shell: pwsh
+        run: |
+          $pkg = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $cargo = (Select-String -Path src-tauri/Cargo.toml -Pattern '^version = "([^"]+)"').Matches[0].Groups[1].Value
+          if ($cargo -ne $pkg) { Write-Error "Cargo.toml 版本 $cargo 与 package.json $pkg 不一致"; exit 1 }
+          Write-Host "版本一致性 OK: $pkg"
+
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master（动作代码钉死，工具链仍取 stable）
+        with:
+          toolchain: stable
 
       - name: Rust 构建缓存
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
         with:
           workspaces: 'src-tauri -> target'
 
@@ -81,7 +102,7 @@ jobs:
           "nsis_dir=$dir" >> $env:GITHUB_ENV
 
       - name: 上传发布产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: windows-release-artifacts
           path: |
