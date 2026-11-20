@@ -34,16 +34,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">69.42% </span>
+                <span class="strong">71.07% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>84/121</span>
+                <span class='fraction'>86/121</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">55.26% </span>
+                <span class="strong">59.21% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>42/76</span>
+                <span class='fraction'>45/76</span>
             </div>
         
             
@@ -55,9 +55,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">77.22% </span>
+                <span class="strong">78.21% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>78/101</span>
+                <span class='fraction'>79/101</span>
             </div>
         
             
@@ -318,12 +318,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
-<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -337,7 +337,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -359,17 +359,17 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">19x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">19x</span>
 <span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">19x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -379,7 +379,7 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">19x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -542,12 +542,12 @@ const engine = platform.audio
 /** 让音频引擎与 store 保持一致：当前曲目交由引擎播放，无曲目时引擎停止。 */
 function syncEngine(state: AppState) {
   const track = state.tracks[state.cur]
-  <span class="missing-if-branch" title="else path not taken" >E</span>if (!track?.audioSrc) {
+  if (!track?.audioSrc) {
     engine.pause()
     return
   }
-<span class="cstat-no" title="statement not covered" >  if (state.playing) <span class="cstat-no" title="statement not covered" >void engine.play(track.audioSrc).<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >u</span>ndefined)</span></span></span>
-  else <span class="cstat-no" title="statement not covered" >engine.pause()</span>
+  if (state.playing) void engine.play(track.audioSrc).<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >u</span>ndefined)</span>
+  else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="else path not taken" >E</span>engine.pause()</span>
 }
 &nbsp;
 /**
@@ -590,7 +590,7 @@ export const createPlayerSlice: StateCreator&lt;AppState, [], [], PlayerSlice&gt
         queue = s.queue.includes(index) ? s.queue : <span class="branch-1 cbranch-no" title="branch not covered" >[...s.queue, index]</span>
       } else {
         queue = naturalQueue(s.tracks.length)
-        <span class="missing-if-branch" title="else path not taken" >E</span>if (!queue.includes(index) &amp;&amp; index &gt;= 0) queue = [...queue, index]
+        if (!queue.includes(index) &amp;&amp; index &gt;= 0) queue = [...queue, index]
       }
       return {
         cur: index,
@@ -750,7 +750,7 @@ export const createPlayerSlice: StateCreator&lt;AppState, [], [], PlayerSlice&gt
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://vitest.dev/" target="_blank" rel="noopener noreferrer">Vitest</a>
-                at 2026-11-20T05:47:10.060Z
+                at 2026-11-20T05:52:28.013Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

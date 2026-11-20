@@ -6,6 +6,7 @@ import { formatRemaining, remainingMs, SLEEP_PRESETS_MIN } from '../lib/sleepTim
 import { registerBackHandler } from '../platform/backButton'
 import { springDrawer, scrimTransition } from '../lib/motion'
 import { useSheetDrag } from './common/useSheetDrag'
+import { useSheetFocus } from './common/useSheetFocus'
 import { hapticSelection } from '../platform/haptics'
 
 /** 睡眠定时按钮 + 玻璃菜单（放在播放页顶栏）：分钟预设 / 播完这首停 / 关闭 */
@@ -17,6 +18,7 @@ export default function SleepMenu() {
   const clearSleep = useStore((s) => s.clearSleep)
   const [open, setOpen] = useState(false)
   const { sheetProps, handleProps } = useSheetDrag(() => setOpen(false))
+  const panelRef = useSheetFocus<HTMLDivElement>(open)
   const [now, setNow] = useState(() => Date.now())
 
   const active = sleepEndsAt !== null || sleepAfterTrack
@@ -56,7 +58,7 @@ export default function SleepMenu() {
 
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="睡眠定时">
+          <div ref={panelRef} tabIndex={-1} className="fixed inset-0 z-50 outline-none" role="dialog" aria-modal="true" aria-label="睡眠定时">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

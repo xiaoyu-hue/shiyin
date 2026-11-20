@@ -3,6 +3,7 @@ import { useStore } from '../store'
 import { shouldShowOnboarding } from '../lib/onboarding'
 import { registerBackHandler } from '../platform/backButton'
 import ImportButton from './ImportButton'
+import { useSheetFocus } from './common/useSheetFocus'
 import { ArrowUp, ListPlus, MousePointerClick } from 'lucide-react'
 
 /**
@@ -18,6 +19,7 @@ export default function OnboardingGuide() {
   const setOnboarded = useStore((s) => s.setOnboarded)
 
   const show = shouldShowOnboarding({ restored, trackCount, onboarded })
+  const panelRef = useSheetFocus<HTMLDivElement>(show)
 
   // 安卓返回登记：引导开着时返回按「稍后再说」处理（落标记并关闭引导）
   useEffect(() => {
@@ -38,6 +40,8 @@ export default function OnboardingGuide() {
         paddingTop: 'var(--sat)',
         paddingBottom: 'var(--sab)',
       }}
+      ref={panelRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label="欢迎使用诗音"

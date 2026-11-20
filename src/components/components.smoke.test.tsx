@@ -33,8 +33,7 @@ beforeEach(() => {
     tab: 'home',
     playerOpen: false,
     lyricOpen: false,
-    selectionMode: false,
-    selected: new Set<number>(),
+    selection: null,
   })
 })
 

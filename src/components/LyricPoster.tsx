@@ -6,6 +6,7 @@ import { computePosterLayout, POSTER_H, POSTER_MAX_LINES, POSTER_W, toggleLineSe
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
 import { springDrawer, scrimTransition } from '../lib/motion'
 import { useSheetDrag } from './common/useSheetDrag'
+import { useSheetFocus } from './common/useSheetFocus'
 import { registerBackHandler } from '../platform/backButton'
 
 const FONT_STACK = '-apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif'
@@ -148,6 +149,7 @@ interface Props {
 /** 歌词海报：选行（最多 6 行）→ 本地 Canvas 生成 1080×1440 图片 → 保存 / 分享 */
 export default function LyricPoster({ song, open, onClose }: Props) {
   const { sheetProps, handleProps } = useSheetDrag(onClose)
+  const panelRef = useSheetFocus<HTMLDivElement>(open)
   const [selected, setSelected] = useState<number[]>([])
   const [phase, setPhase] = useState<'select' | 'preview'>('select')
   const [dataUrl, setDataUrl] = useState<string | null>(null)
@@ -235,7 +237,7 @@ export default function LyricPoster({ song, open, onClose }: Props) {
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="歌词海报">
+        <div ref={panelRef} tabIndex={-1} className="fixed inset-0 z-50 outline-none" role="dialog" aria-modal="true" aria-label="歌词海报">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

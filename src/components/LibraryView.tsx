@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ArrowDownWideNarrow, ArrowUpNarrowWide, ChevronLeft, ChevronRight, ListMusic, Play, Plus, X } from 'lucide-react'
 import SongRow from './SongRow'
 import FastScroller from './FastScroller'
@@ -96,7 +96,9 @@ function SongsSection({ indexed }: { indexed: IndexedSong[] }) {
   const sortDir = useStore((s) => s.sortDir)
   const setSort = useStore((s) => s.setSort)
   const setPlayerOpen = useStore((s) => s.setPlayerOpen)
-  const sorted = sortIndexed(indexed, sortKey, sortDir)
+  const sorted = useMemo(() => sortIndexed(indexed, sortKey, sortDir), [indexed, sortKey, sortDir])
+  // context 身份稳定化（审计 A-25）：内联新建数组会打穿 SongRow 的 memo
+  const context = useMemo(() => sorted.map((x) => x.index), [sorted])
 
   return (
     <section>
@@ -134,7 +136,7 @@ function SongsSection({ indexed }: { indexed: IndexedSong[] }) {
         }}
       >
         {sorted.map(({ index }) => (
-          <SongRow key={index} index={index} context={sorted.map((x) => x.index)} />
+          <SongRow key={index} index={index} context={context} />
         ))}
       </div>
       <FastScroller
@@ -291,34 +293,42 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
   const setPlayerOpen = useStore((s) => s.setPlayerOpen)
   const play = useStore((s) => s.play)
 
+  // 分组推导整体缓存（审计 A-25）：items 与 context 跨渲染保持身份，SongRow memo 才有效
+  const view = useMemo(() => {
+    if (!detail || detail.kind === 'playlist') return null
+    if (detail.kind === 'album') {
+      const g: AlbumGroup | undefined = groupAlbums(indexed).find((a) => a.name === detail.key)
+      if (!g) return 'missing' as const
+      return {
+        title: g.name,
+        subtitle: `${g.artist} · ${g.items.length} 首`,
+        items: g.items,
+        context: g.items.map((x) => x.index),
+        coverSrc: g.coverSrc as string | null | undefined,
+        midCoverSrc: g.midCoverSrc as string | null | undefined,
+        color: g.color,
+      }
+    }
+    if (detail.kind === 'artist') {
+      const g: ArtistGroup | undefined = groupArtists(indexed).find((a) => a.name === detail.key)
+      if (!g) return 'missing' as const
+      return {
+        title: g.name,
+        subtitle: `${g.items.length} 首 · ${g.albumCount} 张专辑`,
+        items: g.items,
+        context: g.items.map((x) => x.index),
+        coverSrc: undefined as string | null | undefined,
+        midCoverSrc: undefined as string | null | undefined,
+        color: '#888888',
+      }
+    }
+    return 'missing' as const
+  }, [detail, indexed])
+
   if (!detail) return null
   if (detail.kind === 'playlist') return <PlaylistDetail id={detail.key} indexed={indexed} />
-
-  let title = ''
-  let subtitle = ''
-  let items: IndexedSong[] = []
-  let coverSrc: string | null | undefined
-  let midCoverSrc: string | null | undefined
-  let color = '#888888'
-
-  if (detail.kind === 'album') {
-    const g: AlbumGroup | undefined = groupAlbums(indexed).find((a) => a.name === detail.key)
-    if (!g) return <DetailMissing />
-    title = g.name
-    subtitle = `${g.artist} · ${g.items.length} 首`
-    items = g.items
-    coverSrc = g.coverSrc
-    midCoverSrc = g.midCoverSrc
-    color = g.color
-  } else if (detail.kind === 'artist') {
-    const g: ArtistGroup | undefined = groupArtists(indexed).find((a) => a.name === detail.key)
-    if (!g) return <DetailMissing />
-    title = g.name
-    subtitle = `${g.items.length} 首 · ${g.albumCount} 张专辑`
-    items = g.items
-  } else {
-    return <DetailMissing />
-  }
+  if (!view || view === 'missing') return <DetailMissing />
+  const { title, subtitle, items, context, coverSrc, midCoverSrc, color } = view
 
   return (
     <section>
@@ -350,7 +360,7 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
         <h2 className="mt-3 max-w-full truncate text-xl font-bold">{title}</h2>
         <p className="mt-1 text-sub text-ink2">{subtitle}</p>
         <button
-          onClick={() => { if (items[0]) { play(items[0].index, items.map((x) => x.index)); setPlayerOpen(true) } }}
+          onClick={() => { if (items[0]) { play(items[0].index, context); setPlayerOpen(true) } }}
           className="accent-bg mt-4 flex min-h-11 items-center gap-2 rounded-full px-6 text-body font-semibold text-white shadow-md"
         >
           <Play size={16} fill="white" />
@@ -364,7 +374,7 @@ function DetailView({ indexed }: { indexed: IndexedSong[] }) {
         }}
       >
         {items.map(({ index }) => (
-          <SongRow key={index} index={index} context={items.map((x) => x.index)} />
+          <SongRow key={index} index={index} context={context} />
         ))}
       </div>
     </section>
@@ -379,14 +389,20 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
   const renamePlaylist = useStore((s) => s.renamePlaylist)
   const deletePlaylist = useStore((s) => s.deletePlaylist)
   const removeFromPlaylist = useStore((s) => s.removeFromPlaylist)
+  const showToast = useStore((s) => s.showToast)
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
-  if (!playlist) return <DetailMissing />
+  // items 与 context 缓存（审计 A-25），须在早返回之前调用 Hook，故对 playlist 缺失做守卫
+  const items = useMemo(() => {
+    if (!playlist) return [] as IndexedSong[]
+    const byId = new Map(indexed.map(({ index, song }) => [song.id, { index, song }]))
+    return playlist.trackIds.map((tid) => byId.get(tid)).filter((x): x is IndexedSong => Boolean(x))
+  }, [playlist, indexed])
+  const context = useMemo(() => items.map((x) => x.index), [items])
 
-  const byId = new Map(indexed.map(({ index, song }) => [song.id, { index, song }]))
-  const items = playlist.trackIds.map((tid) => byId.get(tid)).filter((x): x is IndexedSong => Boolean(x))
+  if (!playlist) return <DetailMissing />
   const first = items[0]?.song
 
   return (
@@ -440,7 +456,7 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
 
         <div className="mt-4 flex items-center gap-2">
           <button
-            onClick={() => { if (items[0]) { play(items[0].index, items.map((x) => x.index)); setPlayerOpen(true) } }}
+            onClick={() => { if (items[0]) { play(items[0].index, context); setPlayerOpen(true) } }}
             disabled={items.length === 0}
             className="accent-bg flex min-h-11 items-center gap-2 rounded-full px-6 text-body font-semibold text-white shadow-md disabled:opacity-40"
           >
@@ -455,7 +471,7 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
           </button>
           {confirmingDelete ? (
             <button
-              onClick={() => { deletePlaylist(id); setDetail(null) }}
+              onClick={() => { deletePlaylist(id); setDetail(null); showToast('已删除歌单') }}
               className="min-h-11 rounded-full bg-danger px-5 text-body font-semibold text-white"
             >
               确认删除
@@ -481,10 +497,10 @@ function PlaylistDetail({ id, indexed }: { id: string; indexed: IndexedSong[] })
                   if (useStore.getState().selection === null) setPlayerOpen(true)
                 }}
               >
-                <SongRow index={index} context={items.map((x) => x.index)} />
+                <SongRow index={index} context={context} />
               </div>
               <button
-                onClick={() => removeFromPlaylist(id, song.id)}
+                onClick={() => { removeFromPlaylist(id, song.id); showToast('已从歌单移除') }}
                 aria-label={`从歌单移除 ${song.name}`}
                 className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink3"
               >

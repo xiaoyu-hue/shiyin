@@ -34,30 +34,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">57.77% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/45</span>
+                <span class='fraction'>26/45</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">40% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/30</span>
+                <span class='fraction'>12/30</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>12/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">51.72% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/29</span>
+                <span class='fraction'>15/29</span>
             </div>
         
             
@@ -72,7 +72,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -200,23 +200,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -311,26 +311,26 @@ import PlayingIndicator from './common/PlayingIndicator'
  * 上滑展开播放页（1.2.0，超过 50px 触发）——纵/横靠方向锁区分，一次手势只认一个方向。
  * 本条不在滚动容器内，触摸全由 JS 接管（touchAction none），不存在与页面滚动的争夺。
  */
-export default function <span class="fstat-no" title="function not covered" >MiniBar() {</span>
-  const cur = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.cur)</span></span>
-  const playing = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.playing)</span></span>
-  const pos = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.pos)</span></span>
-  const toggle = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.toggle)</span></span>
-  const next = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.next)</span></span>
-  const prev = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.prev)</span></span>
-  const setPlayerOpen = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.setPlayerOpen)</span></span>
-  const tracks = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.tracks)</span></span>
-  const sleepActive = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.sleepEndsAt !== null || s.sleepAfterTrack)</span></span>
-  const smoothMode = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.smoothMode)</span></span>
-  const compact = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >useStore((s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.chromeCompact)</span></span>
-  const reducedMotion = <span class="cstat-no" title="statement not covered" >useReducedMotion()</span>
-  const song = <span class="cstat-no" title="statement not covered" >tracks[cur]</span>
+export default function MiniBar() {
+  const cur = useStore((s) =&gt; s.cur)
+  const playing = useStore((s) =&gt; s.playing)
+  const pos = useStore((s) =&gt; s.pos)
+  const toggle = useStore((s) =&gt; s.toggle)
+  const next = useStore((s) =&gt; s.next)
+  const prev = useStore((s) =&gt; s.prev)
+  const setPlayerOpen = useStore((s) =&gt; s.setPlayerOpen)
+  const tracks = useStore((s) =&gt; s.tracks)
+  const sleepActive = useStore((s) =&gt; s.sleepEndsAt !== null || s.sleepAfterTrack)
+  const smoothMode = useStore((s) =&gt; s.smoothMode)
+  const compact = useStore((s) =&gt; s.chromeCompact)
+  const reducedMotion = useReducedMotion()
+  const song = tracks[cur]
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (!song) <span class="cstat-no" title="statement not covered" >return null</span></span>
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!song) <span class="cstat-no" title="statement not covered" >return null</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;motion.div
-      className={`glass group relative mx-4 mb-2 shrink-0 cursor-pointer overflow-hidden rounded-full pr-2 pl-2.5 transition-[padding] duration-300 ${compact ? 'py-1.5' : 'py-2'}`}
+      className={`glass group relative mx-4 mb-2 shrink-0 cursor-pointer overflow-hidden rounded-full pr-2 pl-2.5 transition-[padding] duration-300 ${compact ? <span class="branch-0 cbranch-no" title="branch not covered" >'py-1.5' : '</span>py-2'}`}
       data-pressable
       style={{ touchAction: 'none' }}
 <span class="fstat-no" title="function not covered" >      onClick={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etPlayerOpen(true)}</span>
@@ -361,12 +361,12 @@ export default function <span class="fstat-no" title="function not covered" >Min
     &gt;
       &lt;div className="flex items-center gap-3"&gt;
         &lt;motion.div
-          layoutId={!smoothMode &amp;&amp; !reducedMotion ? 'now-playing-cover' : undefined}
+          layoutId={!smoothMode &amp;&amp; !reducedMotion ? 'now-playing-cover' : <span class="branch-1 cbranch-no" title="branch not covered" >undefined}</span>
           className="cover relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full text-white"
           style={{ ['--cover' as string]: song.color }}
         &gt;
           {song.coverSrc ? (
-            &lt;img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" /&gt;
+<span class="branch-0 cbranch-no" title="branch not covered" >            &lt;img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" /&gt;</span>
           ) : (
             &lt;span className="h-4 w-4 rounded-full bg-surface/85" /&gt;
           )}
@@ -377,17 +377,17 @@ export default function <span class="fstat-no" title="function not covered" >Min
         &lt;/motion.div&gt;
         &lt;div className="min-w-0 flex-1"&gt;
           &lt;p className="truncate text-body font-semibold"&gt;{song.name}&lt;/p&gt;
-          &lt;p className={`flex items-center gap-1 truncate text-sub text-ink2 transition-all duration-300 ${compact ? 'max-h-0 opacity-0' : 'max-h-5 opacity-100'}`}&gt;
-            {sleepActive &amp;&amp; &lt;MoonStar size={11} style={{ color: 'var(--accent)' }} aria-label="睡眠定时已开启" /&gt;}
+          &lt;p className={`flex items-center gap-1 truncate text-sub text-ink2 transition-all duration-300 ${compact ? <span class="branch-0 cbranch-no" title="branch not covered" >'max-h-0 opacity-0' : '</span>max-h-5 opacity-100'}`}&gt;
+            {sleepActive &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >&lt;MoonStar size={11} style={{ color: 'var(--accent)' }} aria-label="睡眠定时已开启" /&gt;}</span>
             {song.artist}
           &lt;/p&gt;
         &lt;/div&gt;
         &lt;button
 <span class="fstat-no" title="function not covered" >          onClick={(e</span>) =&gt; { <span class="cstat-no" title="statement not covered" >e.stopPropagation(); <span class="cstat-no" title="statement not covered" >h</span>apticImpact(); <span class="cstat-no" title="statement not covered" >t</span>oggle() }</span>}
-          aria-label={playing ? '暂停' : '播放'}
+          aria-label={playing ? <span class="branch-0 cbranch-no" title="branch not covered" >'暂停' : '</span>播放'}
           className="pill-active grid h-11 w-11 place-items-center rounded-full"
         &gt;
-          {playing ? &lt;Pause size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} /&gt; : &lt;Play size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} /&gt;}
+          {playing ? <span class="branch-0 cbranch-no" title="branch not covered" >&lt;Pause size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} /&gt; : &lt;P</span>lay size={20} fill="var(--accent)" style={{ color: 'var(--accent)' }} /&gt;}
         &lt;/button&gt;
         &lt;button
 <span class="fstat-no" title="function not covered" >          onClick={(e</span>) =&gt; { <span class="cstat-no" title="statement not covered" >e.stopPropagation(); <span class="cstat-no" title="statement not covered" >h</span>apticImpact(); <span class="cstat-no" title="statement not covered" >n</span>ext() }</span>}
@@ -417,7 +417,7 @@ export default function <span class="fstat-no" title="function not covered" >Min
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://vitest.dev/" target="_blank" rel="noopener noreferrer">Vitest</a>
-                at 2026-11-20T05:47:10.060Z
+                at 2026-11-20T05:52:28.013Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

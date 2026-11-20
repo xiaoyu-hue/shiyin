@@ -23,9 +23,10 @@ export default defineConfig({
       exclude: ['src/**/*.test.{ts,tsx}', 'src/main.tsx', 'src/vite-env.d.ts'],
       reporter: ['text-summary', 'html'],
       thresholds: {
-        // 2026-11 首测基线：lib 77.47% / store 42.35%（新测试落地后按新基线复定）
+        // 基线（2026-11 批次二新测试落地后实测）：lib 行 77.47% / store 行 60.95%，
+        // 阈值取基线下约 2–3 点，防日常波动误红；覆盖率提升后应同步上调
         'src/lib/**': { lines: 75 },
-        'src/store/**': { lines: 40 },
+        'src/store/**': { lines: 58 },
       },
     },
   },

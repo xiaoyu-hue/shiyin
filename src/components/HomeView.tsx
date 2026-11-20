@@ -33,6 +33,8 @@ export default function HomeView() {
   }, [])
 
   const indexed = useMemo(() => tracks.map((song, index) => ({ song, index })), [tracks])
+  // 全部曲目列表的 context 身份稳定化（审计 A-25）
+  const allContext = useMemo(() => tracks.map((_, j) => j), [tracks])
   const continueRail = useMemo(
     () => history.filter((i) => tracks[i]).slice(0, 8),
     [history, tracks],
@@ -131,7 +133,7 @@ export default function HomeView() {
                 if (useStore.getState().selection === null) setPlayerOpen(true)
               }}
             >
-              {tracks.map((s, i) => <SongRow key={s.id} index={i} context={tracks.map((_, j) => j)} />)}
+              {tracks.map((s, i) => <SongRow key={s.id} index={i} context={allContext} />)}
             </div>
             <p className="mt-2 text-center text-caption text-ink3">点歌展开播放器 · 长按多选 · 右滑排到下一首</p>
           </section>

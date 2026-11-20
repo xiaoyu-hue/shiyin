@@ -8,6 +8,7 @@ import { springDrawer, scrimTransition } from '../lib/motion'
 import { hapticImpact } from '../platform/haptics'
 import { useLyricAttach } from './useLyricAttach'
 import { useSheetDrag } from './common/useSheetDrag'
+import { useSheetFocus } from './common/useSheetFocus'
 
 /** 单曲操作菜单：玻璃底部抽屉（下一首播放 / 加入队列 / 加入歌单 / 收藏 / 删除） */
 export default function SongMenu() {
@@ -39,6 +40,7 @@ export default function SongMenu() {
   const close = () => setMenuTrack(null)
   const open = menuTrack !== null && song !== undefined
   const { sheetProps, handleProps } = useSheetDrag(close)
+  const panelRef = useSheetFocus<HTMLDivElement>(open)
 
   // 安卓返回登记（1.1.0）：菜单开着时返回先收菜单；在子视图（选歌单/确认删除）时先回主视图
   useEffect(() => {
@@ -59,7 +61,7 @@ export default function SongMenu() {
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="歌曲操作菜单">
+        <div ref={panelRef} tabIndex={-1} className="fixed inset-0 z-[70] outline-none" role="dialog" aria-modal="true" aria-label="歌曲操作菜单">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -167,6 +169,7 @@ export default function SongMenu() {
                           onClick={() => {
                             addToPlaylist(p.id, song.id)
                             setAddedTo(p.name)
+                            showToast(`已加入「${p.name}」`)
                             setTimeout(close, 650)
                           }}
                         >
@@ -190,6 +193,7 @@ export default function SongMenu() {
                           if (p) {
                             addToPlaylist(p.id, song.id)
                             setAddedTo(p.name)
+                            showToast(`已加入「${p.name}」`)
                             setTimeout(close, 650)
                           }
                         }}

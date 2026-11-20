@@ -76,13 +76,18 @@ export default function SelectionBar() {
     if (!ids.length) return
     addManyToPlaylist(id, ids)
     setAddedTo(name)
+    showToast(`已把 ${ids.length} 首加入「${name}」`)
     window.setTimeout(() => exitSelection(), 650)
   }
 
   const doDelete = () => {
     const targets = ordered
     exitSelection()
-    void deleteTracksEverywhere(targets)
+    // 删除完成/失败都要有反馈（审计 A-26）：此前是无声的 fire-and-forget
+    void deleteTracksEverywhere(targets).then(
+      () => showToast(`已删除 ${targets.length} 首`),
+      () => showToast('删除失败，请重试'),
+    )
   }
 
   return (

@@ -7,6 +7,7 @@ import { springDrawer, scrimTransition } from '../lib/motion'
 import { registerBackHandler } from '../platform/backButton'
 import EmptyState from './common/EmptyState'
 import { useSheetDrag } from './common/useSheetDrag'
+import { useSheetFocus } from './common/useSheetFocus'
 import PlayingIndicator from './common/PlayingIndicator'
 
 /** 播放队列页：查看/重排/移除待播曲目（拖拽手柄排序） */
@@ -16,7 +17,9 @@ export default function QueueView() {
   const queue = useStore((s) => s.queue)
   const setQueueOrder = useStore((s) => s.setQueueOrder)
   const clearQueue = useStore((s) => s.clearQueue)
+  const showToast = useStore((s) => s.showToast)
   const { sheetProps, handleProps } = useSheetDrag(() => setQueueOpen(false))
+  const panelRef = useSheetFocus<HTMLDivElement>(queueOpen)
 
   // 安卓返回登记（1.1.0）：队列开着时返回先收队列
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function QueueView() {
   return (
     <AnimatePresence>
       {queueOpen && (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="播放队列">
+        <div ref={panelRef} tabIndex={-1} className="fixed inset-0 z-50 outline-none" role="dialog" aria-modal="true" aria-label="播放队列">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -55,7 +58,7 @@ export default function QueueView() {
               <h2 className="flex-1 text-heading font-bold">播放队列</h2>
               <span className="text-sub text-ink2">{queue.length} 首</span>
               <button
-                onClick={clearQueue}
+                onClick={() => { clearQueue(); showToast('已清空播放队列') }}
                 disabled={queue.length <= 1}
                 className="min-h-9 rounded-full bg-surface/50 px-3 text-sub text-ink2 disabled:opacity-40"
               >

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Search, X } from 'lucide-react'
 import { useStore } from '../store'
 import { search } from '../data/query'
@@ -9,7 +10,9 @@ export default function SearchView() {
   const setQuery = useStore((s) => s.setQuery)
   const tracks = useStore((s) => s.tracks)
   const q = query.trim().toLowerCase()
-  const hits = search(tracks, query)
+  const hits = useMemo(() => search(tracks, query), [tracks, query])
+  // context 身份稳定化（审计 A-25）
+  const context = useMemo(() => hits.map((h) => h.index), [hits])
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pt-6">
@@ -40,7 +43,7 @@ export default function SearchView() {
       ) : (
         <div>
           <p className="mb-1 text-sub text-ink2">{q ? `找到 ${hits.length} 首` : '全部歌曲'}</p>
-          {hits.map(({ index }) => <SongRow key={tracks[index].id} index={index} context={hits.map((h) => h.index)} />)}
+          {hits.map(({ index }) => <SongRow key={tracks[index].id} index={index} context={context} />)}
         </div>
       )}
     </div>
