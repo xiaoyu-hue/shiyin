@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="my_images" path="." />
+    <!-- 审计 A-63 收窄：原 external-path path="." 放行整个外部存储根目录；
+         应用只经 FileProvider 分享缓存目录里的海报图等临时文件，保留 cache-path，
+         另加应用内部 files 目录，外部存储不再整盘放行 -->
     <cache-path name="my_cache_images" path="." />
+    <files-path name="my_files" path="." />
 </paths>

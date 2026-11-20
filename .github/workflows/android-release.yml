@@ -1,5 +1,6 @@
 # 安卓 App 正式版构建：assembleRelease 产出 release APK。
-# 签名（可选）：配置以下 Secrets 后自动启用正式签名，缺失时产出未签名包（仅供链路验证）：
+# 签名：配置以下 Secrets 后启用正式签名。手动 dispatch 缺失时产出未签名包（仅供链路验证）；
+# tag 触发的正式构建缺签名直接红灯（审计 A-64），防未签名包误入 Release。所需 Secrets：
 #   ANDROID_KEYSTORE_BASE64   keystore 文件的 Base64
 #   ANDROID_KEYSTORE_PASSWORD keystore 密码
 #   ANDROID_KEY_ALIAS         密钥别名
@@ -55,7 +56,11 @@ jobs:
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           if [ -z "$KEYSTORE_B64" ]; then
-            echo "未配置签名 Secrets，本次产出未签名 release 包"
+            if [ "${{ github.ref_type }}" = "tag" ]; then
+              echo "::error::正式 tag 构建缺失签名 Secrets，拒绝产出未签名包（审计 A-64）"
+              exit 1
+            fi
+            echo "未配置签名 Secrets，本次产出未签名 release 包（仅手动验证场景）"
             exit 0
           fi
           echo "$KEYSTORE_B64" | base64 -d > android/release.keystore

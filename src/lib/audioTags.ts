@@ -79,10 +79,14 @@ export function sanitizeLyricLines(lines: LyricLine[]): LyricLine[] {
  * - [ti:] / [ar:] 等元信息行与无时间戳行忽略；[offset:] 全局偏移按主流约定应用
  *   （正偏移使歌词提前显示，即时间戳减去偏移量）。结果按时间升序。
  */
+/** 歌词行数上限（审计 A-61）：防异常巨大的歌词文件拖垮解析与内存，正常歌词远低于此 */
+const MAX_LRC_RAW_LINES = 20000
+const MAX_LRC_LINES = 5000
+
 export function parseLrcText(text: string): LyricLine[] {
   const offsetMs = Number(text.match(LRC_OFFSET)?.[1] ?? 0)
   const out: { ms: number; text: string }[] = []
-  for (const raw of text.split(/\r?\n/)) {
+  for (const raw of text.split(/\r?\n/).slice(0, MAX_LRC_RAW_LINES)) {
     const stamps = [...raw.matchAll(LRC_STAMP)]
     if (!stamps.length) continue
     const lyric = stripLyricStamps(raw)
@@ -100,7 +104,10 @@ export function parseLrcText(text: string): LyricLine[] {
       out.push({ ms: Math.max(0, stampToMs(m[1], m[2], m[3]) - offsetMs), text: lyric })
     }
   }
-  return out.sort((a, b) => a.ms - b.ms).map((l) => ({ t: formatLyricTime(l.ms), text: l.text }))
+  return out
+    .sort((a, b) => a.ms - b.ms)
+    .slice(0, MAX_LRC_LINES)
+    .map((l) => ({ t: formatLyricTime(l.ms), text: l.text }))
 }
 
 /** 无时间戳的纯文本歌词：逐行保留并剥净时间戳残留，时间统一记 00:00（lyricIndex 会识别为未同步歌词不高亮） */

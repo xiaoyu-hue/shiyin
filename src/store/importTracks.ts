@@ -40,6 +40,10 @@ const defaultDeps: ImportDeps = {
   persistTrack,
 }
 
+/** 导入上限（审计 A-61）：防误选超大/海量文件拖垮解析与内存；超限文件计入跳过数，用户会在结果里看到 */
+const MAX_FILE_BYTES = 500 * 1024 * 1024
+const MAX_BATCH_FILES = 1000
+
 export async function importTracks(
   all: File[],
   onProgress?: (done: number, total: number) => void,
@@ -80,6 +84,11 @@ export async function importTracks(
 
   for (let i = 0; i < audioFiles.length; i += 1) {
     const file = audioFiles[i]
+    if (i >= MAX_BATCH_FILES || file.size > MAX_FILE_BYTES) {
+      skipped += 1
+      onProgress?.(i + 1, audioFiles.length)
+      continue
+    }
     const key = fileKey(file)
     const lyricIdx = pairs.get(i)
     if (existing.has(key)) {

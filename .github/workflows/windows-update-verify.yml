@@ -23,6 +23,15 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 120
     steps:
+      # 输入校验（审计 A-64）：from_tag 必须是 v<主>.<次>.<修> 形式的版本 tag，防误填检出错误源码
+      - name: 校验 from_tag 格式
+        shell: pwsh
+        run: |
+          if ('${{ inputs.from_tag }}' -notmatch '^v\d+\.\d+\.\d+$') {
+            Write-Error "from_tag 格式不合法：${{ inputs.from_tag }}（应为 v1.2.3 形式）"
+            exit 1
+          }
+
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: 旧版源码（按 tag 检出到 old-src）
