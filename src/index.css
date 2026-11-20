@@ -16,6 +16,7 @@
 /* 字阶令牌（1.4.0 落实）：组件用 text-display/title/heading/body/sub/caption 书写，
    不再出现 text-[15px] 之类任意值，也不再让 12/14px 游离于令牌之外当主力 */
 @theme {
+  --text-hero: 2.125rem;
   --text-display: 1.75rem;
   --text-title: 1.5rem;
   --text-heading: 1rem;

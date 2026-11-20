@@ -69,6 +69,22 @@ async function drawPoster(canvas: HTMLCanvasElement, song: Song, lineTexts: stri
     ctx.fillRect(0, 0, POSTER_W, POSTER_H)
   }
 
+  // 顶部眉题（1.4.0 排版升级）：品牌名小字距居中，与落款呼应
+  ctx.textAlign = 'center'
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'
+  ctx.font = `500 27px ${FONT_STACK}`
+  try {
+    ;(ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '8px'
+  } catch {
+    /* 老引擎无 letterSpacing 属性，眉题按普通间距绘制 */
+  }
+  ctx.fillText('SHIYIN · 诗音', POSTER_W / 2, 92)
+  try {
+    ;(ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '0px'
+  } catch {
+    /* 同上 */
+  }
+
   // 封面缩略（圆角）居中置顶
   const thumb = 200
   const tx = (POSTER_W - thumb) / 2
@@ -97,8 +113,8 @@ async function drawPoster(canvas: HTMLCanvasElement, song: Song, lineTexts: stri
   // 歌名与歌手
   ctx.textAlign = 'center'
   ctx.fillStyle = '#FFFFFF'
-  ctx.font = `600 54px ${FONT_STACK}`
-  ctx.fillText(truncateToWidth(song.name, 54), POSTER_W / 2, 452)
+  ctx.font = `600 60px ${FONT_STACK}`
+  ctx.fillText(truncateToWidth(song.name, 60), POSTER_W / 2, 452)
   ctx.fillStyle = 'rgba(255,255,255,0.78)'
   ctx.font = `400 34px ${FONT_STACK}`
   ctx.fillText(truncateToWidth(song.artist, 34), POSTER_W / 2, 512)
@@ -115,9 +131,9 @@ async function drawPoster(canvas: HTMLCanvasElement, song: Song, lineTexts: stri
   ctx.shadowBlur = 0
   ctx.shadowOffsetY = 0
 
-  // 落款
-  ctx.fillStyle = 'rgba(255,255,255,0.4)'
-  ctx.fillRect(POSTER_W / 2 - 50, 1296, 100, 2)
+  // 落款：分隔线改用歌曲主题色作签名线（1.4.0），每张海报的落款都带本曲的颜色
+  ctx.fillStyle = song.color
+  ctx.fillRect(POSTER_W / 2 - 60, 1296, 120, 3)
   ctx.fillStyle = 'rgba(255,255,255,0.65)'
   ctx.font = `500 30px ${FONT_STACK}`
   ctx.fillText('诗音 Shiyin', POSTER_W / 2, 1362)
