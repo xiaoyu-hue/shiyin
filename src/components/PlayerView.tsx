@@ -148,7 +148,7 @@ export default function PlayerView() {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="absolute inset-0 z-30 flex flex-col overflow-hidden px-6 lg:px-12"
+          className="absolute inset-0 z-30 flex flex-col overflow-hidden px-6 desk:px-12"
           style={{
             background: `linear-gradient(180deg, ${glowColor} 0%, var(--bg) 58%, var(--bg-end) 100%)`,
             // 沉浸式：渐变背景照样铺满全屏（含状态栏背后），顶部控件行垫安全区下移（1.1.0）
@@ -224,9 +224,9 @@ export default function PlayerView() {
 
           {/* 中部内容区：默认只有封面是横滑切歌区；设置开启「全屏滑动切歌」后整区可滑。
               两个拖动层互斥启用（drag=false 的一层不拦截手势），下拉关闭走顶部手柄的独立拖动控制，互不干扰 */}
-          <div className="relative flex flex-1 flex-col lg:flex-row lg:items-center lg:gap-12">
+          <div className="relative flex flex-1 flex-col desk:flex-row desk:items-center desk:gap-12">
           <motion.div
-            className="relative flex flex-1 flex-col items-center justify-center gap-8 lg:min-w-0"
+            className="relative flex flex-1 flex-col items-center justify-center gap-8 desk:min-w-0"
             style={{ touchAction: 'pan-y' }}
             drag={swipeAnywhere ? 'x' : false}
             dragDirectionLock
@@ -251,7 +251,7 @@ export default function PlayerView() {
               transition={springGentle}
             >
               <motion.div
-                className="cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50 lg:h-80 lg:w-80 xl:h-96 xl:w-96"
+                className="cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50 desk:h-80 desk:w-80 desk:xl:h-96 desk:xl:w-96"
                 style={{ rotate, ['--cover' as string]: song.color }}
               >
                 {song.coverSrc ? (
@@ -289,9 +289,9 @@ export default function PlayerView() {
             </motion.div>
             </motion.div>
           </motion.div>
-          <div className="contents lg:flex lg:w-[400px] lg:shrink-0 lg:flex-col lg:justify-center lg:gap-8">
-            <div className="w-full text-center lg:text-left">
-              <h2 className="text-title font-bold text-ink/85 lg:text-display">{song.name}</h2>
+          <div className="contents desk:flex desk:w-[400px] desk:shrink-0 desk:flex-col desk:justify-center desk:gap-8">
+            <div className="w-full text-center desk:text-left">
+              <h2 className="text-title font-bold text-ink/85 desk:text-display">{song.name}</h2>
               <p className="mt-1 text-body text-ink2">{song.artist}</p>
               {audioError && <p className="mt-2 text-caption text-danger">{audioError}</p>}
             </div>

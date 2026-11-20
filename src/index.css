@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* 布局模式变体（1.4.1）：desk: 只在 Tauri 桌面端生效——根元素 data-layout
+   由 platform/layout.ts 按运行平台写入（tauri→desktop，其余→mobile）。
+   全部桌面形态（侧栏/双区/加宽抽屉等）必须走 desk: 或 [data-layout] 作用域，
+   不得再用宽度断点切布局：网页/安卓在宽视口下也必须保持手机布局。
+   desk: 内允许叠加宽度变体（如 desk:xl:），那仍然先过平台门，手机布局不受影响 */
+@custom-variant desk (&:where([data-layout="desktop"] &));
+
 /* 语义色令牌：ink（文字/中性）与 surface（卡片填充）的实际值在 --ink/--surface 变量里，
    由 JS 按外观（浅/深）切换；组件统一用 text-ink/x、bg-surface/x 书写，一次切换全站生效。
    1.4.0 增补：ink2/ink3 是「达标对比度」的次级文字层级（浅色下原 /45≈2.8:1 不达 AA，
@@ -225,14 +232,14 @@ body {
   transition: background 0.5s ease;
 }
 
-/* 桌面形态（1.4.0 包 3）：≥lg 壳放开限宽变横向——左侧边导航 + 右内容列；
-   窄屏（手机/平板竖屏）保持 430px 居中单列，与历史版本完全一致 */
-@media (min-width: 1024px) {
-  .app-shell {
-    max-width: none;
-    flex-direction: row;
-    box-shadow: none;
-  }
+/* 桌面形态（1.4.0 包 3 引入，1.4.1 改为平台门控）：仅 Tauri 桌面端
+   （data-layout="desktop"）壳放开限宽变横向——左侧边导航 + 右内容列；
+   网页/安卓恒为 430px 居中单列，与窗口宽度无关（1.4.0 曾按宽度断点切换，
+   导致网页宽窗口与安卓宽视口误用桌面布局，本版纠正为布局按平台隔离） */
+[data-layout='desktop'] .app-shell {
+  max-width: none;
+  flex-direction: row;
+  box-shadow: none;
 }
 
 .scroll-area {

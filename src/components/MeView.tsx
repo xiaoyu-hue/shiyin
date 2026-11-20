@@ -75,9 +75,10 @@ export default function MeView() {
         </button>
       </div>
 
-      {/* 桌面双列（1.4.0 包 3）：导入区与设置入口并排，窄屏纵向不变 */}
-      <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-4">
-      <section className="mb-7 lg:mb-0">
+      {/* 桌面双列（1.4.0 包 3）：导入区与设置入口并排，窄屏纵向不变；
+          1.4.1 起由 desk: 平台门控，网页/安卓宽视口下不触发 */}
+      <div className="desk:grid desk:grid-cols-2 desk:items-start desk:gap-4">
+      <section className="mb-7 desk:mb-0">
         <h2 className="mb-3 text-heading font-semibold">本地音乐</h2>
         <p className="mb-3 text-sub text-ink2">
           音频保存在本机浏览器中，不会上传到任何服务器。共 {localCount} 首

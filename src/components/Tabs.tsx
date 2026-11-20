@@ -17,7 +17,7 @@ export default function Tabs() {
   const compact = useStore((s) => s.chromeCompact)
 
   return (
-    <div className="shrink-0 px-4 pt-1 pb-[max(var(--sab),10px)] lg:hidden">
+    <div className="shrink-0 px-4 pt-1 pb-[max(var(--sab),10px)] desk:hidden">
       <nav
         className="glass group relative flex overflow-hidden rounded-full p-1.5"
         aria-label="主导航"

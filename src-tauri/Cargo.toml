@@ -1,6 +1,6 @@
 [package]
 name = "shiyin"
-version = "1.4.0"
+version = "1.4.1"
 description = "诗音 Shiyin - 本地音乐播放器（桌面端）"
 authors = ["xiaoyu-hue"]
 edition = "2021"

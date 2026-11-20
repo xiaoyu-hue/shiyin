@@ -12,7 +12,7 @@ export default function DesktopNav() {
   const setTab = useStore((s) => s.setTab)
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-ink/8 bg-surface/40 px-4 pt-8 pb-6 lg:flex" aria-label="主导航（桌面）">
+    <aside className="hidden w-60 shrink-0 flex-col border-r border-ink/8 bg-surface/40 px-4 pt-8 pb-6 desk:flex" aria-label="主导航（桌面）">
       <div className="flex items-center gap-3 px-2">
         <span
           className="cover grid h-11 w-11 place-items-center rounded-full text-lg font-bold text-white shadow-md"

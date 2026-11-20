@@ -152,7 +152,7 @@ function AlbumsSection({ indexed }: { indexed: IndexedSong[] }) {
   return (
     <section>
       <p className="mb-3 text-sub text-ink2">共 {albums.length} 张专辑</p>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 desk:grid-cols-3 desk:xl:grid-cols-4">
         {albums.map((a) => (
           <button key={a.name} onClick={() => setDetail({ kind: 'album', key: a.name })} className="text-left">
             <div
