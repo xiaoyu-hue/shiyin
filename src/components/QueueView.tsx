@@ -118,6 +118,20 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
   if (!song) return null
   const isCurrent = trackIndex === cur
 
+  const playThis = () => {
+    playQueueAt(pos)
+    setQueueOpen(false)
+  }
+  /** 键盘可达（审计 A-24）：两个点击区共用 Enter/Space 触发，Space 拦截全局语义防双触发 */
+  const onKeyActivate = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') playThis()
+    else if (e.key === ' ') {
+      e.preventDefault()
+      e.stopPropagation()
+      playThis()
+    }
+  }
+
   return (
     <Reorder.Item
       value={trackIndex}
@@ -128,11 +142,10 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
       <div
         className="cover relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-[var(--r-cover)] text-white shadow-sm"
         style={coverVar(song.color)}
-        onClick={() => {
-          playQueueAt(pos)
-          setQueueOpen(false)
-        }}
+        onClick={playThis}
         role="button"
+        tabIndex={0}
+        onKeyDown={onKeyActivate}
         aria-label={`播放 ${song.name}`}
       >
         {song.coverSrc && (
@@ -146,11 +159,11 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
       </div>
       <div
         className="min-w-0 flex-1"
-        onClick={() => {
-          playQueueAt(pos)
-          setQueueOpen(false)
-        }}
+        onClick={playThis}
         role="button"
+        tabIndex={0}
+        onKeyDown={onKeyActivate}
+        aria-label={`播放 ${song.name}`}
       >
         <p
           className={`truncate text-body ${isCurrent ? 'font-semibold' : 'font-medium'}`}

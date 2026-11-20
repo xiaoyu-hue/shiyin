@@ -236,6 +236,7 @@ export default function PlayerView() {
           </div>
 
           <div
+            // text-ink/70 为刻意弱化（审计 A-42 归类）：封面光晕背景上的导航 chrome，非正文信息
             className="relative flex items-center justify-between text-ink/70"
             onPointerDown={(e) => dragControls.start(e)}
           >
@@ -248,7 +249,7 @@ export default function PlayerView() {
             </button>
             <div className="text-center">
               <p className="text-caption text-ink2">正在播放</p>
-              <p className="max-w-[13rem] truncate text-body font-semibold text-ink/85">{song.album}</p>
+              <p className="max-w-[13rem] truncate text-body font-semibold text-ink2">{song.album}</p>
             </div>
             <div className="flex items-center gap-2">
               <SleepMenu />
@@ -352,6 +353,7 @@ export default function PlayerView() {
                       className={`pointer-events-none absolute inset-y-0 flex items-center ${seekHint === 'back' ? '-left-2' : '-right-2'}`}
                       aria-hidden
                     >
+                      {/* text-ink/80：玻璃徽章上的瞬时手势提示（0.75 秒即逝），属刻意弱化（审计 A-42 归类保留） */}
                       <span className="glass flex items-center gap-1 rounded-full px-3 py-1.5 text-sub font-semibold text-ink/80">
                         {seekHint === 'back' ? <RotateCcw size={14} /> : <RotateCw size={14} />}
                         {seekHint === 'back' ? '快退 10 秒' : '快进 10 秒'}
@@ -363,7 +365,7 @@ export default function PlayerView() {
             </motion.div>
             <div className="contents desk:flex desk:w-[400px] desk:shrink-0 desk:flex-col desk:justify-center desk:gap-8">
               <div className="w-full text-center desk:text-left">
-                <h2 className="text-title font-bold text-ink/85 desk:text-display">{song.name}</h2>
+                <h2 className="text-title font-bold text-ink desk:text-display">{song.name}</h2>
                 <p className="mt-1 text-body text-ink2">{song.artist}</p>
                 {audioError && <p className="mt-2 text-caption text-danger">{audioError}</p>}
               </div>
@@ -392,7 +394,10 @@ export default function PlayerView() {
                     <SkipBack size={28} fill="var(--accent)" style={{ color: 'var(--accent)' }} />
                   </button>
                   <button
-                    onClick={toggle}
+                    onClick={() => {
+                      hapticImpact()
+                      toggle()
+                    }}
                     aria-label={playing ? '暂停' : '播放'}
                     className="grid h-16 w-16 place-items-center rounded-full shadow-lg accent-bg"
                   >

@@ -26,6 +26,8 @@
   --text-hero: 2.125rem;
   --text-display: 1.75rem;
   --text-title: 1.5rem;
+  --text-lyric: 1.625rem;
+  --text-lyric-lg: 2rem;
   --text-heading: 1rem;
   --text-body: 0.9375rem;
   --text-sub: 0.8125rem;
@@ -45,6 +47,10 @@
      深色在下方 [data-appearance='dark'] 里另给比例（深底上同样比例对比更高） */
   --ink-2: color-mix(in srgb, var(--ink) 68%, transparent);
   --ink-3: color-mix(in srgb, var(--ink) 60%, transparent);
+  /* CSS 侧时长阶梯（审计 A-48）：与 lib/motion.ts 的 JS 动效阶梯呼应；
+     类名一律 duration-[var(--dur-*)]，不再散写 duration-300/500 */
+  --dur-ui: 300ms;
+  --dur-slower: 500ms;
   /* 危险色：浅色取深红保证文字对比，深色取亮红保证深底可见 */
   --danger: #c81e1e;
 
@@ -151,13 +157,14 @@
 @media (prefers-reduced-transparency: reduce) {
   .glass,
   .glass-strong {
-    background: rgba(255, 255, 255, 0.92);
+    /* 降级填充与流畅模式共用染色变体（审计 A-50）：不再是无色平涂 */
+    background: color-mix(in srgb, var(--glass-tint) 10%, rgba(255, 255, 255, 0.94));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
   [data-appearance='dark'] .glass,
   [data-appearance='dark'] .glass-strong {
-    background: rgba(34, 29, 22, 0.96);
+    background: color-mix(in srgb, var(--glass-tint) 12%, rgba(34, 29, 22, 0.96));
   }
 }
 
@@ -165,13 +172,13 @@
    与系统「减少透明度」降级并存；弹层遮罩的小半径 backdrop 模糊一并关掉 */
 .smooth-mode .glass,
 .smooth-mode .glass-strong {
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, var(--glass-tint) 10%, rgba(255, 255, 255, 0.94));
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 .smooth-mode[data-appearance='dark'] .glass,
 .smooth-mode[data-appearance='dark'] .glass-strong {
-  background: rgba(34, 29, 22, 0.96);
+  background: color-mix(in srgb, var(--glass-tint) 12%, rgba(34, 29, 22, 0.96));
 }
 .smooth-mode [class*='backdrop-blur'] {
   -webkit-backdrop-filter: none;

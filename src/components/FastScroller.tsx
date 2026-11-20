@@ -95,6 +95,15 @@ export default function FastScroller({ count, bubbleFor, minCount = 30 }: Props)
 
   const targetIndex = indexForFraction(fraction, count)
 
+  /** 键盘操作（审计 A-24）：方向键按首步进、Home/End 到两端 */
+  const jumpToFraction = (f: number) => {
+    const scroller = scrollerRef.current
+    if (!scroller) return
+    const clamped = Math.min(1, Math.max(0, f))
+    scroller.scrollTop = scrollTopForFraction(clamped, scroller.scrollHeight, scroller.clientHeight)
+    setFraction(clamped)
+  }
+
   return (
     <>
       <span ref={anchorRef} className="hidden" aria-hidden />
@@ -115,6 +124,23 @@ export default function FastScroller({ count, bubbleFor, minCount = 30 }: Props)
           }}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            const step = count > 0 ? 1 / count : 0.05
+            if (e.key === 'ArrowDown') {
+              e.preventDefault()
+              jumpToFraction(fraction + step)
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault()
+              jumpToFraction(fraction - step)
+            } else if (e.key === 'Home') {
+              e.preventDefault()
+              jumpToFraction(0)
+            } else if (e.key === 'End') {
+              e.preventDefault()
+              jumpToFraction(1)
+            }
+          }}
           role="scrollbar"
           aria-label="快速滚动"
           aria-valuemin={0}
@@ -123,7 +149,7 @@ export default function FastScroller({ count, bubbleFor, minCount = 30 }: Props)
         >
           <div className="relative w-1 rounded-full bg-ink/10">
             <div
-              className="absolute left-1/2 h-10 w-2.5 rounded-full transition-opacity duration-300"
+              className="absolute left-1/2 h-10 w-2.5 rounded-full transition-opacity duration-[var(--dur-ui)]"
               style={{
                 top: `${fraction * 100}%`,
                 transform: 'translate(-50%, -50%)',

@@ -32,7 +32,7 @@ export default function Tabs() {
         {/* 玻璃高光微动（1.4.0）：指针划过时玻璃上有一道光泽跟着走，仅悬停设备可见 */}
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-[var(--dur-ui)] group-hover:opacity-100"
           style={{
             background: 'radial-gradient(150px circle at var(--mx, 50%) 50%, rgba(255,255,255,0.30), transparent 70%)',
           }}
@@ -47,7 +47,7 @@ export default function Tabs() {
                 setTab(key)
               }}
               aria-current={active ? 'page' : undefined}
-              className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 rounded-full py-1.5 text-caption transition-all duration-300 ${
+              className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 rounded-full py-1.5 text-caption transition-colors duration-[var(--dur-ui)] ${
                 active ? 'pill-active' : 'text-ink2'
               }`}
               style={active ? { color: 'var(--accent)' } : undefined}
@@ -60,7 +60,7 @@ export default function Tabs() {
               />
               {/* 紧凑态（1.4.0）：列表下滚时标签收起只剩图标，文字保留在 DOM（读屏/验收口径不变） */}
               <span
-                className={`overflow-hidden transition-all duration-300 ${compact ? 'max-h-0 opacity-0' : 'max-h-4 opacity-100'} ${active ? 'font-semibold' : ''}`}
+                className={`overflow-hidden transition-[max-height,opacity] duration-[var(--dur-ui)] ${compact ? 'max-h-0 opacity-0' : 'max-h-4 opacity-100'} ${active ? 'font-semibold' : ''}`}
               >
                 {label}
               </span>

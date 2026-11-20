@@ -232,6 +232,7 @@ function SettingsPage() {
                 onClick={() => setAppearance(value)}
                 aria-pressed={active}
                 className={`flex min-h-11 items-center justify-center gap-1.5 rounded-full px-3 text-body transition-transform active:scale-[0.97] ${
+                  // 未选主题名签的 text-ink/70 压在主题色块上、随主题漂移，属刻意弱化（审计 A-42 归类保留）
                   active ? 'font-semibold text-white' : 'bg-surface/60 text-ink/70 shadow-sm'
                 }`}
                 style={active ? { background: 'var(--accent)' } : undefined}
@@ -274,7 +275,7 @@ function SettingsPage() {
                   {active && <Check size={18} style={{ color: swAccent }} />}
                 </span>
                 <span
-                  className={`mt-1.5 w-full truncate text-center text-caption ${active ? 'font-semibold text-ink/75' : 'text-ink2'}`}
+                  className={`mt-1.5 w-full truncate text-center text-caption ${active ? 'font-semibold text-ink' : 'text-ink2'}`}
                 >
                   {t.name}
                 </span>
@@ -301,7 +302,7 @@ function SettingsPage() {
             style={smoothMode ? { background: 'var(--accent)' } : undefined}
           >
             <span
-              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${smoothMode ? 'left-[24px]' : 'left-1'}`}
+              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-transform left-1 ${smoothMode ? 'translate-x-5' : 'translate-x-0'}`}
             />
           </button>
         </div>
@@ -325,7 +326,7 @@ function SettingsPage() {
             style={swipeAnywhere ? { background: 'var(--accent)' } : undefined}
           >
             <span
-              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${swipeAnywhere ? 'left-[24px]' : 'left-1'}`}
+              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-transform left-1 ${swipeAnywhere ? 'translate-x-5' : 'translate-x-0'}`}
             />
           </button>
         </div>
@@ -385,7 +386,7 @@ function SettingsPage() {
       <section>
         <h2 className="mb-3 text-heading font-semibold">关于</h2>
         <div className="rounded-[var(--r-card)] bg-surface/60 p-4 text-body leading-relaxed text-ink2 shadow-sm">
-          <p className="font-semibold text-ink/80">诗音 Shiyin · v{APP_VERSION}</p>
+          <p className="font-semibold text-ink">诗音 Shiyin · v{APP_VERSION}</p>
           <p className="mt-1.5">
             一款只播放你自己音乐的本地播放器：没有账号、没有上传、没有推荐流。你的音乐、收藏与歌单都只保存在这台设备上。
           </p>
@@ -457,7 +458,7 @@ function DesktopSection() {
             style={autostart ? { background: 'var(--accent)' } : undefined}
           >
             <span
-              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${autostart ? 'left-[24px]' : 'left-1'}`}
+              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-transform left-1 ${autostart ? 'translate-x-5' : 'translate-x-0'}`}
             />
           </button>
         </div>
@@ -517,12 +518,12 @@ function LicensesPage() {
         <h2 className="mb-3 text-heading font-semibold">本项目许可证</h2>
         <div className="rounded-[var(--r-card)] bg-surface/60 p-4 text-body leading-relaxed text-ink2 shadow-sm">
           <p>
-            <span className="font-medium text-ink/80">源代码</span> · {PROJECT_CODE_LICENSE.name}（
+            <span className="font-medium text-ink2">源代码</span> · {PROJECT_CODE_LICENSE.name}（
             {PROJECT_CODE_LICENSE.short}）
           </p>
           <p className="mt-1 text-sub leading-relaxed text-ink2">{PROJECT_CODE_LICENSE.summary}</p>
           <p className="mt-3">
-            <span className="font-medium text-ink/80">项目文档</span> · {PROJECT_DOCS_LICENSE.name}（
+            <span className="font-medium text-ink2">项目文档</span> · {PROJECT_DOCS_LICENSE.name}（
             {PROJECT_DOCS_LICENSE.short}）
           </p>
           <p className="mt-1 text-sub leading-relaxed text-ink2">{PROJECT_DOCS_LICENSE.summary}</p>
@@ -539,7 +540,7 @@ function LicensesPage() {
           {OPEN_SOURCE_ENTRIES.map((e, i) => (
             <div key={e.name} className={`px-4 py-3 ${i > 0 ? 'border-t border-ink/5' : ''}`}>
               <div className="flex items-baseline justify-between gap-3">
-                <p className="min-w-0 break-all text-body font-medium text-ink/80">{e.name}</p>
+                <p className="min-w-0 break-all text-body font-medium text-ink2">{e.name}</p>
                 <span
                   className={`shrink-0 rounded-full px-2 py-0.5 text-caption font-semibold ${
                     e.keepOriginal ? 'bg-amber-500/15 text-amber-600' : 'bg-ink/5 text-ink2'

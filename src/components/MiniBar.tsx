@@ -32,13 +32,21 @@ export default function MiniBar() {
 
   return (
     <motion.div
-      className={`glass group relative mx-4 mb-2 shrink-0 cursor-pointer overflow-hidden rounded-full pr-2 pl-2.5 transition-[padding] duration-300 ${compact ? 'py-1.5' : 'py-2'}`}
+      className={`glass group relative mx-4 mb-2 shrink-0 cursor-pointer overflow-hidden rounded-full pr-2 pl-2.5 transition-[padding] duration-[var(--dur-ui)] ${compact ? 'py-1.5' : 'py-2'}`}
       data-pressable
       style={{ touchAction: 'none' }}
       onClick={() => setPlayerOpen(true)}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && setPlayerOpen(true)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') setPlayerOpen(true)
+        else if (e.key === ' ') {
+          // 同 SongRow：拦截全局空格的播放/暂停语义
+          e.preventDefault()
+          e.stopPropagation()
+          setPlayerOpen(true)
+        }
+      }}
       onPointerMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect()
         e.currentTarget.style.setProperty(
@@ -83,7 +91,7 @@ export default function MiniBar() {
         <div className="min-w-0 flex-1">
           <p className="truncate text-body font-semibold">{song.name}</p>
           <p
-            className={`flex items-center gap-1 truncate text-sub text-ink2 transition-all duration-300 ${compact ? 'max-h-0 opacity-0' : 'max-h-5 opacity-100'}`}
+            className={`flex items-center gap-1 truncate text-sub text-ink2 transition-[max-height,opacity] duration-[var(--dur-ui)] ${compact ? 'max-h-0 opacity-0' : 'max-h-5 opacity-100'}`}
           >
             {sleepActive && <MoonStar size={11} style={{ color: 'var(--accent)' }} aria-label="睡眠定时已开启" />}
             {song.artist}
@@ -119,7 +127,7 @@ export default function MiniBar() {
       {/* 玻璃高光微动（1.4.0）：与底栏同一道光泽语言 */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-[var(--dur-ui)] group-hover:opacity-100"
         style={{
           background: 'radial-gradient(150px circle at var(--mx, 50%) 50%, rgba(255,255,255,0.26), transparent 70%)',
         }}

@@ -19,11 +19,20 @@ import { useLyricAttach } from './useLyricAttach'
 type LineLevel = 'active' | 'near' | 'mid' | 'far' | 'idle'
 
 const LEVEL_CLASS: Record<LineLevel, string> = {
-  active: 'text-[26px] opacity-100 desk:text-[32px]',
+  active: 'text-lyric opacity-100 desk:text-lyric-lg',
   near: 'text-xl opacity-55 desk:text-2xl',
   mid: 'text-xl opacity-40 desk:text-2xl',
   far: 'text-xl opacity-30 desk:text-2xl',
   idle: 'text-xl opacity-60 desk:text-2xl',
+}
+
+/** 流畅模式下的提亮阶梯（审计 A-43）：远行下限提到 0.55，低视力可读性优先于景深氛围 */
+const LEVEL_CLASS_BOOST: Record<LineLevel, string> = {
+  active: 'text-lyric opacity-100 desk:text-lyric-lg',
+  near: 'text-xl opacity-80 desk:text-2xl',
+  mid: 'text-xl opacity-65 desk:text-2xl',
+  far: 'text-xl opacity-55 desk:text-2xl',
+  idle: 'text-xl opacity-75 desk:text-2xl',
 }
 
 interface RowProps {
@@ -39,6 +48,9 @@ interface RowProps {
 }
 
 const LyricRow = memo(function LyricRow({ text, tSec, level, sweep, softBlur, onSeek, registerRef }: RowProps) {
+  // 字号过渡说明（审计 A-46）：当前行字号变化走 font-size 过渡而非 transform scale——
+  // scale 不占布局会与相邻行重叠、且缩放文字发虚；行级切换频率低（逐行推进）、
+  // 同时只有一行在变，布局成本可控，维持现状
   const blurred = (level === 'mid' || level === 'far') && softBlur
   return (
     <button
@@ -46,7 +58,7 @@ const LyricRow = memo(function LyricRow({ text, tSec, level, sweep, softBlur, on
       onClick={() => onSeek(tSec)}
       data-content
       aria-current={level === 'active' ? 'true' : undefined}
-      className={`w-full text-left font-medium leading-relaxed transition-[font-size,opacity,filter] duration-300 ${LEVEL_CLASS[level]}`}
+      className={`w-full text-left font-medium leading-relaxed transition-[font-size,opacity,filter] duration-[var(--dur-ui)] ${softBlur ? LEVEL_CLASS[level] : LEVEL_CLASS_BOOST[level]}`}
       style={{ filter: blurred ? 'blur(0.5px)' : undefined }}
     >
       {level === 'active' && sweep !== null ? (
@@ -167,6 +179,7 @@ export default function LyricView() {
             exit={{ opacity: 0, y: 12 }}
             transition={fadeTransition}
             role="dialog"
+            aria-modal="true"
             aria-label="歌词"
             onPointerDown={poke}
           >
@@ -189,7 +202,8 @@ export default function LyricView() {
             <div className="pointer-events-none absolute inset-0 bg-surface/30" aria-hidden />
 
             <div
-              className={`relative flex items-center justify-between text-ink/70 transition-opacity duration-500 ${idle ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+              // text-ink/70 同 PlayerView 顶栏：光晕背景上的弱化 chrome（审计 A-42 归类保留）
+              className={`relative flex items-center justify-between text-ink/70 transition-opacity duration-[var(--dur-slower)] ${idle ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
             >
               <button
                 onClick={() => setOpen(false)}
@@ -200,7 +214,7 @@ export default function LyricView() {
               </button>
               <div className="text-center">
                 <p className="text-caption text-ink2">歌词</p>
-                <p className="max-w-[16rem] truncate text-body font-semibold text-ink/85">{song.name}</p>
+                <p className="max-w-[16rem] truncate text-body font-semibold text-ink">{song.name}</p>
               </div>
               {song.lyrics.length > 0 ? (
                 <button
@@ -265,7 +279,7 @@ export default function LyricView() {
             )}
 
             <p
-              className={`relative text-center text-caption text-ink2 transition-opacity duration-500 ${idle ? 'opacity-0' : 'opacity-100'}`}
+              className={`relative text-center text-caption text-ink2 transition-opacity duration-[var(--dur-slower)] ${idle ? 'opacity-0' : 'opacity-100'}`}
             >
               {song.lyrics.length ? '点击任意歌词行可跳转播放进度' : ''}
             </p>

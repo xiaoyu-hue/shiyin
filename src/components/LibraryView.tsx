@@ -73,7 +73,7 @@ export default function LibraryView() {
                   role="tab"
                   aria-selected={active}
                   onClick={() => setView(key)}
-                  className={`min-h-10 flex-1 rounded-full text-sub transition-all duration-300 ${
+                  className={`min-h-10 flex-1 rounded-full text-sub transition-colors duration-[var(--dur-ui)] ${
                     active ? 'pill-active font-semibold' : 'text-ink2'
                   }`}
                   style={active ? { color: 'var(--accent)' } : undefined}

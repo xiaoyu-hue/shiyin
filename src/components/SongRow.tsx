@@ -157,7 +157,12 @@ function SongRow({ index, rank, context }: Props) {
         tabIndex={0}
         aria-pressed={inSelection ? selected : undefined}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' || e.key === ' ') {
+            // Space 须拦截：否则冒泡到 App 全局键处理会变成播放/暂停，双触发
+            if (e.key === ' ') {
+              e.preventDefault()
+              e.stopPropagation()
+            }
             if (inSelection) toggleSelected(index)
             else play(index, context)
           }
