@@ -18,7 +18,8 @@
     "check:cycles": "node scripts/check-cycles.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "audit:deps": "npm audit --audit-level=high"
+    "audit:deps": "npm audit --audit-level=high",
+    "check:scroll": "node scripts/scroll-probe.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.2",

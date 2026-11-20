@@ -118,8 +118,11 @@ export default function App() {
       <MotionConfig reducedMotion="user">
         <div className="app-shell">
           <DesktopNav />
-          {/* 内容列：桌面形态下与侧栏并排（壳变横向 flex），窄屏即整列本身 */}
-          <div className="flex min-w-0 flex-1 flex-col">
+          {/* 内容列：桌面形态下与侧栏并排（壳变横向 flex），窄屏即整列本身。
+              min-w-0 防横向撑爆、min-h-0 防纵向撑爆（缺后者时内容超一屏会把
+              列撑出壳外、main 形不成滚动区——1.5.0 发布前真机实报，探针见
+              scripts/scroll-probe.mjs 与 App.test 结构断言） */}
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
             <main ref={mainRef} className="scroll-area" onScroll={handleScroll}>
               <motion.div
                 key={tab}

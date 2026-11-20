@@ -11,8 +11,10 @@ name: android-release
 
 on:
   workflow_dispatch:
+  # 正式发布由版本 tag 触发（与 windows-release 对齐）；原 spike 分支
+  # release/app-1.0 的 push 触发为历史残留，1.5.0 发布时一并改正。
   push:
-    branches: [release/app-1.0]
+    tags: ['v*']
 
 permissions:
   contents: read
