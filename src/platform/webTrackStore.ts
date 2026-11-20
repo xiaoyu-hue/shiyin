@@ -11,7 +11,7 @@ import {
   updateTrackLyrics as idbUpdateTrackLyrics,
   type StoredTrack,
 } from './idb'
-import type { LoadedTrack, TrackStore } from './trackStore'
+import type { LoadedTrack, TrackStore } from './trackTypes'
 
 export const webTrackStore: TrackStore = {
   async saveTrack(rec: StoredTrack): Promise<void> {

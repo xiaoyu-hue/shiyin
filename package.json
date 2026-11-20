@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
+    "check:cycles": "madge --circular --extensions ts,tsx src",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -60,6 +61,7 @@
     "fake-indexeddb": "^6.2.8",
     "globals": "^17.14.0",
     "happy-dom": "^21.0.4",
+    "madge": "^8.0.0",
     "prettier": "^3.10.1",
     "tailwindcss": "4.3.5",
     "typescript": "^6.0.3",

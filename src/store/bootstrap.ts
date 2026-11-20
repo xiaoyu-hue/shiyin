@@ -1,5 +1,6 @@
 import type { Song } from '../data/types'
 import { reportSilentError } from '../lib/diag'
+import { isSleepDue } from '../lib/sleepTimer'
 import { DEFAULT_THEME_INDEX, themes } from '../data/themes'
 import { parsePrefs, serializePrefs } from '../lib/prefs'
 import { platform } from '../platform/instance'
@@ -32,9 +33,10 @@ export function bindAudioEngine(): void {
 
 let sleepBound = false
 
-function checkSleepDue(): void {
+/** 睡眠定时到期检查（导出供单测，审计 A-39）；到期判定走 lib/sleepTimer 的 isSleepDue */
+export function checkSleepDue(): void {
   const s = useStore.getState()
-  if (s.sleepEndsAt !== null && Date.now() >= s.sleepEndsAt) {
+  if (isSleepDue(s.sleepEndsAt, Date.now())) {
     useStore.setState({ playing: false, sleepEndsAt: null, sleepAfterTrack: false })
     platform.audio.pause()
   }

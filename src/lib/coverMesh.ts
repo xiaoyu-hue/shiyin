@@ -7,6 +7,7 @@
  * 走这种预生成位图或纯渐变。缓存按「曲目 id + 源地址」留 8 张（FIFO）。
  */
 import { dominantColor, paletteFromDominant, rgbCss, type CoverPalette } from './coverColor'
+import { PromiseCache } from './promiseCache'
 
 /** mesh 位图边长（px）：够小才够弥散，够大不至于色块化 */
 export const MESH_SIZE = 144
@@ -44,7 +45,7 @@ function extractPalette(img: HTMLImageElement): CoverPalette | null {
   }
 }
 
-const cache = new Map<string, Promise<string | null>>()
+const cache = new PromiseCache<string | null>(MESH_CACHE_LIMIT)
 
 /**
  * 取某首歌的 mesh 氛围图（dataURL）；失败返回 null，调用方回退纯渐变。
@@ -52,9 +53,7 @@ const cache = new Map<string, Promise<string | null>>()
  */
 export function getCoverMesh(trackId: number, src: string): Promise<string | null> {
   const key = meshCacheKey(trackId, src)
-  const hit = cache.get(key)
-  if (hit) return hit
-  const job = (async (): Promise<string | null> => {
+  return cache.getOrCreate(key, async (): Promise<string | null> => {
     try {
       const img = await loadImage(src)
       const palette = extractPalette(img)
@@ -106,12 +105,5 @@ export function getCoverMesh(trackId: number, src: string): Promise<string | nul
     } catch {
       return null
     }
-  })()
-  cache.set(key, job)
-  while (cache.size > MESH_CACHE_LIMIT) {
-    const oldest = cache.keys().next().value
-    if (oldest === undefined) break
-    cache.delete(oldest)
-  }
-  return job
+  })
 }

@@ -12,7 +12,8 @@ export function createWebStyleAdapter(): StyleAdapter {
   }
 }
 
-function describeMediaError(code?: number): string {
+/** 媒体错误码 → 大白话文案（导出供单测，审计 A-39） */
+export function describeMediaError(code?: number): string {
   switch (code) {
     case 1:
       return '播放被中断'

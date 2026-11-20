@@ -37,6 +37,16 @@ describe('extractAudioTags 真实文件解析', () => {
     expect(tags?.lyrics.map((l) => l.text)).toEqual(['第一句歌词', '第二句歌词'])
   })
 
+  it('M4A（MP4 ©lyr）：读出歌名、歌手、专辑、封面与歌词', async () => {
+    const tags = await extractAudioTags(loadFixture('tagged.m4a', 'audio/mp4'))
+    expect(tags?.title).toBe('M4A歌名')
+    expect(tags?.artist).toBe('M4A歌手')
+    expect(tags?.album).toBe('M4A专辑')
+    expect(tags?.duration).toBeGreaterThan(1.5)
+    expect(tags?.coverBlob?.type).toBe('image/png')
+    expect(tags?.lyrics.map((l) => l.text)).toEqual(['第一句歌词', '第二句歌词'])
+  })
+
   it('损坏文件返回 null 而不是抛错', async () => {
     const broken = new File([new Uint8Array([0, 1, 2, 3])], 'broken.mp3', { type: 'audio/mpeg' })
     await expect(extractAudioTags(broken)).resolves.toBeNull()

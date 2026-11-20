@@ -22,7 +22,7 @@ import type {
 } from '@capacitor/filesystem'
 import type { LyricLine } from '../data/types'
 import type { StoredTrack } from './idb'
-import type { LoadedTrack, TrackStore } from './trackStore'
+import type { LoadedTrack, TrackStore } from './trackTypes'
 import {
   COVERS_DIR,
   INDEX_FILE,

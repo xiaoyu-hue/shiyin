@@ -8,7 +8,7 @@
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { StoredTrack } from './idb'
-import type { TrackStore } from './trackStore'
+import type { TrackStore } from './trackTypes'
 
 /* ---------------- Capacitor 文件系统内存桩 ---------------- */
 const capFiles = new Map<string, string>()

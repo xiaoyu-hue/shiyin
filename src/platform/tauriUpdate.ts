@@ -45,21 +45,48 @@ export function subscribeUpdateStatus(fn: () => void): () => void {
   return () => listeners.delete(fn)
 }
 
-type UpdaterModule = typeof import('@tauri-apps/plugin-updater')
-type PendingUpdate = Awaited<ReturnType<UpdaterModule['check']>>
+/** 更新下载进度事件（与 updater 插件的事件结构对齐的最小子集） */
+export type UpdateProgressEvent =
+  | { event: 'Started'; data: { contentLength?: number } }
+  | { event: 'Progress'; data: { chunkLength: number } }
+  | { event: 'Finished'; data: Record<string, never> }
 
-let pending: PendingUpdate = null
+/** 一次待安装更新的最小句柄（插件的 Update 对象结构兼容） */
+export interface UpdateHandle {
+  version: string
+  downloadAndInstall: (onEvent: (event: UpdateProgressEvent) => void) => Promise<void>
+}
+
+/** 更新状态机的外部依赖（审计 A-37 可测性）：默认即生产实现，测试可注入桩 */
+export interface UpdateDeps {
+  isTauri: () => boolean
+  check: () => Promise<UpdateHandle | null>
+  relaunch: () => Promise<void>
+}
+
+const defaultDeps: UpdateDeps = {
+  isTauri: isTauriPlatform,
+  check: async () => {
+    const { check } = await import('@tauri-apps/plugin-updater')
+    return (await check()) as UpdateHandle | null
+  },
+  relaunch: async () => {
+    const { relaunch } = await import('@tauri-apps/plugin-process')
+    await relaunch()
+  },
+}
+
+let pending: UpdateHandle | null = null
 let checking: Promise<void> | null = null
 
 /** 执行一次检查（并发调用合并为同一次）；结果写入模块状态 */
-export function checkForUpdate(): Promise<void> {
-  if (!isTauriPlatform()) return Promise.resolve()
+export function checkForUpdate(deps: UpdateDeps = defaultDeps): Promise<void> {
+  if (!deps.isTauri()) return Promise.resolve()
   if (checking) return checking
   checking = (async () => {
     setStatus({ kind: 'checking' })
     try {
-      const { check } = await import('@tauri-apps/plugin-updater')
-      pending = await check()
+      pending = await deps.check()
       if (pending) setStatus({ kind: 'available', version: pending.version })
       else setStatus({ kind: 'latest' })
     } catch {
@@ -83,7 +110,7 @@ export function startSilentUpdateCheck(): void {
 }
 
 /** 下载并安装已发现的更新，完成后自动重启应用；失败回到 error 状态 */
-export async function installPendingUpdate(): Promise<void> {
+export async function installPendingUpdate(deps: UpdateDeps = defaultDeps): Promise<void> {
   if (!pending) return
   const update = pending
   setStatus({ kind: 'updating', percent: null })
@@ -101,8 +128,7 @@ export async function installPendingUpdate(): Promise<void> {
         })
       }
     })
-    const { relaunch } = await import('@tauri-apps/plugin-process')
-    await relaunch()
+    await deps.relaunch()
   } catch {
     setStatus({ kind: 'error' })
   }
