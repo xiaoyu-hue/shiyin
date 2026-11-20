@@ -26,6 +26,7 @@ export default function SelectionBar() {
   const playNextMany = useStore((s) => s.playNextMany)
   const addManyToPlaylist = useStore((s) => s.addManyToPlaylist)
   const createPlaylist = useStore((s) => s.createPlaylist)
+  const showToast = useStore((s) => s.showToast)
 
   const [view, setView] = useState<BarView>('bar')
   const [newName, setNewName] = useState('')
@@ -66,6 +67,7 @@ export default function SelectionBar() {
     if (!ordered.length) return
     hapticImpact()
     playNextMany(ordered)
+    showToast(`已把 ${ordered.length} 首排到下一首`)
     exitSelection()
   }
 

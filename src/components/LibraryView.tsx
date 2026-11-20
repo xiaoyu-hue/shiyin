@@ -3,6 +3,7 @@ import { ArrowDownWideNarrow, ArrowUpNarrowWide, ChevronLeft, ChevronRight, List
 import SongRow from './SongRow'
 import FastScroller from './FastScroller'
 import EmptyState from './common/EmptyState'
+import { SkeletonRows } from './common/Skeleton'
 import { useStore } from '../store'
 import { bubbleLabel } from '../lib/fastScroll'
 import type { LibraryView as LibraryViewKind } from '../store/types'
@@ -33,6 +34,7 @@ const SORTS: { key: SortKey; label: string }[] = [
 /** 音乐库（0.6.0 替代「发现」）：歌曲 / 专辑 / 歌手 / 歌单 四种浏览方式 */
 export default function LibraryView() {
   const tracks = useStore((s) => s.tracks)
+  const restored = useStore((s) => s.restored)
   const view = useStore((s) => s.libraryView)
   const setView = useStore((s) => s.setLibraryView)
   const detail = useStore((s) => s.libraryDetail)
@@ -72,6 +74,8 @@ export default function LibraryView() {
 
           {view === 'playlists' ? (
             <PlaylistsSection indexed={indexed} />
+          ) : !restored ? (
+            <SkeletonRows count={6} />
           ) : tracks.length === 0 ? (
             <EmptyState icon="🎵" title="音乐库是空的" description="先去主页导入本地音乐，这里会按歌曲、专辑、歌手自动整理" />
           ) : view === 'songs' ? (

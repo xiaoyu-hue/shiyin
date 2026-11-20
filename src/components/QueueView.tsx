@@ -6,6 +6,8 @@ import { fmtTime } from '../lib/format'
 import { springDrawer, scrimTransition } from '../lib/motion'
 import { registerBackHandler } from '../platform/backButton'
 import EmptyState from './common/EmptyState'
+import { useSheetDrag } from './common/useSheetDrag'
+import PlayingIndicator from './common/PlayingIndicator'
 
 /** 播放队列页：查看/重排/移除待播曲目（拖拽手柄排序） */
 export default function QueueView() {
@@ -14,6 +16,7 @@ export default function QueueView() {
   const queue = useStore((s) => s.queue)
   const setQueueOrder = useStore((s) => s.setQueueOrder)
   const clearQueue = useStore((s) => s.clearQueue)
+  const { sheetProps, handleProps } = useSheetDrag(() => setQueueOpen(false))
 
   // 安卓返回登记（1.1.0）：队列开着时返回先收队列
   useEffect(() => {
@@ -41,10 +44,13 @@ export default function QueueView() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={springDrawer}
+            {...sheetProps}
             className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[82vh] w-full max-w-[430px] flex-col rounded-t-[var(--r-sheet)] p-4"
             style={{ paddingBottom: 'calc(1.5rem + var(--sab))' }}
           >
-            <div className="mx-auto mb-3 h-1.5 w-10 shrink-0 rounded-full bg-ink/15" />
+            <div {...handleProps} className="-mt-1 mb-2 flex shrink-0 cursor-grab touch-none justify-center py-1.5">
+              <div className="h-1.5 w-10 rounded-full bg-ink/15" />
+            </div>
             <div className="mb-3 flex items-center gap-2 px-1">
               <h2 className="flex-1 text-heading font-bold">播放队列</h2>
               <span className="text-sub text-ink2">{queue.length} 首</span>
@@ -113,9 +119,9 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
         aria-label={`播放 ${song.name}`}
       >
         {song.coverSrc && <img src={song.thumbSrc ?? song.coverSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />}
-        {isCurrent && playing && (
-          <span className="pulsing relative grid h-5 w-5 place-items-center rounded-full bg-surface/90">
-            <span className="h-2 w-2 rounded-full" style={{ background: 'var(--accent)' }} />
+        {isCurrent && (
+          <span className="relative grid h-6 min-w-9 place-items-center rounded-full bg-black/35 px-1.5">
+            <PlayingIndicator playing={playing} className="[&_span]:bg-white" />
           </span>
         )}
       </div>
@@ -135,7 +141,7 @@ function QueueItem({ trackIndex, pos }: { trackIndex: number; pos: number }) {
         <button
           onClick={() => removeQueueAt(pos)}
           aria-label={`从队列移除 ${song.name}`}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink3"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink3"
         >
           <X size={17} />
         </button>

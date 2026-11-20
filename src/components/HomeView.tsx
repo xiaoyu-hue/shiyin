@@ -3,12 +3,15 @@ import SongRow from './SongRow'
 import ImportButton from './ImportButton'
 import BatteryGuideCard from './BatteryGuideCard'
 import EmptyState from './common/EmptyState'
+import { SkeletonRows } from './common/Skeleton'
 import { useStore } from '../store'
 import { greetingLine } from '../lib/greeting'
 
 export default function HomeView() {
   const setPlayerOpen = useStore((s) => s.setPlayerOpen)
   const tracks = useStore((s) => s.tracks)
+  // 恢复未完成时先上骨架屏，避免冷启动闪一帧「还没有音乐」误导用户
+  const restored = useStore((s) => s.restored)
   // 问候语跟随实时时间：每分钟刷新一次，跨时段自动切换
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
@@ -33,7 +36,9 @@ export default function HomeView() {
 
         <ImportButton className="mb-3 w-full" />
 
-        {tracks.length === 0 ? (
+        {!restored ? (
+          <SkeletonRows count={6} />
+        ) : tracks.length === 0 ? (
           <EmptyState icon="🎵" title="还没有音乐" description="导入你自己的本地音乐文件，就可以开始听了" />
         ) : (
           <>
@@ -45,7 +50,7 @@ export default function HomeView() {
             >
               {tracks.map((s, i) => <SongRow key={s.id} index={i} context={tracks.map((_, j) => j)} />)}
             </div>
-            <p className="mt-2 text-center text-caption text-ink3">点击任意曲目展开播放器</p>
+            <p className="mt-2 text-center text-caption text-ink3">点歌展开播放器 · 长按多选 · 右滑排到下一首</p>
           </>
         )}
       </section>

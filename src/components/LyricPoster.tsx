@@ -5,6 +5,7 @@ import type { Song } from '../data/types'
 import { computePosterLayout, POSTER_H, POSTER_MAX_LINES, POSTER_W, toggleLineSelection, truncateToWidth } from '../lib/poster'
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
 import { springDrawer, scrimTransition } from '../lib/motion'
+import { useSheetDrag } from './common/useSheetDrag'
 import { registerBackHandler } from '../platform/backButton'
 
 const FONT_STACK = '-apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif'
@@ -130,6 +131,7 @@ interface Props {
 
 /** 歌词海报：选行（最多 6 行）→ 本地 Canvas 生成 1080×1440 图片 → 保存 / 分享 */
 export default function LyricPoster({ song, open, onClose }: Props) {
+  const { sheetProps, handleProps } = useSheetDrag(onClose)
   const [selected, setSelected] = useState<number[]>([])
   const [phase, setPhase] = useState<'select' | 'preview'>('select')
   const [dataUrl, setDataUrl] = useState<string | null>(null)
@@ -231,10 +233,13 @@ export default function LyricPoster({ song, open, onClose }: Props) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={springDrawer}
+            {...sheetProps}
             className="glass-strong absolute inset-x-0 bottom-0 mx-auto flex max-h-[88dvh] w-full max-w-[430px] flex-col rounded-t-[var(--r-sheet)] p-4"
             style={{ paddingBottom: 'calc(1.5rem + var(--sab))' }}
           >
-            <div className="mx-auto mb-3 h-1.5 w-10 shrink-0 rounded-full bg-ink/15" />
+            <div {...handleProps} className="-mt-1 mb-2 flex shrink-0 cursor-grab touch-none justify-center py-1.5">
+            <div className="h-1.5 w-10 rounded-full bg-ink/15" />
+          </div>
             <div className="mb-2 flex items-center px-1">
               <p className="flex-1 text-body font-semibold">
                 {phase === 'select' ? `选择歌词行（已选 ${selected.length}/${POSTER_MAX_LINES}）` : '歌词海报'}

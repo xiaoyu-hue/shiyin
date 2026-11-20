@@ -84,6 +84,10 @@ export interface UiSlice {
   selectionScope: number[]
   /** 本地曲目恢复是否已完成（首启引导据此避免恢复途中误判空库） */
   restored: boolean
+  /** 轻反馈 Toast（1.4.0）：当前提示（id 递增，同文案连发也重新计时）；null 为无提示 */
+  toast: { id: number; message: string } | null
+  /** 底部导航/迷你条紧凑态（1.4.0）：列表向下滚动时收缩让位，由 App 滚动监听写入 */
+  chromeCompact: boolean
   /** 「我的」二级页面：收藏 / 历史 / 设置 / 开源许可；null 为主页 */
   mePage: 'favorites' | 'history' | 'settings' | 'licenses' | null
   setTab: (t: Tab) => void
@@ -107,6 +111,11 @@ export interface UiSlice {
   exitSelection: () => void
   setRestored: (v: boolean) => void
   setMePage: (p: 'favorites' | 'history' | 'settings' | 'licenses' | null) => void
+  /** 弹出一则轻反馈（静默操作的统一确认通道） */
+  showToast: (message: string) => void
+  /** 关掉指定 id 的 Toast（过期 id 不误关新提示） */
+  clearToast: (id: number) => void
+  setChromeCompact: (v: boolean) => void
 }
 
 /** 集合切片：曲目列表、收藏、最近播放历史与自建歌单 */

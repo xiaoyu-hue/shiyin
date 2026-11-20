@@ -1,8 +1,9 @@
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { Play, Pause, SkipForward, MoonStar } from 'lucide-react'
 import { useStore } from '../store'
 import { pct } from '../lib/format'
 import { hapticImpact } from '../platform/haptics'
+import PlayingIndicator from './common/PlayingIndicator'
 
 /**
  * 迷你播放条：悬浮液态玻璃胶囊（0.5.0 改版）。
@@ -20,19 +21,26 @@ export default function MiniBar() {
   const setPlayerOpen = useStore((s) => s.setPlayerOpen)
   const tracks = useStore((s) => s.tracks)
   const sleepActive = useStore((s) => s.sleepEndsAt !== null || s.sleepAfterTrack)
+  const smoothMode = useStore((s) => s.smoothMode)
+  const compact = useStore((s) => s.chromeCompact)
+  const reducedMotion = useReducedMotion()
   const song = tracks[cur]
 
   if (!song) return null
 
   return (
     <motion.div
-      className="glass relative mx-4 mb-2 shrink-0 cursor-pointer overflow-hidden rounded-full py-2 pr-2 pl-2.5"
+      className={`glass group relative mx-4 mb-2 shrink-0 cursor-pointer overflow-hidden rounded-full pr-2 pl-2.5 transition-[padding] duration-300 ${compact ? 'py-1.5' : 'py-2'}`}
       data-pressable
       style={{ touchAction: 'none' }}
       onClick={() => setPlayerOpen(true)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && setPlayerOpen(true)}
+      onPointerMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        e.currentTarget.style.setProperty('--mx', `${(((e.clientX - r.left) / Math.max(1, r.width)) * 100).toFixed(1)}%`)
+      }}
       drag
       dragDirectionLock
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -52,8 +60,9 @@ export default function MiniBar() {
       whileTap={{ scale: 0.99 }}
     >
       <div className="flex items-center gap-3">
-        <div
-          className={`cover relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full text-white ${playing ? 'pulsing' : ''}`}
+        <motion.div
+          layoutId={!smoothMode && !reducedMotion ? 'now-playing-cover' : undefined}
+          className="cover relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full text-white"
           style={{ ['--cover' as string]: song.color }}
         >
           {song.coverSrc ? (
@@ -61,16 +70,20 @@ export default function MiniBar() {
           ) : (
             <span className="h-4 w-4 rounded-full bg-surface/85" />
           )}
-        </div>
+          {/* 正在播放：封面右下小律动条（与列表/队列同一套语言，1.4.0） */}
+          <span className="absolute right-0 bottom-0 left-0 grid place-items-center bg-black/30 py-0.5">
+            <PlayingIndicator playing={playing} className="h-2 [&_span]:bg-white" />
+          </span>
+        </motion.div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-body font-semibold">{song.name}</p>
-          <p className="flex items-center gap-1 truncate text-sub text-ink2">
+          <p className={`flex items-center gap-1 truncate text-sub text-ink2 transition-all duration-300 ${compact ? 'max-h-0 opacity-0' : 'max-h-5 opacity-100'}`}>
             {sleepActive && <MoonStar size={11} style={{ color: 'var(--accent)' }} aria-label="睡眠定时已开启" />}
             {song.artist}
           </p>
         </div>
         <button
-          onClick={(e) => { e.stopPropagation(); toggle() }}
+          onClick={(e) => { e.stopPropagation(); hapticImpact(); toggle() }}
           aria-label={playing ? '暂停' : '播放'}
           className="pill-active grid h-11 w-11 place-items-center rounded-full"
         >
@@ -84,9 +97,15 @@ export default function MiniBar() {
           <SkipForward size={20} style={{ color: 'var(--accent)' }} />
         </button>
       </div>
+      {/* 玻璃高光微动（1.4.0）：与底栏同一道光泽语言 */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: 'radial-gradient(150px circle at var(--mx, 50%) 50%, rgba(255,255,255,0.26), transparent 70%)' }}
+      />
       {/* 底部细进度线：贴合胶囊弧度，居中收窄 */}
       <div className="absolute right-6 bottom-0.5 left-6 h-0.5 overflow-hidden rounded-full bg-ink/10">
-        <div className="h-full rounded-full accent-bg transition-all" style={{ width: `${pct(pos, song.dur)}%` }} />
+        <div className="h-full rounded-full accent-bg" style={{ width: `${pct(pos, song.dur)}%` }} />
       </div>
     </motion.div>
   )

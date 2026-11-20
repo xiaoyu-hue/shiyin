@@ -35,5 +35,8 @@ export const fadeTransition = { duration: durationBase, ease: 'easeOut' } as con
 /** 主标签页切换 */
 export const pageTransition = { duration: 0.22, ease: 'easeOut' } as const
 
+/** 氛围背景交叉淡化（切歌时新旧氛围图叠化，从容一些） */
+export const crossfadeTransition = { duration: 0.6, ease: 'easeOut' } as const
+
 /** Toast 统一停留时长（毫秒）：所有轻反馈一个节奏 */
 export const TOAST_DURATION_MS = 2200

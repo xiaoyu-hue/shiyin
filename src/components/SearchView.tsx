@@ -23,8 +23,12 @@ export default function SearchView() {
           className="w-full bg-transparent text-body outline-none placeholder:text-ink3"
         />
         {query && (
-          <button onClick={() => setQuery('')} aria-label="清空搜索">
-            <X size={16} className="text-ink2" />
+          <button
+            onClick={() => setQuery('')}
+            aria-label="清空搜索"
+            className="-my-2 -mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-full"
+          >
+            <X size={18} className="text-ink2" />
           </button>
         )}
       </div>

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useDragControls, type PanInfo } from 'motion/react'
+import { AnimatePresence, motion, useAnimationFrame, useDragControls, useMotionValue, useReducedMotion, useTransform, type PanInfo } from 'motion/react'
 import { ChevronDown, Heart, Play, Pause, SkipBack, SkipForward, Repeat, RotateCcw, RotateCw, Shuffle, ListMusic, ListVideo, Mic2 } from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
-import { springSheet } from '../lib/motion'
+import { crossfadeTransition, springGentle, springSheet } from '../lib/motion'
 import { extractCoverGlow, parseHexColor, rgbCss, softenColor } from '../lib/coverColor'
-import { getBlurredBackdrop } from '../lib/blurBackdrop'
+import { getCoverMesh } from '../lib/coverMesh'
+import SeekBar from './SeekBar'
 import { hapticImpact } from '../platform/haptics'
 import { useResolvedDark } from '../hooks/useTheme'
 import SleepMenu from './SleepMenu'
@@ -31,6 +32,7 @@ export default function PlayerView() {
   const tracks = useStore((s) => s.tracks)
   const audioError = useStore((s) => s.audioError)
   const swipeAnywhere = useStore((s) => s.swipeAnywhere)
+  const smoothMode = useStore((s) => s.smoothMode)
   const dark = useResolvedDark()
   const song = tracks[cur]
   const ModeIcon = modeIcon[mode]
@@ -55,23 +57,44 @@ export default function PlayerView() {
     }
   }, [song?.coverSrc, song?.midCoverSrc, song?.id])
 
-  // 预模糊氛围背景（1.1.0）：封面缩成小位图一次性糊好当背景（内存缓存），
-  // 替代原先整屏实时 blur-3xl；取中图作源已足够，失败回退纯渐变
-  const [blurBg, setBlurBg] = useState<string | null>(null)
+  // mesh 氛围背景（1.4.0，取代 1.1.0 预模糊位图）：切歌时把封面一次性生成
+  // 弥散渐变位图（lib/coverMesh，缓存 8 张），铺满后零每帧成本；流畅模式
+  // 关闭氛围图、回退根部的静态取色渐变（护栏：重效果必有降级形态）
+  const [mesh, setMesh] = useState<{ id: number; url: string } | null>(null)
   useEffect(() => {
     let alive = true
     const src = song ? (song.midCoverSrc ?? song.coverSrc) : null
-    if (song && src) {
-      void getBlurredBackdrop(song.id, src).then((url) => {
-        if (alive) setBlurBg(url)
+    if (song && src && !smoothMode) {
+      const id = song.id
+      void getCoverMesh(id, src).then((url) => {
+        if (alive) setMesh(url ? { id, url } : null)
       })
     } else {
-      setBlurBg(null)
+      setMesh(null)
     }
     return () => {
       alive = false
     }
-  }, [song?.id, song?.midCoverSrc, song?.coverSrc])
+  }, [song?.id, song?.midCoverSrc, song?.coverSrc, smoothMode])
+
+  // 转盘定格（1.4.0）：角度走 MotionValue 手动推进，暂停时停在当前角度，
+  // 不再像 CSS 动画移除那样瞬间弹回 0°；速度 30°/s（12 秒一圈）
+  const rotate = useMotionValue(0)
+  const playingRef = useRef(playing)
+  useEffect(() => {
+    playingRef.current = playing
+  }, [playing])
+  useAnimationFrame((_, delta) => {
+    if (playingRef.current) rotate.set((rotate.get() + delta * 0.03) % 360)
+  })
+
+  // 封面横滑的跟手提示（1.4.0）：拖动位移驱动两侧切歌图标淡入
+  const dragX = useMotionValue(0)
+  const prevHintOpacity = useTransform(dragX, [8, 64], [0, 1])
+  const nextHintOpacity = useTransform(dragX, [-64, -8], [1, 0])
+  // 迷你条↔播放页共享元素（1.4.0）：流畅模式/系统减少动态时不做形变，退回整页转场
+  const reducedMotion = useReducedMotion()
+  const morphCover = !smoothMode && !reducedMotion
 
   // 封面手势（1.2.0）：横滑切歌与点按 seek 共用拖动距离守卫——
   // 拖动结束时记下位移，随后的 click 若来自这次拖动则吞掉，不误判为点按
@@ -145,15 +168,22 @@ export default function PlayerView() {
             if (info.offset.y > 110 || info.velocity.y > 600) setOpen(false)
           }}
         >
-          {/* 封面光晕层：预模糊小位图放大铺满作色彩场（位图本身已糊，不再实时模糊）；深色下降低亮度避免刺眼 */}
-          {blurBg && (
-            <img
-              src={blurBg}
-              alt=""
-              aria-hidden
-              className={`pointer-events-none absolute inset-0 h-full w-full object-cover ${dark ? 'opacity-30' : 'opacity-50'}`}
-            />
-          )}
+          {/* mesh 氛围层：预生成弥散位图铺满作色彩场（静态位图零每帧成本）；切歌交叉淡化 */}
+          <AnimatePresence>
+            {mesh && song && mesh.id === song.id && (
+              <motion.img
+                key={mesh.id}
+                src={mesh.url}
+                alt=""
+                aria-hidden
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: dark ? 0.38 : 0.55 }}
+                exit={{ opacity: 0 }}
+                transition={crossfadeTransition}
+              />
+            )}
+          </AnimatePresence>
           {dark && (
             <div
               className="pointer-events-none absolute inset-0"
@@ -203,9 +233,10 @@ export default function PlayerView() {
             dragElastic={0.5}
             onDragEnd={handleSwipeEnd}
           >
+            <motion.div layoutId={morphCover ? 'now-playing-cover' : undefined} className="relative">
             <motion.div
               className="relative"
-              style={{ touchAction: 'pan-y' }}
+              style={{ touchAction: 'pan-y', x: dragX }}
               drag={swipeAnywhere ? false : 'x'}
               dragDirectionLock
               dragConstraints={{ left: 0, right: 0 }}
@@ -215,10 +246,12 @@ export default function PlayerView() {
                 dragDist.current = 0
               }}
               onClick={handleCoverClick}
+              animate={{ scale: playing ? 1 : 0.94 }}
+              transition={springGentle}
             >
-              <div
-                className={`cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50 ${playing ? 'spinning' : ''}`}
-                style={{ ['--cover' as string]: song.color }}
+              <motion.div
+                className="cover relative grid h-64 w-64 place-items-center overflow-hidden rounded-full shadow-2xl ring-1 ring-white/50"
+                style={{ rotate, ['--cover' as string]: song.color }}
               >
                 {song.coverSrc ? (
                   <>
@@ -228,7 +261,18 @@ export default function PlayerView() {
                 ) : (
                   <div className="h-16 w-16 rounded-full bg-black/25 ring-8 ring-white/20" />
                 )}
-              </div>
+              </motion.div>
+              {/* 横滑跟手提示：拖向哪侧，哪侧的切歌图标先探头（1.4.0） */}
+              <motion.span style={{ opacity: prevHintOpacity }} className="pointer-events-none absolute inset-y-0 -left-4 flex items-center" aria-hidden>
+                <span className="glass grid h-9 w-9 place-items-center rounded-full" style={{ color: 'var(--accent)' }}>
+                  <SkipBack size={16} />
+                </span>
+              </motion.span>
+              <motion.span style={{ opacity: nextHintOpacity }} className="pointer-events-none absolute inset-y-0 -right-4 flex items-center" aria-hidden>
+                <span className="glass grid h-9 w-9 place-items-center rounded-full" style={{ color: 'var(--accent)' }}>
+                  <SkipForward size={16} />
+                </span>
+              </motion.span>
               {/* 点封面两侧快退/快进的短暂方向提示 */}
               {seekHint && (
                 <div
@@ -242,6 +286,7 @@ export default function PlayerView() {
                 </div>
               )}
             </motion.div>
+            </motion.div>
             <div className="w-full text-center">
               <h2 className="text-title font-bold text-ink/85">{song.name}</h2>
               <p className="mt-1 text-body text-ink2">{song.artist}</p>
@@ -250,15 +295,7 @@ export default function PlayerView() {
           </motion.div>
 
           <div className="glass-strong relative rounded-[var(--r-sheet)] p-5">
-            <input
-              type="range"
-              min={0}
-              max={duration}
-              value={Math.min(pos, duration)}
-              onChange={(e) => seek(Number(e.target.value))}
-              className="w-full accent-[var(--accent)]"
-              aria-label="播放进度"
-            />
+            <SeekBar value={Math.min(pos, duration)} max={duration} onSeek={seek} />
             <div className="mt-1 flex justify-between text-sub tabular-nums text-ink2">
               <span>{fmtTime(pos)}</span>
               <span>{song.dur > 0 ? fmtTime(song.dur) : '--:--'}</span>

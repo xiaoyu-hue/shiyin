@@ -72,6 +72,25 @@ export function rgbCss(c: Rgb, alpha?: number): string {
   return alpha === undefined ? `rgb(${c.r}, ${c.g}, ${c.b})` : `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`
 }
 
+/** 按比例缩放颜色（factor<1 压暗、>1 提亮，结果钳制到 0–255） */
+export function scaleColor(c: Rgb, factor: number): Rgb {
+  const cl = (v: number) => Math.max(0, Math.min(255, Math.round(v)))
+  return { r: cl(c.r * factor), g: cl(c.g * factor), b: cl(c.b * factor) }
+}
+
+/** 氛围调色板：由封面主色派生「鲜明色 + 深底色」两色，供 mesh 氛围背景叠色 */
+export interface CoverPalette {
+  vivid: Rgb
+  deep: Rgb
+}
+
+export function paletteFromDominant(dom: Rgb): CoverPalette {
+  return {
+    vivid: softenColor(dom, 0.12),
+    deep: scaleColor(dom, 0.45),
+  }
+}
+
 /** 解析 #RRGGBB 颜色（曲目兜底色 song.color 的格式），失败返回 null */
 export function parseHexColor(hex: string): Rgb | null {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim())

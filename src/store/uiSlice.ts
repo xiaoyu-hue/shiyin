@@ -17,6 +17,8 @@ export const createUiSlice: StateCreator<AppState, [], [], UiSlice> = (set) => (
   selection: null,
   selectionScope: [],
   restored: false,
+  toast: null,
+  chromeCompact: false,
 
   setTab: (tab) => set({ tab }),
   setPlayerOpen: (playerOpen) => set({ playerOpen }),
@@ -37,4 +39,8 @@ export const createUiSlice: StateCreator<AppState, [], [], UiSlice> = (set) => (
   clearSelection: () => set((s) => (s.selection === null ? s : { selection: [] })),
   exitSelection: () => set({ selection: null, selectionScope: [] }),
   setRestored: (restored) => set({ restored }),
+  showToast: (message) =>
+    set((s) => ({ toast: { id: (s.toast?.id ?? 0) + 1, message } })),
+  clearToast: (id) => set((s) => (s.toast?.id === id ? { toast: null } : s)),
+  setChromeCompact: (chromeCompact) => set({ chromeCompact }),
 })

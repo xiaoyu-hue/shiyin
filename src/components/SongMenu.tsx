@@ -5,7 +5,9 @@ import { useStore } from '../store'
 import { deleteTrackEverywhere } from '../store/bootstrap'
 import { registerBackHandler } from '../platform/backButton'
 import { springDrawer, scrimTransition } from '../lib/motion'
+import { hapticImpact } from '../platform/haptics'
 import { useLyricAttach } from './useLyricAttach'
+import { useSheetDrag } from './common/useSheetDrag'
 
 /** 单曲操作菜单：玻璃底部抽屉（下一首播放 / 加入队列 / 加入歌单 / 收藏 / 删除） */
 export default function SongMenu() {
@@ -19,6 +21,7 @@ export default function SongMenu() {
   const toggleLike = useStore((s) => s.toggleLike)
   const addToPlaylist = useStore((s) => s.addToPlaylist)
   const createPlaylist = useStore((s) => s.createPlaylist)
+  const showToast = useStore((s) => s.showToast)
 
   const [view, setView] = useState<'main' | 'playlists' | 'confirmDelete'>('main')
   const [newName, setNewName] = useState('')
@@ -35,6 +38,7 @@ export default function SongMenu() {
 
   const close = () => setMenuTrack(null)
   const open = menuTrack !== null && song !== undefined
+  const { sheetProps, handleProps } = useSheetDrag(close)
 
   // 安卓返回登记（1.1.0）：菜单开着时返回先收菜单；在子视图（选歌单/确认删除）时先回主视图
   useEffect(() => {
@@ -69,10 +73,13 @@ export default function SongMenu() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={springDrawer}
+            {...sheetProps}
             className="glass-strong absolute inset-x-0 bottom-0 mx-auto w-full max-w-[430px] rounded-t-[var(--r-sheet)] p-4"
             style={{ paddingBottom: 'calc(2rem + var(--sab))' }}
           >
-            <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-ink/15" />
+            <div {...handleProps} className="-mt-1 mb-2 flex cursor-grab touch-none justify-center py-1.5">
+              <div className="h-1.5 w-10 rounded-full bg-ink/15" />
+            </div>
 
             {view === 'main' && (
               <>
@@ -96,11 +103,11 @@ export default function SongMenu() {
                   </button>
                 </div>
 
-                <button className={itemCls} onClick={() => { playNext(menuTrack); close() }}>
+                <button className={itemCls} onClick={() => { playNext(menuTrack); showToast('已排到下一首播放'); close() }}>
                   <ListPlus size={20} style={{ color: 'var(--accent)' }} />
                   下一首播放
                 </button>
-                <button className={itemCls} onClick={() => { enqueue(menuTrack); close() }}>
+                <button className={itemCls} onClick={() => { enqueue(menuTrack); showToast('已加入播放队列'); close() }}>
                   <ListEnd size={20} style={{ color: 'var(--accent)' }} />
                   加入播放队列
                 </button>
@@ -111,7 +118,7 @@ export default function SongMenu() {
                 </button>
                 <button
                   className={itemCls}
-                  onClick={() => { toggleLike(song.id); close() }}
+                  onClick={() => { hapticImpact(); toggleLike(song.id); close() }}
                 >
                   <Heart
                     size={20}

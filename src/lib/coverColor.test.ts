@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dominantColor, parseHexColor, rgbCss, softenColor } from './coverColor'
+import { dominantColor, paletteFromDominant, parseHexColor, rgbCss, scaleColor, softenColor } from './coverColor'
 
 /** 构造纯色 RGBA 像素数据 */
 function solid(r: number, g: number, b: number, n = 16): Uint8ClampedArray {
@@ -60,5 +60,22 @@ describe('parseHexColor 兜底色解析', () => {
     expect(parseHexColor('#12345')).toBeNull()
     expect(parseHexColor('red')).toBeNull()
     expect(parseHexColor('')).toBeNull()
+  })
+})
+
+describe('scaleColor 与 paletteFromDominant（1.4.0 mesh 氛围调色板）', () => {
+  it('按比例压暗并钳制', () => {
+    expect(scaleColor({ r: 200, g: 100, b: 50 }, 0.5)).toEqual({ r: 100, g: 50, b: 25 })
+    expect(scaleColor({ r: 200, g: 100, b: 50 }, 2)).toEqual({ r: 255, g: 200, b: 100 })
+    expect(scaleColor({ r: 10, g: 10, b: 10 }, -1)).toEqual({ r: 0, g: 0, b: 0 })
+  })
+
+  it('调色板：鲜明色轻柔化、深底色压到 45%', () => {
+    const p = paletteFromDominant({ r: 184, g: 61, b: 90 })
+    expect(p.deep).toEqual({ r: 83, g: 27, b: 41 })
+    // vivid = 向白混 12%：每通道都比原色亮
+    expect(p.vivid.r).toBeGreaterThan(184)
+    expect(p.vivid.g).toBeGreaterThan(61)
+    expect(p.vivid.b).toBeGreaterThan(90)
   })
 })

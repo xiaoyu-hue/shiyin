@@ -4,6 +4,7 @@ import { Check, Heart, ListPlus, MoreHorizontal, Play } from 'lucide-react'
 import { useStore } from '../store'
 import { fmtTime } from '../lib/format'
 import { hapticImpact } from '../platform/haptics'
+import PlayingIndicator from './common/PlayingIndicator'
 
 interface Props {
   index: number
@@ -36,6 +37,8 @@ function SongRow({ index, rank, context }: Props) {
   const longPressed = useRef(false)
   const swipedAt = useRef(0)
   const [flash, setFlash] = useState(false)
+  // 长按进度（1.4.0）：按住期间底部进度线线性涨满 480ms，手还没松开就知道快触发了
+  const [pressing, setPressing] = useState(false)
   const flashTimer = useRef<number | null>(null)
 
   // 右滑揭示层：随拖动位移渐显（还没松手就让用户看到将触发的动作）
@@ -54,6 +57,7 @@ function SongRow({ index, rank, context }: Props) {
       window.clearTimeout(pressTimer.current)
       pressTimer.current = null
     }
+    setPressing(false)
   }
 
   const startPress = (clientX: number, clientY: number) => {
@@ -61,9 +65,11 @@ function SongRow({ index, rank, context }: Props) {
     longPressed.current = false
     pressStart.current = { x: clientX, y: clientY }
     clearPressTimer()
+    setPressing(true)
     pressTimer.current = window.setTimeout(() => {
       pressTimer.current = null
       longPressed.current = true
+      setPressing(false)
       hapticImpact()
       enterSelection(index, context ?? [index])
     }, LONG_PRESS_MS)
@@ -185,9 +191,9 @@ function SongRow({ index, rank, context }: Props) {
               className="absolute inset-0 h-full w-full object-cover"
             />
           )}
-          {isCurrent && playing ? (
-            <span className="pulsing relative grid h-6 w-6 place-items-center rounded-full bg-surface/90">
-              <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'var(--accent)' }} />
+          {isCurrent ? (
+            <span className="relative grid h-6 min-w-9 place-items-center rounded-full bg-black/35 px-1.5">
+              <PlayingIndicator playing={playing} className="[&_span]:bg-white" />
             </span>
           ) : song.coverSrc ? null : (
             <Play size={18} fill="white" className="opacity-90" />
@@ -215,20 +221,30 @@ function SongRow({ index, rank, context }: Props) {
             <button
               onClick={(e) => { e.stopPropagation(); hapticImpact(); toggleLike(song.id) }}
               aria-label={liked.has(song.id) ? '取消收藏' : '收藏'}
-              className="shrink-0 p-1.5"
+              className="-mr-1 grid h-11 w-11 shrink-0 place-items-center rounded-full"
             >
               <Heart size={18} fill={liked.has(song.id) ? 'var(--accent)' : 'none'} style={{ color: liked.has(song.id) ? 'var(--accent)' : '#b8b0a4' }} />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); setMenuTrack(index) }}
               aria-label={`《${song.name}》的更多操作`}
-              className="-ml-1 grid h-10 w-9 shrink-0 place-items-center rounded-full text-ink3"
+              className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink3"
             >
               <MoreHorizontal size={19} />
             </button>
           </>
         )}
       </motion.div>
+      {/* 长按进度线：按住期间从左涨满（与 LONG_PRESS_MS 同步），松手/触发即撤 */}
+      {!inSelection && (
+        <motion.div
+          className="accent-bg pointer-events-none absolute bottom-0 left-3 h-0.5 origin-left rounded-full"
+          style={{ right: 12 }}
+          initial={false}
+          animate={{ scaleX: pressing ? 1 : 0, opacity: pressing ? 1 : 0 }}
+          transition={pressing ? { duration: LONG_PRESS_MS / 1000, ease: 'linear' } : { duration: 0.15 }}
+        />
+      )}
       {/* 右滑触发后的行内短暂反馈 */}
       {flash && (
         <div
