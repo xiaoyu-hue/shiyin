@@ -37,7 +37,7 @@
     "@tauri-apps/plugin-process": "^2.4.0",
     "@tauri-apps/plugin-updater": "^2.14.1",
     "clsx": "2.1.1",
-    "lucide-react": "1.75.0",
+    "lucide-react": "1.79.0",
     "motion": "14.14.0",
     "music-metadata": "12.7.0",
     "react": "19.3.1",
